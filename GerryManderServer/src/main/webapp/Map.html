@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>US Map Majority Minority GerryMandering</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+	<link rel="stylesheet" href="css.css"/>
+	<!-- <link rel="stylesheet" href="leaflet-sidebar.css" /> -->
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+	<!-- unpkg, production (minified) -->
+  <script src="https://unpkg.com/react-leaflet/dist/react-leaflet.min.js"></script>
+  <!-- unpkg, development -->
+  <script src="https://unpkg.com/react-leaflet/dist/react-leaflet.js"></script>
+  <!-- CDNJS, production (minified) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-leaflet/2.0.0/react-leaflet.min.js"></script>
+  <!-- CDNJS, development -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-leaflet/2.0.0/react-leaflet.js"></script>
+
+
+</head>
+<body>
+<div id='map'></div>
+<div id="sidebar" class="sidebar collapsed">
+		<!-- Nav tabs -->
+		<div class="sidebar-tabs">
+				<ul role="tablist">
+						<li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+				</ul>
+		</div>
+
+		<!-- Tab panes -->
+		<div class="sidebar-content">
+				<div class="sidebar-pane" id="home">
+						<h1 class="sidebar-header">
+								SideBar
+								<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+						</h1>
+
+						<p>Sample Text for Our Options </a>.</p>
+
+						<p class="lorem">Majority Minority Threshold
+							<div class="slidecontainer">
+							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+							  <p>Value: <span id="demo"></span></p>
+							</div>
+						</p>
+
+						<p class="lorem">Compactness
+							<div class="slidecontainer">
+							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange1">
+							  <p>Value: <span id="demo1"></span></p>
+							</div>
+						</p>
+
+						<p class="lorem">Other parameter
+							<div class="slidecontainer">
+							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange2">
+							  <p>Value: <span id="demo2"></span></p>
+							</div>
+						</p>
+
+						<p class="lorem">Other parameter2
+							<div class="slidecontainer">
+							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange3">
+							  <p>Value: <span id="demo3"></span></p>
+							</div>
+						</p>
+
+						<button type="button" onclick="">Run</button>
+
+				</div>
+
+		</div>
+</div>
+
+<script src="jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="us-states.js"></script>
+<script type="text/javascript" src="ms.js"></script>
+<script type="text/javascript" src="Voting_Precincts.js"></script>
+<script type="text/javascript" src="mapmod.js"></script>
+
+<script>
+var sidebar = L.control.sidebar('sidebar').addTo(map);
+var slider = document.getElementById("myRange");
+var output = document.getElementById("demo");
+output.innerHTML = slider.value;
+slider.oninput = function() {
+  output.innerHTML = this.value;
+}
+
+var slider1 = document.getElementById("myRange1");
+var output1 = document.getElementById("demo1");
+output1.innerHTML = slider1.value;
+slider1.oninput = function() {
+  output1.innerHTML = this.value;
+}
+
+var slider2 = document.getElementById("myRange2");
+var output2 = document.getElementById("demo2");
+output2.innerHTML = slider2.value;
+slider2.oninput = function() {
+  output2.innerHTML = this.value;
+}
+
+var slider3 = document.getElementById("myRange3");
+var output3 = document.getElementById("demo3");
+output3.innerHTML = slider3.value;
+slider3.oninput = function() {
+  output3.innerHTML = this.value;
+}
+</script>
+
+
+</body>
+</html>
