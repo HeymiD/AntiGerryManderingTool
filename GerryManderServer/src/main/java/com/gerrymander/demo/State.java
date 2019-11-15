@@ -25,25 +25,37 @@ public class State extends BaseState{
 	public boolean clusterListModified;
 	public int numIterations;
 	public ArrayList<Cluster> majMinClusters;
-	public String districts;
-	
-	
-	public State(String name) 
-	{
+//	public String districts;
+
+
+
+	public State(String name) throws FileNotFoundException {
 		super();
-		districts="";
-        File dstrFile = new File("src/main/resources/static/U.S._Congressional_Districts.geojson");
-        Scanner scnr;
-		try {
-			scnr = new Scanner(dstrFile);
-			while(scnr.hasNextLine()){
-	            String line = scnr.nextLine();
-	            districts+=line;
-	        } 
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		oldDistricts = new ArrayList<District>();
+		for(int i=1;i<32;i++)
+		{
+			File dstrFile =
+                    new File("C:/Users/heymi/Desktop/CLASSES/4THYEAR/CSE308/GerryManderServer/src/main/resources/static/TexasDistricts/District"
+					+Integer.toString(i)+".txt");
+			System.out.println(dstrFile.getName());
+
+			District dis = new District();
+			dis.id=i;
+			Scanner scnr = new Scanner(dstrFile);
+			String district="";
+			while(scnr.hasNextLine())
+            {
+				String line = scnr.nextLine();
+				district+=line;
+			}
+			//System.out.println(district);
+			dis.geoData=district;
+			oldDistricts.add(dis);
+            //System.out.println(dis.geoData);
+			district="";
+			scnr.close();
 		}
+
      
              
 		

@@ -101,7 +101,7 @@ function getColor(d) {
 				d > 50   ? '#FD8D3C' :
 				d > 20   ? '#FEB24C' :
 				d > 10   ? '#FED976' :
-							     '#FFEDA0';
+				'#FFEDA0';
 }
 
 function style(feature) {
@@ -111,7 +111,7 @@ function style(feature) {
 		color: 'white',
 		dashArray: '3',
 		fillOpacity: 0.7,
-		fillColor: getColor(feature.properties.density)
+		fillColor: getColor((feature.properties.COLOR))
 	};
 }
 
@@ -131,35 +131,91 @@ function highlightFeature(e) {
   info.update(layer.feature.properties);
   }
 
-var rijson;
-var msjson;
-var txjson;
+//var rijson;
+//var msjson;
+//var txjson;
 
 var geojson;
+var texas_precincts_geo;
+//var texas_districts;
+
 
 function resetHighlight(e) {
 	geojson.resetStyle(e.target);
 	info.update();
 }
-var mississippi_districts;
-var result;
+
+function getDistricts(e,cnt)
+{
+$.ajax({
+        url:"http://localhost:8080/state",
+		data:
+		{
+			state:e.target.feature.properties.name,
+			count: cnt
+		},
+		success:function(r)
+		{
+
+			console.log(r);
+			var response=JSON.parse(r);
+			console.log("success");
+			var texas_district = L.geoJson(response, {
+            			style: style,
+            			onEachFeature: onEachFeature
+            		});
+//            map.removeLayer(geojson);
+            map.addLayer(texas_district);
+		},
+		error:function(err)
+		{
+			console.log(err)
+			console.log("ERROR")
+		}
+
+})
+}
+//var mississippi_districts;
+//var result;
 function zoomToFeature(e) {
 	console.log(e);
 	$.ajax({
 		url:"http://localhost:8080/state",
 		data:
 		{
-			state:e.target.feature.properties.name
+			state:e.target.feature.properties.name,
+			count:0
 		},
 		success:function(r)
 		{
+		 map.removeLayer(geojson);
+		 console.log(r);
+         var response=JSON.parse(r);
+         console.log("success");
+         var texas_district = L.geoJson(response, {
+                              style: style,
+                     		   onEachFeature: onEachFeature
+                     		    }).addTo(map);
+		 var count=1
+		 while(count<31)
+		 {
+		  getDistricts(e,count);
+		  count=count+1;
+		 }
+		 console.log("success");
 
-			console.log(typeof r)
-			result=JSON.parse(r);
-			console.log("success")
-			//make another ajax call to get big precincts
-			    //make another ajax call to get the rest of the precincts
-			        //
+//			console.log(r);
+//			var response=JSON.parse(r);
+//			console.log("success");
+//			//make another ajax call to get big precincts
+//			    //make another ajax call to get the rest of the precincts
+//			        //
+//			texas_districts = L.geoJson(response, {
+//            			style: style,
+//            			onEachFeature: onEachFeature
+//            		});
+
+//            map.addLayer(texas_districts);
 		},
 		error:function(err)
 		{
@@ -178,82 +234,89 @@ function onEachFeature(feature, layer) {
 	});
 }
 
-mississippi_districts = L.geoJson(result, {
-                                                  style: style,
-                                                  onEachFeature: onEachFeature
-                                                }).addTo(map);
+//mississippi_districts = L.geoJson(result, {
+//                                                  style: style,
+//                                                  onEachFeature: onEachFeature
+//                                                }).addTo(map);
 
 
 
 geojson = L.geoJson(statesData, {
 			style: style,
 			onEachFeature: onEachFeature
-		});
-
-rijson = L.geoJson(riData, {
-	style: style,
-	onEachFeature: onEachFeature
-}).addTo(map);
-
-msjson = L.geoJson(msData, {
-	style: style,
-	onEachFeature: onEachFeature
-}).addTo(map);
-
-txjson = L.geoJson(txData, {
-	style: style,
-	onEachFeature: onEachFeature
-}).addTo(map);
-//txjson['NAME'] = 'Texas'
-
-rhodeIsland = L.geoJson(ri, {
-  style: style,
-  onEachFeature: onEachFeature
-});
-
-mississippi = L.geoJson(ms, {
-  style: style,
-  onEachFeature: onEachFeature
-});
+		}).addTo(map);
 
 
 
-map.on('zoomend', function() {
-var zoomlevel = map.getZoom();
+//rijson = L.geoJson(riData, {
+//	style: style,
+//	onEachFeature: onEachFeature
+//})
+//
+//msjson = L.geoJson(msData, {
+//	style: style,
+//	onEachFeature: onEachFeature
+//}).addTo(map);
 
-if(zoomlevel > 9){
-  map.removeLayer(rijson);
-  map.removeLayer(msjson);
-  map.addLayer(rhodeIsland);
-//  map.addLayer(mississippi);
-  map.addLayer(mississippi_districts);
-  //add texas
-}
-if(zoomlevel >= 7 && zoomlevel < 9 ){
-  if(map.hasLayer(msjson)){
-    map.removeLayer(msjson);
-//    map.addLayer(mississippi);
-    map.addLayer(mississippi_districts);
-  }
-  if(map.hasLayer(rhodeIsland)){
-    map.removeLayer(rhodeIsland);
-    map.addLayer(rijson);
-  }
-  //add texas also
-}
-if(zoomlevel < 7){
-  if(map.hasLayer(mississippi)){
-    map.removeLayer(mississippi);
-    map.addLayer(msjson);
-  }
-  if(map.hasLayer(rhodeIsland)){
-    map.removeLayer(rhodeIsland);
-    map.addLayer(rijson);
-  }
-}
+//txjson = L.geoJson(txData, {
+//	style: style,
+//	onEachFeature: onEachFeature
+//})
+////txjson['NAME'] = 'Texas'
+//
+//rhodeIsland = L.geoJson(ri, {
+//  style: style,
+//  onEachFeature: onEachFeature
+//})
+
+//mississippi = L.geoJson(ms, {
+//  style: style,
+//  onEachFeature: onEachFeature
+//});
+
+//texas_precincts_geo=L.geoJson(txs_pre, {
+//                                    style: style,
+//                                    onEachFeature: onEachFeature
+//                                  })
 
 
-});
+
+//map.on('zoomend', function() {
+//var zoomlevel = map.getZoom();
+
+//if(zoomlevel > 9){
+//  map.removeLayer(rijson);
+//  map.removeLayer(msjson);
+//  map.addLayer(rhodeIsland);
+////  map.addLayer(mississippi);
+//  map.addLayer(mississippi_districts);
+//  //add texas
+//}
+//if(zoomlevel >= 7 && zoomlevel < 9 ){
+//  if(map.hasLayer(msjson)){
+//    map.removeLayer(msjson);
+////    map.addLayer(mississippi);
+//    map.addLayer(mississippi_districts);
+//  }
+//  if(map.hasLayer(rhodeIsland)){
+//    map.removeLayer(rhodeIsland);
+//    map.addLayer(rijson);
+//  }
+//  //add texas also
+//}
+//if(zoomlevel < 7){
+//  if(map.hasLayer(mississippi)){
+//    map.removeLayer(mississippi);
+//    map.addLayer(msjson);
+//  }
+//  if(map.hasLayer(rhodeIsland)){
+//    map.removeLayer(rhodeIsland);
+//    map.addLayer(rijson);
+//  }
+//}
+
+//
+//});
 
 L.Control.Sidebar = L.Control.extend(/** @lends L.Control.Sidebar.prototype */ {
     includes: (L.Evented.prototype || L.Mixin.Events),
