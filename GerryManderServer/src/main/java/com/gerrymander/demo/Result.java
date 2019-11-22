@@ -2,7 +2,6 @@ package com.gerrymander.demo;
 
 import java.util.*;
 
-import com.gerrymander.demo.MeasuresCodeFiles.MeasuresCodeFiles.Party;
 
 public class Result {
 	
@@ -12,11 +11,11 @@ public class Result {
 	
 	public String stateName;
 	public Map<Integer,DEMOGRAPHIC> precinctDemographics;
-	public Map<Integer, Party> precinctParty;
+	public Map<Integer, PARTYNAME> precinctParty;
 	
 	public Result() {}
 	
-	public void addToResult(int precintId, DEMOGRAPHIC dem, Double ratio, Party party) 
+	public void addToResult(int precintId, DEMOGRAPHIC dem, Double ratio, PARTYNAME party)
 	{
 		return;
 	}

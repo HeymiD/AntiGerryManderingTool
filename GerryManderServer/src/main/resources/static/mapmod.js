@@ -197,7 +197,7 @@ function zoomToFeature(e) {
                      		   onEachFeature: onEachFeature
                      		    }).addTo(map);
 		 var count=1
-		 while(count<31)
+		 while(count<37)
 		 {
 		  getDistricts(e,count);
 		  count=count+1;

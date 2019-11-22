@@ -1,5 +1,7 @@
 package com.gerrymander.demo;
 
+import com.gerrymander.demo.models.concrete.Precinct;
+
 import java.util.*;
 
 public class Cluster {

@@ -3,12 +3,15 @@ package com.gerrymander.demo;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+import com.gerrymander.demo.algorithm.Algorithm;
+import com.gerrymander.demo.models.concrete.Precinct;
+import com.gerrymander.demo.models.concrete.State;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+//import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 public class GerryManderController
@@ -26,21 +29,20 @@ public class GerryManderController
 	public String getSate(@RequestParam("state") String stateName, @RequestParam("count") int count)
 	{
         System.out.println(stateName);
+        Set<Precinct> precincts = new HashSet<Precinct>();
+        System.out.println("count:" + count);
         if (count==0)
         {
             try {
-                s = new State(stateName);
+                s = new State(stateName,precincts);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            if(!(s.oldDistricts.equals("")))
-            {
-                System.out.println("Districts loaded");
-            }
-            a = new Algorithm();
-            System.out.println(s.oldDistricts.get(count).geoData.substring(0,300));
+//            a = new Algorithm();
+//            System.out.println(s.oldDistricts.get(count).geoData.substring(0,300));
         }
-        return s.oldDistricts.get(count).geoData;
+        System.out.print("D.ID: "+s.oldDistricts.get(count).getID());
+        return s.oldDistricts.get(count).getGeoData();
 //		System.out.println(stateName);
 //		try {
 //			s = new State(stateName);
