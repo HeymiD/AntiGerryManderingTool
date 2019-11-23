@@ -2,6 +2,8 @@ package com.gerrymander.demo.models.concrete;
 
 
 import com.gerrymander.demo.Cluster;
+import com.gerrymander.demo.DEMOGRAPHIC;
+import com.gerrymander.demo.ELECTIONTYPE;
 import com.gerrymander.demo.Result;
 import com.gerrymander.demo.measures.StateInterface;
 import com.gerrymander.demo.models.DAO.DistrictDAO;
@@ -45,6 +47,7 @@ public class State
 			d.addPrecinct(p);
 			this.precincts.put(p.getID(), p);
 		}
+		this.majMinPrecincts = new Result(this.name,this.precincts.size());
         this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
 //		oldDistricts = new ArrayList<District>();
         oldDistricts = new ArrayList<District>();
@@ -105,5 +108,14 @@ public class State
 	@Override
 	public int getPopulation() {
 		return this.population;
+	}
+
+	public Result findmajMinPrecincts(Long blockThreshold, Long votingThreshold, ELECTIONTYPE election,
+									  Set<DEMOGRAPHIC> combinedDemographics){
+		for(Precinct precinct : this.getPrecincts()){
+			precinct.setIsMajorityMinority(precinct.findVotingBlock(majMinPrecincts,blockThreshold,
+					votingThreshold,election,combinedDemographics ));
+		}
+		return majMinPrecincts;
 	}
 }

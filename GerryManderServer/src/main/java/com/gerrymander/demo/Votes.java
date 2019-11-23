@@ -20,4 +20,23 @@ public class Votes {
     public void setVotes(Map<PARTYNAME, Long> votes) {
         this.votes = votes;
     }
+
+    public PARTYNAME getWinningParty(){
+        PARTYNAME winningParty = null;
+        long winningVotes = 0;
+        for(PARTYNAME party : PARTYNAME.values()){
+            if(votes.get(party) > winningVotes){
+                winningVotes = votes.get(party);
+                winningParty = party;
+            }
+        }
+        return winningParty;
+    }
+    public long calculateWinningPartyRatio(PARTYNAME party){
+        Long totalVotes = Long.valueOf(0);
+        for(PARTYNAME parties : PARTYNAME.values()){
+            totalVotes += votes.get(parties);
+        }
+        return votes.get(party)/totalVotes;
+    }
 }

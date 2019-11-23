@@ -1,9 +1,8 @@
 package com.gerrymander.demo.algorithm;
 
-import com.gerrymander.demo.FACTOR;
+import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.DistrictInterface;
 import com.gerrymander.demo.measures.PrecinctInterface;
-import com.gerrymander.demo.Move;
 import com.gerrymander.demo.measures.StateInterface;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
@@ -426,5 +425,8 @@ public class Algorithm
         return (precinctsToCheck.size() == 0);
     }
 
-
+    public Result phaseZero(State selectedState, Long blockThreshold, Long votingThreshold, ELECTIONTYPE election,
+                            Set<DEMOGRAPHIC> combinedDemographics){
+        return selectedState.findmajMinPrecincts(blockThreshold,votingThreshold,election,combinedDemographics);
+    }
 }
