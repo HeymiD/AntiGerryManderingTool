@@ -45,7 +45,13 @@ public class GerryManderController {
     public String getPrecincts(@RequestParam("state") String stateName,
                                @RequestParam("districtId") int districtId,
                                @RequestParam("electionType") String electionType) {
-	    return JSONMaker.makeJSONCollection(makePrecinctBatch(5000));
+        Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000);
+	    if(precinctBatchToSend.isEmpty()){
+	        return "done";
+        }
+        else{
+            return JSONMaker.makeJSONCollection(precinctBatchToSend);
+        }
     }
     @RequestMapping("/phase0")
     public String sendResultPhaseZero(@RequestParam("votingThreshold") double votingThreshold,
