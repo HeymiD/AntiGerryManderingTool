@@ -10,16 +10,14 @@ import org.locationtech.jts.geom.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
-
 @Entity
-@Table(name="Districts")
+@Table(name="Districs")
 public class District implements DistrictInterface<Precinct>
 //        implements DistrictInterface<com.gerrymander.demo.models.concrete.Precinct>
-{
-    @Column(name="geojson")
+{   @Column(name="geojson")
     private String geoData;
     @Id
-    @Column(name = "id")
+    @Column(name="id",nullable = false)
     private String ID;
     @Transient
     private HashMap<DEMOGRAPHIC,Double> demographics;
@@ -27,7 +25,6 @@ public class District implements DistrictInterface<Precinct>
     private int totPop;
     @Transient
     private ArrayList<Election> electionData;
-
     @Transient
     private State state;
     @Transient
@@ -44,7 +41,6 @@ public class District implements DistrictInterface<Precinct>
     private int gop_vote;
     @Transient
     private int dem_vote;
-
     @Transient
     private int internalEdges = 0;
     @Transient
@@ -79,6 +75,8 @@ public class District implements DistrictInterface<Precinct>
         borderPrecincts = new HashSet<Precinct>();
 //        this.state = state;
     }
+
+    public void putPrecinct(String ID,Precinct p){precincts.put(ID,p);}
 
     public void setState(State state) {
         this.state = state;

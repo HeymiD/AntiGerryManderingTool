@@ -5,20 +5,40 @@ import com.gerrymander.demo.measures.PrecinctInterface;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
 
+import javax.persistence.*;
 import java.util.*;
-
+@Entity
+@Table(name="Precints_GEO")
 public class Precinct implements PrecinctInterface {
+    @Id
+    @Column(name="PCTKEY")
     private final String ID;
+    @OneToMany(mappedBy = "PCTKEY")
+    private Ethnicities ethnicities;
+    @Transient
     private final Geometry geometry;
+    @Transient
     private final String geometryJSON;
+    @Transient
     private final String originalDistrictID;
+    @Transient
     private final int population;
+    @Transient
     private final int gop_vote;
+    @Transient
     private final int dem_vote;
+    @Transient
     private boolean isMajorityMinority;
-    private Map<DEMOGRAPHIC, Long> demographics;
+    @Transient
+    private Map<DEMOGRAPHIC, Integer> demographics;
+    @OneToMany(mappedBy = "PCTKEY")
+    private Set<Votes> votes;
+    @Transient
     private Map<ELECTIONTYPE, Votes> elections;
+    @Transient
     private final Set<String> neighborIDs;
+
+
     public Precinct(
             String ID,
             Geometry geometry,
@@ -28,7 +48,7 @@ public class Precinct implements PrecinctInterface {
             int gop_vote,
             int dem_vote,
             boolean isMajorityMinority,
-            Map<DEMOGRAPHIC, Long> demographics,
+            Map<DEMOGRAPHIC, Integer> demographics,
             Map<ELECTIONTYPE, Votes> elections,
             Set<String> neighborIDs) {
         	this.ID = ID;
@@ -42,6 +62,27 @@ public class Precinct implements PrecinctInterface {
             this.demographics = demographics;
             this.elections = elections;
             this.neighborIDs = neighborIDs;
+    }
+    public Precinct(String id,String geojson,
+                    String districtId){
+        ID=id;
+        geometryJSON=geojson;
+        originalDistrictID=districtId;
+        this.demographics=null;
+        this.geometry=null;
+        this.population=0;
+        this.gop_vote=0;
+        this.dem_vote=0;
+        neighborIDs=null;
+        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        demographics.put(DEMOGRAPHIC.AFROAM,ethnicities.getBlack());
+        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+
+
+
     }
 
     @Override
@@ -93,9 +134,9 @@ public class Precinct implements PrecinctInterface {
     public boolean getIsMajorityMinority(){return isMajorityMinority;}
 
     public Set<DEMOGRAPHIC> getLargestDemographic(Set<DEMOGRAPHIC> demographicsToCombine){
-        Long maxDemographicSize = Long.valueOf(0);
+        Integer maxDemographicSize = Integer.valueOf(0);
         DEMOGRAPHIC largestDemographic = null;
-        Long combinedDemographicSize = Long.valueOf(0);
+        Integer combinedDemographicSize = Integer.valueOf(0);
         for(DEMOGRAPHIC demographic : DEMOGRAPHIC.values()){
             if(demographics.get(demographic) > maxDemographicSize){
                 maxDemographicSize = demographics.get(demographic);

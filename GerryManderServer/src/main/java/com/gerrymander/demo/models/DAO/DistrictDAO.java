@@ -37,6 +37,7 @@ public class DistrictDAO {
         District districtObj=null;
         try{
             Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
+//            connection pooling, driver manager, cursor,
             Statement statement = connection.createStatement();
             String query = "select * from timberwolves.Districts where id="+id;
             ResultSet resultSet = statement.executeQuery(query);

@@ -1,6 +1,6 @@
 package com.gerrymander.demo;
 
-public class Election extends Votes{ 
+public class Election extends Votes{
 	
 	public ELECTIONTYPE type;
 	public int year;

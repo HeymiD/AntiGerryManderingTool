@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.Comparator;
 import java.util.Map.Entry;
 
+import static com.gerrymander.demo.algorithm.Measure.*;
+
 public class Algorithm
 {
     private State state;
@@ -429,4 +431,55 @@ public class Algorithm
                             Set<DEMOGRAPHIC> combinedDemographics){
         return selectedState.findmajMinPrecincts(blockThreshold,votingThreshold,election,combinedDemographics);
     }
+
+    public void phaseOne(boolean update){
+        if (!update){
+            while((2*targetNumDist)<state.clusters.size()){
+                if(!state.makeMajMinClusters()){
+                    makeNonMMClusters();
+                }
+            }
+            finaliteration();
+        }
+        else{
+            if(!state.makeMajMinClusters()){
+                makeNonMMClusters();
+            }
+            return;
+        }
+    }
+    public void finaliteration(){
+
+    }
+    public Cluster findMostJoinableCluster(Cluster c,ArrayList<Cluster> neighbors){
+        Cluster mostJoinableCluster = null;
+        Double max_NonMMJoinability = 0.0;
+        for (Cluster neighbor:neighbors){
+            Double joinability = calculateNonMMJoinability(c,neighbor);
+            if(joinability>max_NonMMJoinability){
+                max_NonMMJoinability=joinability;
+                mostJoinableCluster=neighbor;
+            }
+        }
+        return mostJoinableCluster;
+    }
+
+    public Double calculateNonMMJoinability(Cluster c1,Cluster c2){
+        Cluster combined = state.combineClusters(c1,c2);
+        Double nonMMJoinability = districtScoreFunction.calculateMeasure(combined);
+        state.undo_combineCluster(combined,c1,c2);
+        return nonMMJoinability;
+    }
+
+    public void makeNonMMClusters(){
+        for (Cluster c : state.clusters){
+            ArrayList<Cluster> neighbors = new ArrayList<Cluster>();
+            for (Edge edge: c.edges){
+                neighbors.add(edge.getNeighbor(c));
+            }
+            Cluster mostJoinableCluster = findMostJoinableCluster(c,neighbors);
+            state.combineClusters(c,mostJoinableCluster);
+        }
+    }
+
 }

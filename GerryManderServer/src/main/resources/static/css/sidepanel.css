@@ -1,0 +1,114 @@
+nav {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  bottom: 0;
+  width: 400px;
+  background-color: #036;
+  transform: translate3d(-500px, 0, 0);
+  transition: transform 0.4s ease;
+}
+.active-nav nav {
+  transform: translate3d(0, 0, 0);
+}
+nav ul {
+  list-style: none;
+  /* margin-top: 100px; */
+}
+nav ul li{
+  text-align: center;
+  color: #fff;
+  padding: 10px 0;
+}
+nav ul li a {
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  color: #fff;
+  padding: 10px 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+nav ul li a blockquote{
+  align-items: center;
+}
+
+.sliders-block{
+  text-align: center;
+  display: none;
+}
+.ui-slider-horizontal {
+  height: .6em;
+}
+.ui-slider-horizontal {
+  /* margin-bottom: 15px; */
+  width:60%;
+  margin-left: auto;
+  margin-right: auto;
+  /* text-align: center; */
+}
+.ui-widget-header {
+  background: #3FE331;
+}
+.slider-range {
+  position: relative;
+  width:60%;
+  background-color: #f9f9f9;
+  border: 1px solid #6e6666;
+  min-width: 40%;
+  /* display: inline-block; */
+  height: 32px;
+  border-radius: 5px;
+  /* margin-bottom:20px; */
+  right: 0;
+  font-size:16px;
+}
+.range-field{
+  background-color:#f9f9f9;
+  border: 1px solid #6e6666;
+  color: black;
+  font-family: myFont;
+  font: normal 14px Arial, Helvetica, sans-serif;
+  border-radius: 5px;
+  height:10px;
+  width:10%;
+  min-width: 9%;
+  padding:5px;
+}
+.min-max-text{
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5px;
+}
+
+.nav-button{
+  display: block;
+  width: 60%;
+  height: 30px;
+  position: relative;
+  border: 2px solid #04a;
+  border-radius: 5px;
+  /* margin: 200px auto; */
+  background-color: #06c;
+}
+.nav-button .content {
+    display: block;
+    position: absolute;
+    bottom: 6px;
+    width: 100%;
+    height: 100%;
+    line-height: 60px;
+    text-align: center;
+    background-color: #09f;
+    color: #fff;
+    text-transform: uppercase;
+    box-shadow: 0 6px 0 #06c;
+    border-radius: 5px;
+    transition: all 0.1s linear;
+}
+
+.nav-button:active .content {
+    bottom: 0;
+    box-shadow: 0 0 0 #06c;
+}

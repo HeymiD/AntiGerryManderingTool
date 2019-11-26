@@ -1,0 +1,32 @@
+.menu-btn {
+  position: relative;
+  z-index: 600;
+  display: block;
+  width: 48px;
+  height: 36px;
+  margin: 15px 15px;
+}
+.menu-btn-block {
+  width: 100%;
+  height: 6px;
+  background-color: #09f;
+  border-radius: 3px;
+  transform-origin: 0 50%;
+  transition: transform 0.3s ease;
+}
+.menu-btn-block.middle {
+  margin: 9px 0;
+}
+.menu-btn-block.top.active {
+  transform: rotate(38.682deg);
+}
+.menu-btn-block.middle.active {
+  transform: scale(0);
+}
+.menu-btn-block.bottom.active {
+  transform: rotate(-38.682deg);
+}
+.active-nav #map{
+  /* transform: scaleX(.85) translate(170px,0px); */
+  transform: scaleX(.85) translate(9%, 0%);
+}

@@ -7,6 +7,7 @@ public enum DEMOGRAPHIC {
 	WHITE,
 	NATIVE,
 	ASIAN,
-	PACISLAND
+	PACISLAND,
+	OTHER
 	
 }
