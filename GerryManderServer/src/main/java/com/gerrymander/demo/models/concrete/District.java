@@ -11,7 +11,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 @Entity
-@Table(name="Districs")
+@Table(name="Districts")
 public class District implements DistrictInterface<Precinct>
 //        implements DistrictInterface<com.gerrymander.demo.models.concrete.Precinct>
 {   @Column(name="geojson")

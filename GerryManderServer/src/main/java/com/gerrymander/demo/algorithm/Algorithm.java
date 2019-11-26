@@ -47,6 +47,10 @@ public class Algorithm
         updateScores();
     }
 
+    public Algorithm(State state){
+        this.state = state;
+    }
+
     // Determine the initial districts of precincts using a bfs
     // Very fast, but not ideal for compactness
     // Experimental - use a modified breadth first search
@@ -427,9 +431,9 @@ public class Algorithm
         return (precinctsToCheck.size() == 0);
     }
 
-    public Result phaseZero(State selectedState, Long blockThreshold, Long votingThreshold, ELECTIONTYPE election,
+    public Result phaseZero(Double blockThreshold, Double votingThreshold, ELECTIONTYPE election,
                             Set<DEMOGRAPHIC> combinedDemographics){
-        return selectedState.findmajMinPrecincts(blockThreshold,votingThreshold,election,combinedDemographics);
+        return state.findMajMinPrecincts(blockThreshold,votingThreshold,election,combinedDemographics);
     }
 
     public void phaseOne(boolean update){
@@ -439,19 +443,26 @@ public class Algorithm
                     makeNonMMClusters();
                 }
             }
-            finaliteration();
+            finalIteration();
+            return;
         }
         else{
-            if(!state.makeMajMinClusters()){
-                makeNonMMClusters();
+            if((2*targetNumDist)>=state.clusters.size()){
+                finalIteration();
             }
+            else{
+                if(!state.makeMajMinClusters()){
+                    makeNonMMClusters();
+                }
+            }
+
             return;
         }
     }
-    public void finaliteration(){
-
+    public void finalIteration(){
+        return;
     }
-    public Cluster findMostJoinableCluster(Cluster c,ArrayList<Cluster> neighbors){
+    public Cluster findMostJoinableCluster(Cluster c,Set<Cluster> neighbors){
         Cluster mostJoinableCluster = null;
         Double max_NonMMJoinability = 0.0;
         for (Cluster neighbor:neighbors){
@@ -466,19 +477,27 @@ public class Algorithm
 
     public Double calculateNonMMJoinability(Cluster c1,Cluster c2){
         Cluster combined = state.combineClusters(c1,c2);
-        Double nonMMJoinability = districtScoreFunction.calculateMeasure(combined);
+        Double nonMMJoinability = districtScoreFunction.calculateMeasure(combined.clusterToDistrict());
         state.undo_combineCluster(combined,c1,c2);
         return nonMMJoinability;
     }
 
     public void makeNonMMClusters(){
         for (Cluster c : state.clusters){
-            ArrayList<Cluster> neighbors = new ArrayList<Cluster>();
+            Set<Cluster> neighbors = new HashSet<Cluster>();
             for (Edge edge: c.edges){
                 neighbors.add(edge.getNeighbor(c));
             }
             Cluster mostJoinableCluster = findMostJoinableCluster(c,neighbors);
             state.combineClusters(c,mostJoinableCluster);
+        }
+    }
+
+    public void initClusters(){
+        for(Precinct precinct:state.getPrecincts()){
+            Cluster newCluster = new Cluster(precinct.getID());
+            newCluster.precincts.add(precinct);
+            state.clusters.add(newCluster);
         }
     }
 

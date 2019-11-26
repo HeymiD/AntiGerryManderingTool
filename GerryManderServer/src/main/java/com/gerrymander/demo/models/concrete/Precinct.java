@@ -3,7 +3,6 @@ package com.gerrymander.demo.models.concrete;
 import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.PrecinctInterface;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Polygon;
 
 import javax.persistence.*;
 import java.util.*;
@@ -29,11 +28,15 @@ public class Precinct implements PrecinctInterface {
     private final int dem_vote;
     @Transient
     private boolean isMajorityMinority;
-    @Transient
-    private Map<DEMOGRAPHIC, Integer> demographics;
+    @MapKeyColumn(name="Demographic")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "population")
+    private Map<DEMOGRAPHIC, Integer> precinctDemographics;
     @OneToMany(mappedBy = "PCTKEY")
     private Set<Votes> votes;
-    @Transient
+    @OneToMany(mappedBy = "PCTKEY")
+    @MapKeyColumn(name="type")
+    @Enumerated(EnumType.STRING)
     private Map<ELECTIONTYPE, Votes> elections;
     @Transient
     private final Set<String> neighborIDs;
@@ -48,7 +51,7 @@ public class Precinct implements PrecinctInterface {
             int gop_vote,
             int dem_vote,
             boolean isMajorityMinority,
-            Map<DEMOGRAPHIC, Integer> demographics,
+            Map<DEMOGRAPHIC, Integer> precinctDemographics,
             Map<ELECTIONTYPE, Votes> elections,
             Set<String> neighborIDs) {
         	this.ID = ID;
@@ -59,7 +62,7 @@ public class Precinct implements PrecinctInterface {
             this.gop_vote = gop_vote;
             this.dem_vote = dem_vote;
             this.isMajorityMinority = isMajorityMinority;
-            this.demographics = demographics;
+            this.precinctDemographics = precinctDemographics;
             this.elections = elections;
             this.neighborIDs = neighborIDs;
     }
@@ -68,18 +71,18 @@ public class Precinct implements PrecinctInterface {
         ID=id;
         geometryJSON=geojson;
         originalDistrictID=districtId;
-        this.demographics=null;
+        this.precinctDemographics=new HashMap<DEMOGRAPHIC,Integer>();
         this.geometry=null;
         this.population=0;
         this.gop_vote=0;
         this.dem_vote=0;
         neighborIDs=null;
-        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        demographics.put(DEMOGRAPHIC.AFROAM,ethnicities.getBlack());
-        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        demographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        precinctDemographics.put(DEMOGRAPHIC.AFROAM,ethnicities.getBlack());
+        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
+        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
 
 
 
@@ -134,20 +137,20 @@ public class Precinct implements PrecinctInterface {
     public boolean getIsMajorityMinority(){return isMajorityMinority;}
 
     public Set<DEMOGRAPHIC> getLargestDemographic(Set<DEMOGRAPHIC> demographicsToCombine){
-        Integer maxDemographicSize = Integer.valueOf(0);
+        Integer maxDemographicSize = 0;
         DEMOGRAPHIC largestDemographic = null;
-        Integer combinedDemographicSize = Integer.valueOf(0);
+        Integer combinedDemographicSize = 0;
         for(DEMOGRAPHIC demographic : DEMOGRAPHIC.values()){
-            if(demographics.get(demographic) > maxDemographicSize){
-                maxDemographicSize = demographics.get(demographic);
+            if(precinctDemographics.get(demographic) > maxDemographicSize){
+                maxDemographicSize = precinctDemographics.get(demographic);
                 largestDemographic = demographic;
             }
         }
         Set<DEMOGRAPHIC> demographicToReturn = new HashSet<>();
         demographicToReturn.add(largestDemographic);
         try {
-            for (DEMOGRAPHIC combiningDemographic : demographicsToCombine) {
-                combinedDemographicSize += demographics.get(combiningDemographic);
+            for (DEMOGRAPHIC userSelectedDemographic : demographicsToCombine) {
+                combinedDemographicSize += precinctDemographics.get(userSelectedDemographic);
             }
         }
         catch(NullPointerException e) {
@@ -159,25 +162,25 @@ public class Precinct implements PrecinctInterface {
         return demographicToReturn;
     }
 
-    public Long calculateDemographicSize(Set<DEMOGRAPHIC> largestDemographic,int population){
-        Long demographicSize = Long.valueOf(0);
+    public double calculateDemographicSize(Set<DEMOGRAPHIC> largestDemographic, int population){
+        Integer demographicSize = 0;
         for(DEMOGRAPHIC demographic : largestDemographic){
-            demographicSize += demographics.get(demographic);
+            demographicSize += precinctDemographics.get(demographic);
         }
-        return demographicSize/population;
+        return Double.valueOf(demographicSize)/population;
     }
 
-    public boolean findVotingBlock(Result majorityMinorityResult, Long blockThreshold, Long votingThreshold,
+    public boolean findVotingBlock(Result majorityMinorityResult, Double blockThreshold, Double votingThreshold,
                                    ELECTIONTYPE election, Set<DEMOGRAPHIC> combinedDemographics){
         Set<DEMOGRAPHIC> largestDemographicsSet = this.getLargestDemographic(combinedDemographics);
-        Long demographicSize = this.calculateDemographicSize(largestDemographicsSet, this.population);
+        double demographicSize = this.calculateDemographicSize(largestDemographicsSet, this.population);
         if(demographicSize < blockThreshold){
             return false;
         }
         else{
             Votes selectedElection = elections.get(election);
             PARTYNAME winningParty = selectedElection.getWinningParty();
-            Long winningPartyRatio = selectedElection.calculateWinningPartyRatio(winningParty);
+            Double winningPartyRatio = selectedElection.calculateWinningPartyRatio(winningParty);
             if(winningPartyRatio < votingThreshold){
                 return false;
             }

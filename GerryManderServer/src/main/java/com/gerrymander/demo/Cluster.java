@@ -5,15 +5,21 @@ import com.gerrymander.demo.models.concrete.Precinct;
 
 import java.util.*;
 
-public class Cluster extends District {
+public class Cluster {
 	
-	public ArrayList<Edge> edges;
-	public ArrayList<Precinct> precincts;
-	public int ID;
+	public Set<Edge> edges;
+	public Set<Precinct> precincts;
+	public String ID;
 
-	public Cluster(int id){ID=id;}
+	public Cluster(String id){
+		ID=id;
+		precincts = new HashSet<Precinct>();
+	}
 	public boolean checkMajMin(){
 		boolean value = false;
 		return value;
+	}
+	public District clusterToDistrict(){
+		return new District();
 	}
 }

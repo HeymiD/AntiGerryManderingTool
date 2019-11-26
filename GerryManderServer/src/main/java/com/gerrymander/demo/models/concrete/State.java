@@ -9,10 +9,7 @@ import com.gerrymander.demo.models.DAO.DistrictDAO;
 import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.PublicKey;
@@ -23,12 +20,14 @@ public class State
 	private String name;//name is saved for later storage into the database
 	private HashMap<String, District> districts;
 	@OneToMany
+	@MapKey(name="PCTKEY")
 	private HashMap<String, Precinct> precincts;
 	@OneToMany
+	@MapKey(name="id")
 	public HashMap<Integer,District> oldDistricts;
-	public LinkedList<Cluster> clusters;
-	public ArrayList<Cluster> majMinClusters;
-	public Result majMinPrecincts;
+	public Set<Cluster> clusters;
+	public Set<Cluster> majMinClusters;
+	public Result majMinPrecinctStats;
 //	public boolean clusterListModified;
 	private int population;
 
@@ -49,10 +48,16 @@ public class State
 			d.addPrecinct(p);
 			this.precincts.put(p.getID(), p);
 		}
-		this.majMinPrecincts = new Result(this.name,this.precincts.size());
+		this.majMinPrecinctStats = new Result(this.name,this.precincts.size());
         this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
         oldDistricts = new HashMap<Integer,District>();
 
+	}
+	public State(String name){
+		this.name = name;
+		this.districts = new HashMap<>();
+		this.majMinPrecinctStats = new Result(this.name,this.precincts.size());
+		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
 	}
 
 	public Set<Precinct> getPrecincts(){
@@ -76,19 +81,19 @@ public class State
 		return this.population;
 	}
 
-	public Result findmajMinPrecincts(Long blockThreshold, Long votingThreshold, ELECTIONTYPE election,
+	public Result findMajMinPrecincts(Double blockThreshold, Double votingThreshold, ELECTIONTYPE election,
 									  Set<DEMOGRAPHIC> combinedDemographics){
 		for(Precinct precinct : this.getPrecincts()){
-			precinct.setIsMajorityMinority(precinct.findVotingBlock(majMinPrecincts,blockThreshold,
+			precinct.setIsMajorityMinority(precinct.findVotingBlock(majMinPrecinctStats,blockThreshold,
 					votingThreshold,election,combinedDemographics ));
 		}
-		return majMinPrecincts;
+		return majMinPrecinctStats;
 	}
 	public boolean makeMajMinClusters(){
 
 		boolean clusterListModified = false;
 		for (Cluster c : clusters){
-			ArrayList<Cluster> neighbors = new ArrayList<Cluster>();
+			Set<Cluster> neighbors = new HashSet<Cluster>();
 			for (Edge edge: c.edges){
 				neighbors.add(edge.getNeighbor(c));
 			}
@@ -118,8 +123,8 @@ public class State
 		if (majMinClusters.contains(c2)){
 			majMinClusters.remove(c2);
 		}
-		ArrayList<Edge[]> commonNeighbors = findCommonNeighbors(c1,c2);
-		ArrayList<Edge> averageEdges = new ArrayList<Edge>();
+		Set<Edge[]> commonNeighbors = findCommonNeighbors(c1,c2);
+		Set<Edge> averageEdges = new HashSet<Edge>();
 		for (Edge[] edge_pair:commonNeighbors){
 			try{
 				averageEdges.add(makeAverageEdge(edge_pair[0],edge_pair[1]));
@@ -153,8 +158,8 @@ public class State
 		clusters.add(c2);
 		return;
 	}
-	public ArrayList<Edge[]> findCommonNeighbors(Cluster c1, Cluster c2){
-		ArrayList<Edge[]> commonNeighbors = new ArrayList<Edge[]>();
+	public Set<Edge[]> findCommonNeighbors(Cluster c1, Cluster c2){
+		Set<Edge[]> commonNeighbors = new HashSet<Edge[]>();
 		for (Edge edge:c1.edges){
 			for (Edge edge2: c2.edges){
 				if(edge.getNeighbor(c1).ID==edge2.getNeighbor(c2).ID){

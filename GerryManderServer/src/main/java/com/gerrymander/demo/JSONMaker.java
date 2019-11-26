@@ -28,4 +28,7 @@ public class JSONMaker {
         return json;
 
     }
+    public static String makeResult(Result result){
+        return result.toString();
+    }
 }

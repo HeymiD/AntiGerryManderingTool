@@ -9,6 +9,7 @@ import com.gerrymander.demo.models.DAO.PrecinctDAO;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
 import com.gerrymander.demo.models.concrete.State;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,56 +18,63 @@ import org.springframework.web.bind.annotation.RestController;
 //import org.springframework.web.servlet.ModelAndView;
 
 @RestController
-public class GerryManderController
-{
-	State s;
-	Algorithm a;
+public class GerryManderController {
 
-//	HTTP monitoring: browser
-//    web sockets approach
-//    use jpa init state, read manual jpa java ee tut
+    private State state;
+	private Algorithm algorithm;
+	private Queue<Precinct> precinctsToSend = new LinkedList<Precinct>();
 
-//	@RequestMapping("/")
-//	public String home()
-//	{
-//		//System.out.print("Running...");
-//		return "Map.html";
-//	}
 	@RequestMapping("/state")
 	public String getSate(@RequestParam("state") String stateName,
-                          @RequestParam("count") int count, @RequestParam("elecType") String elecType) {
-        System.out.println(stateName);
-        Set<Precinct> precincts = new HashSet<Precinct>();
-        System.out.println("count:" + count);
-        if (count==0)
-        {
-            s = new State(stateName,precincts);
+                          @RequestParam("districtId") int districtId,
+                          @RequestParam("electionType") String electionType) {
+        try{
+            return state.oldDistricts.get(districtId).getGeoData();
         }
-        int disId = count+1;
-        District dis = DistrictDAO.get(""+disId);
-        PrecinctDAO.initPrecinctsforDistrict("U.S. Rep "+disId,ELECTIONTYPE.valueOf(elecType),dis);
-        s.oldDistricts.put(disId,dis);
+        catch(NullPointerException e){
+            state = new State(stateName);
+            precinctsToSend.addAll(state.getPrecincts());
+            algorithm = new Algorithm(state);
+            return state.oldDistricts.get(districtId).getGeoData();
+        }
 
-//        System.out.println("D.ID: "+s.oldDistricts.get(count).getID());
-        System.out.println();
-        return dis.getGeoData();
+
 	}
 
     @RequestMapping("/precincts")
     public String getPrecincts(@RequestParam("state") String stateName,
-                               @RequestParam("dstrID") int dstrID,
-                               @RequestParam("elecType") String elecType) throws InterruptedException {
-        dstrID++;
-	    District dis = s.oldDistricts.get(dstrID);
-	    return JSONMaker.makeJSONCollection(dis.getPrecincts());
+                               @RequestParam("districtId") int districtId,
+                               @RequestParam("electionType") String electionType) {
+	    return JSONMaker.makeJSONCollection(makePrecinctBatch(5000));
     }
-	
-//	@RequestMapping(value = "/s")
-//    public String getAllEmployeesJSON(Model model) 
-//    {
-//        model.addAttribute("employees", getEmployeesCollection());
-//        return "jsonTemplate";
-//    }
+    @RequestMapping("/phase0")
+    public String sendResultPhaseZero(@RequestParam("votingThreshold") double votingThreshold,
+                       @RequestParam("blockThreshold") double blockThreshold,
+                       @RequestParam("districtId") String demographicGroups,
+                       @RequestParam("electionType") String electionType){
+        String demographicsCombination[] = demographicGroups.split(",");
+        Set<DEMOGRAPHIC> demographicsSelectedByUser = new HashSet<DEMOGRAPHIC>();
+        for (String demographic : demographicsCombination){
+            demographicsSelectedByUser.add(DEMOGRAPHIC.valueOf(demographic));
+        }
+	    Result resultPhaseZero = algorithm.phaseZero(blockThreshold,votingThreshold,
+                ELECTIONTYPE.valueOf(electionType),
+                demographicsSelectedByUser);
+        return JSONMaker.makeResult(resultPhaseZero);
+
+    }
+
+    public int calculatePrecinctBatchSize(Set<Precinct> batchPrecincts){
+	    return JSONMaker.makeJSONCollection(batchPrecincts).length();
+    }
+
+    public Set<Precinct> makePrecinctBatch(int batchSize){
+        Set<Precinct> precinctBatchToSend = new HashSet<Precinct>();
+        while (batchSize>calculatePrecinctBatchSize(precinctBatchToSend) && !precinctsToSend.isEmpty()){
+            precinctBatchToSend.add(precinctsToSend.remove());
+        }
+        return precinctBatchToSend;
+    }
 	
 	
 	

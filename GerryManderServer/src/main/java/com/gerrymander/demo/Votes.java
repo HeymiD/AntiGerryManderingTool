@@ -10,27 +10,20 @@ import java.util.Map;
 public class Votes {
     @ManyToOne
     private Precinct precinct;
-    @Column(name="year")
-    private int year;
     @Column(name = "type")
     private String election;
-    @Transient
+    @MapKeyColumn(name="Party")
+    @Enumerated(EnumType.STRING)
+    @Column(name="votes")
     private Map<PARTYNAME, Integer> votes;
-    @Column(name = "Republican")
-    private int rep;
-    @Column(name = "Democrat")
-    private int dem;
-    @Column(name = "Green")
-    private int green;
-    @Column(name = "Libertarian")
-    private int lib;
+
 
     public Votes(){
-        votes = new HashMap<PARTYNAME, Integer>();
-        votes.put(PARTYNAME.REPUBLICAN,rep);
-        votes.put(PARTYNAME.DEMOCRAT,dem);
-        votes.put(PARTYNAME.GREEN,green);
-        votes.put(PARTYNAME.LIBERTARIAN,lib);
+//        votes = new HashMap<PARTYNAME, Integer>();
+//        votes.put(PARTYNAME.REPUBLICAN,rep);
+//        votes.put(PARTYNAME.DEMOCRAT,dem);
+//        votes.put(PARTYNAME.GREEN,green);
+//        votes.put(PARTYNAME.LIBERTARIAN,lib);
 
     }
 
@@ -51,13 +44,13 @@ public class Votes {
         this.votes = votes;
     }
 
-    public int getYear() {
-        return year;
-    }
+//    public int getYear() {
+//        return year;
+//    }
 
-    public void setYear(int year) {
-        this.year = year;
-    }
+//    public void setYear(int year) {
+//        this.year = year;
+//    }
 
     public PARTYNAME getWinningParty(){
         PARTYNAME winningParty = null;
@@ -70,8 +63,8 @@ public class Votes {
         }
         return winningParty;
     }
-    public long calculateWinningPartyRatio(PARTYNAME party){
-        Long totalVotes = Long.valueOf(0);
+    public double calculateWinningPartyRatio(PARTYNAME party){
+        Double totalVotes = 0.0;
         for(PARTYNAME parties : PARTYNAME.values()){
             totalVotes += votes.get(parties);
         }

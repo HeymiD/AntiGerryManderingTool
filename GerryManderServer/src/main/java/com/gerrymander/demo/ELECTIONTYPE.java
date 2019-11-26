@@ -2,7 +2,7 @@ package com.gerrymander.demo;
 
 public enum ELECTIONTYPE {
 	
-	PRESIDENTIAL2016,
-	CONGRESSIONAL2016,
-	CONGRESSIONAL2018
+	Presidential2016,
+	congressional2016,
+	congressional2018,
 }
