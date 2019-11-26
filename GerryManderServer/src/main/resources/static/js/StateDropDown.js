@@ -50,16 +50,28 @@ select.on('change', function(e){
 		map.on('drag', function() {
 			map.panInsideBounds(state.getBounds(), { animate: false });
 		});
-		stateData.update(e.feature.properties);
+		// stateData.update(e.feature.properties);
 		// console.log(stateData);
 		outerMenuBtn.show();
-		stateData.show();
+		mapContent.show();
+		stateData.hide();
+		if($('#districtContent').hasClass('active')){
+			districtData.show();
+		}
+		else{
+			precinctData.show();
+		}
+
+
 
 	}
 	catch(error){
 		recenterMap();
-		stateData.update();
-		stateData.hide();
+		// stateData.update();
+		districtData.hide();
+		precinctData.hide();
+		stateData.show();
+		mapContent.hide();
 		outerMenuBtn.hide()
 		// console.log(body.attr('class'));
 	  if(body.attr('class') == 'active-nav'){

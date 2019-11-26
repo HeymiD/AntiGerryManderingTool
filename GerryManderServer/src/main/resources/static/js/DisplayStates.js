@@ -1,21 +1,4 @@
 // get color depending on population density value
-
-var geojson;
-var texas;
-var texas_precincts;
-
-
-geojson = L.geoJson(statesData, {
-			style: style,
-			onEachFeature: stateEffects
-		});
-
-texas = L.geoJson(txStateData, {
-	style: style,
-	onEachFeature: stateEffects
-}).addTo(map);
-
-
 function getColor(d) {
 	// switch (feature.properties.party) {
   //           case 'Republican': return {color: "#ff0000"};
@@ -67,26 +50,24 @@ function zoomOnState(e) {
 		url:"http://localhost:8080/state",
 		data:{
 			state: e.target.feature.properties.name,
-			count:0,
-			elecType: "PRESIDENTIAL2016"
+			districtId:1
 		},
-		success: function(r){
-			map.removeLayer(texas);
-			// console.log(r);
-			var response=JSON.parse(r);
-			// console.log("success");
-			var texas_district = L.geoJson(response, {
+		success: function(response){
+			map.removeLayer(geojson);
+			var districtFirst=JSON.parse(response);
+			var districtLayer = L.geoJson(districtFirst, {
 				style: style,
 				onEachFeature: stateEffects
-			}).addTo(map)
-			getPrecincts(e,0,"PRESIDENTIAL2016")
-			var count=1
-			var elecType="PRESIDENTIAL2016"
-			while(count<36){
-				getDistricts(e,count,elecType);
-				count=count+1;
+			}).addTo(map);
+			var districtId=2
+			while(districtId<37){
+				getDistricts(e,districtId);
+				districtId=districtId+1;
 			}
-		 // console.log("success");
+			var done=0
+			while(done==0){
+			    getPrecinct(e,done)
+			}
 		},
 		error:function(err){
 			console.log(err, "ERROR");
@@ -97,46 +78,35 @@ function zoomOnState(e) {
 	  map.panInsideBounds(e.target.getBounds(), { animate: false });
 	});
 	select.select.selectedIndex = 1;
-	stateData.update(e.target.feature.properties);
-	stateData.show();
+	mapContent.show();
 	// console.log(!outerMenuBtn.is(":visible
 	// outerMenuBtn.show();
 	if(body.attr('class') == 'active-nav'){
 		outerMenuBtn.hide();
+
 	}
 	else{
 		outerMenuBtn.show();
 	}
+	stateData.hide();
+	districtData.show();
 }
 
-
-function stateEffects(feature, layer) {
-	layer.on({
-		mouseover: onHover,
-		mouseout: resetHighlight,
-		click: zoomOnState
-	});
-}
-
-function getDistricts(e,cnt,elecType){
+function getDistrict(e,districtId){
 	$.ajax({
 		url:"http://localhost:8080/state",
 		data: {
 			state: e.target.feature.properties.name,
-			count: cnt,
-			elecType: elecType
+			count: districtId
 		},
-		success: function(districts){
-//			 console.log(districts);
-			var response = JSON.parse(districts);
-			// console.log("success");
-			var texas_district = L.geoJson(response, {
+		success: function(response){
+			// console.log(response);
+			var district = JSON.parse(response);
+			var districtLayer = L.geoJson(district, {
 			    			style: style,
 			    			onEachFeature: stateEffects
 			    		});
-			map.removeLayer(texas);
-			map.addLayer(texas_district);
-            getPrecincts(e,cnt,elecType)
+			    map.addLayer(texas_district);
 		},
 		error:function(err){
 		console.log(err)
@@ -145,24 +115,24 @@ function getDistricts(e,cnt,elecType){
 	})
 }
 
-function getPrecincts(e,dstrID,elecType){
+function getPrecincts(e,done){
 	$.ajax({
-		url:"http://localhost:8080/precincts",
+		url:"http://localhost:8080/state",
 		data: {
-			state: e.target.feature.properties.name,
-			dstrID: dstrID,
-			elecType: elecType
+			state: e.target.feature.properties.name
 		},
-		success: function(precincts_District){
-			console.log(precincts_District);
-			var response = JSON.parse(precincts_District);
-			// console.log("success");
-			var precincts_dstr = L.geoJson(response, {
+		success: function(response){
+		    if(response=="done"){
+		        done=1
+		        return
+		    }
+			// console.log(response);
+			var precinct = JSON.parse(response);
+			var precinctLayer = L.geoJson(precinct, {
 			    			style: style,
 			    			onEachFeature: stateEffects
 			    		});
-//			map.removeLayer(texas);
-			map.addLayer(precincts_dstr);
+			    map.addLayer(precinctLayer);
 		},
 		error:function(err){
 		console.log(err)
@@ -172,3 +142,17 @@ function getPrecincts(e,dstrID,elecType){
 }
 
 
+var geojson;
+var texas;
+var texas_precincts;
+
+
+geojson = L.geoJson(statesData, {
+			style: style,
+			onEachFeature: stateEffects
+		});
+
+texas = L.geoJson(txStateData, {
+	style: style,
+	onEachFeature: stateEffects
+}).addTo(map);

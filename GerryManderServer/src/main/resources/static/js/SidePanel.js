@@ -1,3 +1,51 @@
+var elecType = ['Election Type','Presidential', 'Congressional'];    //get from backend later on
+var yearType = ['Election Year','2016', '2018'];
+var phases = ['Select a Phase', 'Phase 0', 'Phase 1', 'Phase 2'];
+var selectedMinority = 0;
+// var demographics = ['White','Black','Asain','Hispanic'];
+var phaseSelector = $('#phaseType');
+$('#objectiveBtn').hide();
+$('#abuttonBtn').hide();
+
+for(var i=0; i<elecType.length; i++){
+  var option = document.createElement('option');
+  option.setAttribute('value', elecType[i]);
+  option.text = elecType[i];
+  document.getElementById('electionType').appendChild(option);
+}
+for(var i=0; i<yearType.length; i++){
+  var option = document.createElement('option');
+  option.setAttribute('value', yearType[i]);
+  option.text = yearType[i];
+  document.getElementById('yearType').appendChild(option);
+}
+
+for(var i=0; i<phases.length; i++){
+  var option = document.createElement('option');
+  option.setAttribute('value', phases[i]);
+  option.text = phases[i];
+  document.getElementById('phaseType').appendChild(option);
+}
+// for(var i=0; i<demographics.length; i++){
+//   var checkbox = document.createElement('input');
+//   checkbox.type = 'checkbox';
+//   checkbox.value = demographics[i];
+//   checkbox.id = demographics[i]+'-cb';
+//   var label = document.createElement('label');
+//   label.htmlFor = checkbox.id;
+//   label.appendChild(document.createTextNode(demographics[i]));
+//   document.getElementById('minoritySelect').appendChild(checkbox);
+//   document.getElementById('minoritySelect').appendChild(label);
+// }
+
+var maxSelCheckbox = 2;
+$(".minority-cb").on('change', function(e){
+  selectedMinority = $(".minority-cb").siblings(':checked').length;
+  if(selectedMinority > maxSelCheckbox){
+    this.checked = false;
+  }
+});
+
 function hambrgrToggle(id) {
   // console.log(id);
   let menuBtnBlock;
@@ -8,11 +56,6 @@ function hambrgrToggle(id) {
     outerMenuBtn.show();
   }
   body.toggleClass('active-nav');
-}
-
-function sliderChange(id){
-  console.log('Slider button was selected');
-  console.log(id);
 }
 
 $(function () {
@@ -49,7 +92,7 @@ $(function () {
         $("#max-minority-population").val(ui.values[1]);
       }
     }
-});
+  });
   $("#min-population").val($(".slider-range").slider("values", 0));
   $("#max-population").val($(".slider-range").slider("values", 1));
   $("#min-compactness").val($(".slider-range").slider("values", 0));
@@ -106,8 +149,32 @@ function text2slider(id){
   });
 }
 
-function sliderToggle(){
-  var quoteButton = $('.sliders-button'),
-    blockquote = $('.sliders-block');
+function bqToggle(btn){
+  var blockquote;
+  switch(btn){
+    case 'prereqBtn':
+      blockquote = $('#prereq-block');
+      break;
+    case 'abuttonBtn':
+      blockquote = $('#abutton-block');
+      break;
+    case 'objectiveBtn':
+      blockquote = $('#objectives-block');
+      break;
+  }
   blockquote.slideToggle(1000);
 }
+
+var prerequisites = $('#prereq-block');
+prerequisites.change(function(){
+  // console.log('sup im changing');
+  // console.log(selectedMinority);
+  if($('#electionType').val() != 'Election Type' && $('#yearType').val() != 'Election Year' && selectedMinority > 0 && phaseSelector.val() != 'Select a Phase') {
+    $('#objectiveBtn').show();
+    $('#abuttonBtn').show();
+  }
+  else{
+    $('#objectiveBtn').hide();
+    $('#abuttonBtn').hide();
+  }
+});

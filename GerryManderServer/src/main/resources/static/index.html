@@ -1,119 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-	<title>US Map Majority Minority GerryMandering</title>
-
+	<title>Timberwolves - Gerrymandering</title>
 	<meta charset="utf-8" />
+	<meta name="author" content="Alvin Heymi Michael" >
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-	<link rel="stylesheet" href="css.css"/>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
-	<!-- <link rel="stylesheet" href="leaflet-sidebar.css" /> -->
+	<link rel="stylesheet" href="./css/maptent.css"/>
+	<link rel="stylesheet" href="./css/hambrgr.css"/>
+	<link rel="stylesheet" href="./css/sidepanel.css"/>
   <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-	<!-- unpkg, production (minified) -->
   <script src="https://unpkg.com/react-leaflet/dist/react-leaflet.min.js"></script>
-  <!-- unpkg, development -->
   <script src="https://unpkg.com/react-leaflet/dist/react-leaflet.js"></script>
-  <!-- CDNJS, production (minified) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-leaflet/2.0.0/react-leaflet.min.js"></script>
-  <!-- CDNJS, development -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-leaflet/2.0.0/react-leaflet.js"></script>
-
-
+	<script src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" type="text/css" media="all" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+	<script type="text/javascript" src="./js/geojson/us-states.js"></script>
+	<script type="text/javascript" src="./js/geojson/ms.js"></script>
 </head>
+
 <body>
-<div id='map'></div>
-<div id="sidebar" class="sidebar collapsed">
-		<!-- Nav tabs -->
-		<div class="sidebar-tabs">
-				<ul role="tablist">
-						<li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
-				</ul>
+	<nav>
+		<a href="#" class="menu-btn" id="inner-menu-btn" onClick="hambrgrToggle(this.id)">
+				<div class="menu-btn-block top active"></div>
+				<div class="menu-btn-block middle active"></div>
+				<div class="menu-btn-block bottom active"></div>
+		</a>
+
+		<ul>
+				<li>
+					<a href="#" id="prereqBtn" class="nav-button" onClick="bqToggle(this.id)"><span class="content">PreRequisites</span></a>
+					<blockquote id='prereq-block' class="blockquotes">
+						<div id="electSelect">
+							<select id="electionType"></select>
+							<select id="yearType"></select>
+						</div>
+						<div id="phaseSelect">
+							<select id="phaseType"></select>
+						</div>
+						<br/>
+						<h4>Select Desired Minority Group(s):</h4>
+						<div id="minoritySelect">
+							<input class="minority-cb" type="checkbox" value="White">White<br>
+							<input class="minority-cb" type="checkbox" value="Asain">Asain<br>
+		          <input class="minority-cb" type="checkbox" value="African-American">African-American<br>
+		          <input class="minority-cb" type="checkbox" value="Hispanic">Hispanic<br>
+						</div>
+					</blockquote>
+				</li>
+
+				<li>
+					<a href="#" id="objectiveBtn" class="nav-button" onClick="bqToggle(this.id)"><span class="content">Objectives</span></a>
+						<blockquote id="objectives-block" class="blockquotes">
+							Population
+							<div id="population-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-population" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-population" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Compactness
+							<div id="compactness-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-compactness" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-compactness" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Fairness
+							<div id="fairness-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min: <input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-fairness" class="range-field" onChange="text2slider(this.id)"/>
+								Max: <input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-fairness" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Equality
+							<div id="equality-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min: <input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-equality" class="range-field" onChange="text2slider(this.id)"/>
+								Max: <input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-equality" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Minority-Group Population
+							<div id="minority-population-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-minority-population" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-minority-population" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+						</blockquote>
+				</li>
+
+				<li>
+				<a href="#" id="abuttonBtn" class="nav-button" onClick="bqToggle(this.id)"><span class="content">Algorithms</span></a>
+				<blockquote id='abutton-block' class="blockquotes">
+					<h2> Under Maintenence </h2>
+				</blockquote>
+				</li>
+
+		</ul>
+	</nav>
+	<div id='pageContainer'>
+		<div id='map'>
+			<a href="#" class="menu-btn" id="outer-menu-btn" onClick="hambrgrToggle(this.id)">
+					<div class="menu-btn-block top"></div>
+					<div class="menu-btn-block middle"></div>
+					<div class="menu-btn-block bottom"></div>
+			</a>
+			<div id='selectMapContent'>
+				<button id="districtContent" class="mapContentbtn active" onClick="selMapContent(this.id)">District</button>
+			  <button id="precinctContent" class="mapContentbtn" onclick="selMapContent(this.id)">Precinct</button>
+			</div>
 		</div>
-
-		<!-- Tab panes -->
-		<div class="sidebar-content">
-				<div class="sidebar-pane" id="home">
-						<h1 class="sidebar-header">
-								SideBar
-								<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
-						</h1>
-
-						<p>Sample Text for Our Options </a>.</p>
-
-						<p class="lorem">Majority Minority Threshold
-							<div class="slidecontainer">
-							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-							  <p>Value: <span id="demo"></span></p>
-							</div>
-						</p>
-
-						<p class="lorem">Compactness
-							<div class="slidecontainer">
-							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange1">
-							  <p>Value: <span id="demo1"></span></p>
-							</div>
-						</p>
-
-						<p class="lorem">Other parameter
-							<div class="slidecontainer">
-							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange2">
-							  <p>Value: <span id="demo2"></span></p>
-							</div>
-						</p>
-
-						<p class="lorem">Other parameter2
-							<div class="slidecontainer">
-							  <input type="range" min="1" max="100" value="50" class="slider" id="myRange3">
-							  <p>Value: <span id="demo3"></span></p>
-							</div>
-						</p>
-
-						<button type="button" onclick="">Run</button>
-
-				</div>
-
-		</div>
-</div>
-
-<script type="text/javascript" src="us-states.js"></script>
-<!--<script type="text/javascript" src="ms.js"></script>-->
-<!--<script type="text/javascript" src="Voting_Precincts.js"></script>-->
-<!--<script type="text/javascript" src="NewTexasP.js"></script>-->
-<script type="text/javascript" src="mapmod.js"></script>
-
-<script>
-var sidebar = L.control.sidebar('sidebar').addTo(map);
-var slider = document.getElementById("myRange");
-var output = document.getElementById("demo");
-output.innerHTML = slider.value;
-slider.oninput = function() {
-  output.innerHTML = this.value;
-}
-
-var slider1 = document.getElementById("myRange1");
-var output1 = document.getElementById("demo1");
-output1.innerHTML = slider1.value;
-slider1.oninput = function() {
-  output1.innerHTML = this.value;
-}
-
-var slider2 = document.getElementById("myRange2");
-var output2 = document.getElementById("demo2");
-output2.innerHTML = slider2.value;
-slider2.oninput = function() {
-  output2.innerHTML = this.value;
-}
-
-var slider3 = document.getElementById("myRange3");
-var output3 = document.getElementById("demo3");
-output3.innerHTML = slider3.value;
-slider3.oninput = function() {
-  output3.innerHTML = this.value;
-}
-</script>
+		<script type="text/javascript" src="./js/SidePanel.js"></script>
+		<script type="text/javascript" src="./js/StateEffects.js"></script>
+		<script type="text/javascript" src="./js/LoadMap.js"></script>
+		<script type="text/javascript" src="./js/StateDropDown.js"></script>
+		<script type="text/javascript" src="./js/DisplayData.js"></script>
+	</div>
 
 
 </body>

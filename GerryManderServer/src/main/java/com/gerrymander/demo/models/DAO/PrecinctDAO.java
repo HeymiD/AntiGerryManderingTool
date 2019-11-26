@@ -40,17 +40,17 @@ public class PrecinctDAO {
 
         String query = "";
         switch(election){
-            case PRESIDENTIAL2016:
+            case Presidential2016:
                 query = "select T.*, C.Democrat, C.Republican, C.Green, C.Libertarian, C.District, P.geojson " +
                         "from timberwolves.Precincts_GEO P, timberwolves.presidential_2016 C, timberwolves.texas_demographics T " +
                         "where P.PCTKEY=C.PCTKEY AND P.PCTKEY=T.PCTKEY AND C.District=\'"+districtID+"\'";
                 break;
-            case CONGRESSIONAL2016:
+            case congressional2016:
                 query="select T.*, C.Democrat, C.Republican, C.Green, C.Libertarian, C.Office, P.geojson " +
                         "from timberwolves.Precincts_GEO P, timberwolves.congressional_2016 C, timberwolves.texas_demographics T " +
                         "where P.PCTKEY=C.PCTKEY AND P.PCTKEY=T.PCTKEY AND C.Office=\'"+districtID+"\'";
                 break;
-            case CONGRESSIONAL2018:
+            case congressional2018:
                 query="select T.*, C.Democrat, C.Republican, C.Green, C.Libertarian, C.Office, P.geojson " +
                         "from timberwolves.Precincts_GEO P, timberwolves.congressional_2018 C, timberwolves.texas_demographics T " +
                         "where P.PCTKEY=C.PCTKEY AND P.PCTKEY=T.PCTKEY AND C.Office=\'"+districtID+"\'";

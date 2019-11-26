@@ -12,8 +12,6 @@ public class Precinct implements PrecinctInterface {
     @Id
     @Column(name="PCTKEY")
     private final String ID;
-    @OneToMany(mappedBy = "PCTKEY")
-    private Ethnicities ethnicities;
     @Transient
     private final Geometry geometry;
     @Transient
@@ -28,15 +26,13 @@ public class Precinct implements PrecinctInterface {
     private final int dem_vote;
     @Transient
     private boolean isMajorityMinority;
-    @MapKeyColumn(name="Demographic")
-    @Enumerated(EnumType.STRING)
-    @Column(name = "population")
+    @Transient
     private Map<DEMOGRAPHIC, Integer> precinctDemographics;
     @OneToMany(mappedBy = "PCTKEY")
-    private Set<Votes> votes;
+    private DemographicGroup demographicGroup;
     @OneToMany(mappedBy = "PCTKEY")
-    @MapKeyColumn(name="type")
-    @Enumerated(EnumType.STRING)
+    private Set<Votes> votes;
+    @Transient
     private Map<ELECTIONTYPE, Votes> elections;
     @Transient
     private final Set<String> neighborIDs;
@@ -65,6 +61,7 @@ public class Precinct implements PrecinctInterface {
             this.precinctDemographics = precinctDemographics;
             this.elections = elections;
             this.neighborIDs = neighborIDs;
+
     }
     public Precinct(String id,String geojson,
                     String districtId){
@@ -77,14 +74,10 @@ public class Precinct implements PrecinctInterface {
         this.gop_vote=0;
         this.dem_vote=0;
         neighborIDs=null;
-        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        precinctDemographics.put(DEMOGRAPHIC.AFROAM,ethnicities.getBlack());
-        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-        precinctDemographics.put(DEMOGRAPHIC.WHITE,ethnicities.getWhite());
-
-
+        precinctDemographics=demographicGroup.getDemographicInfo();
+        for (Votes voting:votes){
+            elections.put(voting.getElectiontype(),voting);
+        }
 
     }
 

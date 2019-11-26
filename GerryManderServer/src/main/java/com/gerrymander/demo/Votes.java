@@ -6,27 +6,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Entity
-@Table(name="elections_texas")
+@Table(name="elections_texas_formatted")
 public class Votes {
     @ManyToOne
     private Precinct precinct;
+    @Id
+    @Column(name="PCTKEY")
+    private String pctkey;
     @Column(name = "type")
     private String election;
     @MapKeyColumn(name="Party")
-    @Enumerated(EnumType.STRING)
+    @MapKeyEnumerated(EnumType.STRING)
     @Column(name="votes")
     private Map<PARTYNAME, Integer> votes;
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private ELECTIONTYPE electiontype;
 
-
-    public Votes(){
-//        votes = new HashMap<PARTYNAME, Integer>();
-//        votes.put(PARTYNAME.REPUBLICAN,rep);
-//        votes.put(PARTYNAME.DEMOCRAT,dem);
-//        votes.put(PARTYNAME.GREEN,green);
-//        votes.put(PARTYNAME.LIBERTARIAN,lib);
-
-    }
-
+    public Votes(){ }
 
     public String getElection() {
         return election;
@@ -44,13 +41,13 @@ public class Votes {
         this.votes = votes;
     }
 
-//    public int getYear() {
-//        return year;
-//    }
+    public ELECTIONTYPE getElectiontype() {
+        return electiontype;
+    }
 
-//    public void setYear(int year) {
-//        this.year = year;
-//    }
+    public void setElectiontype(ELECTIONTYPE electiontype) {
+        this.electiontype = electiontype;
+    }
 
     public PARTYNAME getWinningParty(){
         PARTYNAME winningParty = null;
