@@ -1,13 +1,16 @@
 package com.gerrymander.demo;
 
-public class Election extends Votes{
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import java.awt.*;
+import java.io.Serializable;
+
+
+public class Election implements Serializable {
+	public String pctkey;
+	public ELECTIONTYPE electiontype;
+	public PARTYNAME party;
 	
-	public ELECTIONTYPE type;
-	public int year;
-	
-	public Election() 
-	{
-		super();
-	}
+	public Election() { }
 
 }

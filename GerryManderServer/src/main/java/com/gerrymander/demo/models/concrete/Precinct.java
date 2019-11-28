@@ -38,6 +38,9 @@ public class Precinct implements PrecinctInterface {
     private final Set<String> neighborIDs;
     @ManyToOne
     private State state;
+    @Transient
+    private Map<PARTYNAME, Integer> votesPerParty;
+
 
 
     public Precinct(
@@ -61,7 +64,6 @@ public class Precinct implements PrecinctInterface {
             this.dem_vote = dem_vote;
             this.isMajorityMinority = isMajorityMinority;
             this.precinctDemographics = precinctDemographics;
-            this.elections = elections;
             this.neighborIDs = neighborIDs;
 
     }
@@ -76,13 +78,16 @@ public class Precinct implements PrecinctInterface {
         this.gop_vote=0;
         this.dem_vote=0;
         neighborIDs=null;
-        for (DemographicGroup group:demographicGroups){
-            precinctDemographics.put(group.getGroupDemographic(),group.getPopulation());
-        }
-        for (Votes voting:votes){
-            elections.put(voting.getElectiontype(),voting);
-        }
-
+//        for (DemographicGroup group:demographicGroups){
+//            precinctDemographics.put(group.getGroupDemographic(),group.getPopulation());
+//        }
+//        for(ELECTIONTYPE e:ELECTIONTYPE.values()){
+//            Map<PARTYNAME,Integer> electionResultSet = new HashMap<PARTYNAME,Integer>();
+//            elections.put(e,electionResultSet);
+//        }
+//        for(Votes voting: votes){
+//            elections.get(voting.getElectiontype()).put(voting.getParty(),voting.getVotes());
+//            }
     }
 
     @Override
@@ -103,6 +108,8 @@ public class Precinct implements PrecinctInterface {
             return getPopulation() / geometry.getArea();
         return -1;
     }
+    public void addVotes(ELECTIONTYPE e, Votes v){elections.put(e,v);}
+    public void addDemographic(DEMOGRAPHIC d, int population){precinctDemographics.put(d,population);}
 
     @Override
     public String getOriginalDistrictID() {
@@ -187,4 +194,24 @@ public class Precinct implements PrecinctInterface {
             }
         }
     }
+//        public PARTYNAME getWinningParty(ELECTIONTYPE electiontype){
+//        Map<PARTYNAME,Integer> votes = elections.get(electiontype);
+//        PARTYNAME winningParty = null;
+//        long winningVotes = 0;
+//        for(PARTYNAME party : PARTYNAME.values()){
+//            if(votes.get(party) > winningVotes){
+//                winningVotes = votes.get(party);
+//                winningParty = party;
+//            }
+//        }
+//        return winningParty;
+//    }
+//    public double calculateWinningPartyRatio(PARTYNAME party,ELECTIONTYPE electiontype){
+//        Map<PARTYNAME,Integer> votes = elections.get(electiontype);
+//        Double totalVotes = 0.0;
+//        for(PARTYNAME parties : PARTYNAME.values()){
+//            totalVotes += votes.get(parties);
+//        }
+//        return votes.get(party)/totalVotes;
+//    }
 }

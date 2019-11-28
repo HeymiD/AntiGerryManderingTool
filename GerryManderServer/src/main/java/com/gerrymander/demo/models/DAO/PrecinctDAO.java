@@ -1,25 +1,21 @@
 package com.gerrymander.demo.models.DAO;
 
 //import com.gerrymander.demo.models.concrete.;
-import com.gerrymander.demo.DEMOGRAPHIC;
-import com.gerrymander.demo.ELECTIONTYPE;
+import com.gerrymander.demo.*;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.sql.*;
+import java.util.*;
 
 public class PrecinctDAO {
 
 
-//    @Autowired
-//    private EntityManager entityManager;
+    @Autowired
+    private EntityManager entityManager;
 
     private static final String database_url="jdbc:mysql://mysql4.cs.stonybrook.edu:3306/timberwolves?useSSL=false";
     private static final String database_username="timberwolves";
@@ -103,5 +99,74 @@ public class PrecinctDAO {
         }
         return dis.getPrecincts();
     }
+
+    public Map<String,Precinct> populatePrecincts() throws SQLException {
+        Map<String,Precinct> precincts = new HashMap<String,Precinct>();
+        for(ELECTIONTYPE e : ELECTIONTYPE.values()){
+            String query = "select T.*, C.Democrat, C.Republican, C.Green, C.Libertarian, C.District, P.geojson, C.year"
+                    +" from timberwolves.Precincts_GEO P, timberwolves."+e.toString()
+                    +" C, timberwolves.texas_demographics T "+
+                    "where P.PCTKEY=C.PCTKEY AND P.PCTKEY=T.PCTKEY";
+            Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
+            Statement statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(query);
+            while(resultSet.next()){
+                Precinct precinct = precincts.get(resultSet.getString("PCTKEY"));
+                if (precinct==null){
+                    Precinct p = new Precinct(resultSet.getString("PCTKEY"),
+                            resultSet.getString("geojson"),
+                            resultSet.getString("Office"));
+                    //populate
+                    Votes v = new Votes();
+                    Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
+                    votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
+                    votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
+                    votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
+                    votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
+                    v.setVotes(votesPrecinct);
+                    v.setElectiontype(e);
+                    p.addVotes(e,v);
+                    p.addDemographic(DEMOGRAPHIC.AFROAM, resultSet.getInt("Black"));
+                    p.addDemographic(DEMOGRAPHIC.WHITE, resultSet.getInt("White"));
+                    p.addDemographic(DEMOGRAPHIC.ASIAN, resultSet.getInt("Asian"));
+                    p.addDemographic(DEMOGRAPHIC.HISPANIC, resultSet.getInt("Hispanic"));
+                    p.addDemographic(DEMOGRAPHIC.NATIVE, resultSet.getInt("Native"));
+                    p.addDemographic(DEMOGRAPHIC.OTHER, resultSet.getInt("Other"));
+                    precincts.put(resultSet.getString("PCTKEY"),p);
+                }
+                else{
+                    //populate
+                    Votes v = new Votes();
+                    Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
+                    votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
+                    votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
+                    votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
+                    votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
+                    v.setVotes(votesPrecinct);
+                    v.setElectiontype(e);
+                    precinct.addVotes(e,v);
+                    precinct.addDemographic(DEMOGRAPHIC.AFROAM, resultSet.getInt("Black"));
+                    precinct.addDemographic(DEMOGRAPHIC.WHITE, resultSet.getInt("White"));
+                    precinct.addDemographic(DEMOGRAPHIC.ASIAN, resultSet.getInt("Asian"));
+                    precinct.addDemographic(DEMOGRAPHIC.HISPANIC, resultSet.getInt("Hispanic"));
+                    precinct.addDemographic(DEMOGRAPHIC.NATIVE, resultSet.getInt("Native"));
+                    precinct.addDemographic(DEMOGRAPHIC.OTHER, resultSet.getInt("Other"));
+                }
+            }
+        }
+        return precincts;
+     }
+
+//    public void populatePrecinctVotes(ELECTIONTYPE electiontype,String pctkey){
+//        String statement = "select Democrat,Republican,Green,Libertarian from "
+//                +electiontype+" where PCTKEY="+pctkey;
+//        Query query = entityManager.
+//                createNativeQuery(statement, "VotesResult");
+//        @SuppressWarnings("unchecked")
+//        List<Votes> voteResults = query.getResultList();
+//    }
+
+
 
 }
