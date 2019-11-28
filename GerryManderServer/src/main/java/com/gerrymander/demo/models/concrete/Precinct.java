@@ -28,14 +28,16 @@ public class Precinct implements PrecinctInterface {
     private boolean isMajorityMinority;
     @Transient
     private Map<DEMOGRAPHIC, Integer> precinctDemographics;
-    @OneToMany(mappedBy = "PCTKEY")
-    private DemographicGroup demographicGroup;
-    @OneToMany(mappedBy = "PCTKEY")
+    @OneToMany(mappedBy = "precinct")
+    private Set<DemographicGroup> demographicGroups;
+    @OneToMany(mappedBy = "precinct")
     private Set<Votes> votes;
     @Transient
     private Map<ELECTIONTYPE, Votes> elections;
     @Transient
     private final Set<String> neighborIDs;
+    @ManyToOne
+    private State state;
 
 
     public Precinct(
@@ -74,7 +76,9 @@ public class Precinct implements PrecinctInterface {
         this.gop_vote=0;
         this.dem_vote=0;
         neighborIDs=null;
-        precinctDemographics=demographicGroup.getDemographicInfo();
+        for (DemographicGroup group:demographicGroups){
+            precinctDemographics.put(group.getGroupDemographic(),group.getPopulation());
+        }
         for (Votes voting:votes){
             elections.put(voting.getElectiontype(),voting);
         }

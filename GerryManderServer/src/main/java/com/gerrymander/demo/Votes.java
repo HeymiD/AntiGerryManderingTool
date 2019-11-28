@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Entity
-@Table(name="elections_texas_formatted")
+@Table(name="complete_texas_elections_formatted")
 public class Votes {
     @ManyToOne
     private Precinct precinct;

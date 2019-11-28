@@ -25,7 +25,7 @@ public class District implements DistrictInterface<Precinct>
     private int totPop;
     @Transient
     private ArrayList<Election> electionData;
-    @Transient
+    @ManyToOne
     private State state;
     @Transient
     private static final int MAXX = 0;

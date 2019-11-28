@@ -14,17 +14,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.PublicKey;
 import java.util.*;
+@Entity
 public class State
 		implements StateInterface<Precinct, District> {
-
+	@Id
 	private String name;//name is saved for later storage into the database
 	private HashMap<String, District> districts;
 	@OneToMany
-	@MapKey(name="PCTKEY")
-	private HashMap<String, Precinct> precincts;
+	@MapKey(name="state")
+	private Map<String, Precinct> precincts;
 	@OneToMany
-	@MapKey(name="id")
-	public HashMap<Integer,District> oldDistricts;
+	@MapKey(name="state")
+	public Map<Integer,District> oldDistricts;
 	public Set<Cluster> clusters;
 	public Set<Cluster> majMinClusters;
 	public Result majMinPrecinctStats;

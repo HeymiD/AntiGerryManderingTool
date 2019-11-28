@@ -8,11 +8,11 @@ import java.util.HashMap;
 @Entity
 @Table(name="texas_demographics_formatted")
 public class DemographicGroup {
-
+    @Column(name="Demographic")
+    @Enumerated
+    private DEMOGRAPHIC groupDemographic;
     @Column(name="population")
-    @MapKeyColumn(name = "Demographic")
-    @MapKeyEnumerated(EnumType.STRING)
-    private HashMap<DEMOGRAPHIC,Integer> demographicInfo;
+    private int population;
     @ManyToOne
     private Precinct precinct;
     @Id
@@ -29,13 +29,19 @@ public class DemographicGroup {
         this.precinct = precinct;
     }
 
-    public HashMap<DEMOGRAPHIC, Integer> getDemographicInfo() {
-        return demographicInfo;
+    public DEMOGRAPHIC getGroupDemographic() {
+        return groupDemographic;
     }
 
-    public void setDemographicInfo(HashMap<DEMOGRAPHIC, Integer> demographicInfo) {
-        this.demographicInfo = demographicInfo;
+    public void setGroupDemographic(DEMOGRAPHIC groupDemographic) {
+        this.groupDemographic = groupDemographic;
     }
 
+    public int getPopulation() {
+        return population;
+    }
 
+    public void setPopulation(int population) {
+        this.population = population;
+    }
 }

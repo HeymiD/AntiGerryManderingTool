@@ -45,6 +45,11 @@ public class GerryManderController {
     public String getPrecincts(@RequestParam("state") String stateName,
                                @RequestParam("districtId") int districtId,
                                @RequestParam("electionType") String electionType) {
+	    if(state==null){
+            state = new State(stateName);
+            precinctsToSend.addAll(state.getPrecincts());
+            algorithm = new Algorithm(state);
+        }
         Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000);
 	    if(precinctBatchToSend.isEmpty()){
 	        return "done";
