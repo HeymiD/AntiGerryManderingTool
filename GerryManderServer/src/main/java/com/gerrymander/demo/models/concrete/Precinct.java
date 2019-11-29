@@ -28,16 +28,14 @@ public class Precinct implements PrecinctInterface {
     private boolean isMajorityMinority;
     @Transient
     private Map<DEMOGRAPHIC, Integer> precinctDemographics;
-    @OneToMany(mappedBy = "precinct")
+    @Transient
     private Set<DemographicGroup> demographicGroups;
-    @OneToMany(mappedBy = "precinct")
+    @Transient
     private Set<Votes> votes;
     @Transient
     private Map<ELECTIONTYPE, Votes> elections;
     @Transient
     private final Set<String> neighborIDs;
-    @ManyToOne
-    private State state;
     @Transient
     private Map<PARTYNAME, Integer> votesPerParty;
 
@@ -67,17 +65,17 @@ public class Precinct implements PrecinctInterface {
             this.neighborIDs = neighborIDs;
 
     }
-    public Precinct(String id,String geojson,
-                    String districtId){
+    public Precinct(String id,String geojson){
         ID=id;
         geometryJSON=geojson;
-        originalDistrictID=districtId;
+        originalDistrictID="";
         this.precinctDemographics=new HashMap<DEMOGRAPHIC,Integer>();
         this.geometry=null;
         this.population=0;
         this.gop_vote=0;
         this.dem_vote=0;
         neighborIDs=null;
+        elections = new HashMap<ELECTIONTYPE,Votes>();
 //        for (DemographicGroup group:demographicGroups){
 //            precinctDemographics.put(group.getGroupDemographic(),group.getPopulation());
 //        }

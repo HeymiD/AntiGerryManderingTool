@@ -6,6 +6,7 @@ import com.gerrymander.demo.measures.StateInterface;
 import com.gerrymander.demo.models.DAO.DistrictDAO;
 //import com.gerrymander.demo.models.DAO.DistrictDAOInterface;
 //import com.gerrymander.demo.models.Service.DistrictService;
+import com.gerrymander.demo.models.DAO.PrecinctDAO;
 import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,19 +14,18 @@ import javax.persistence.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.PublicKey;
+import java.sql.SQLException;
 import java.util.*;
-@Entity
+
 public class State
 		implements StateInterface<Precinct, District> {
-	@Id
 	private String name;//name is saved for later storage into the database
 	private HashMap<String, District> districts;
-	@OneToMany
-	@MapKey(name="state")
+//	@OneToMany
+//	@MapKey(name="state")
 	private Map<String, Precinct> precincts;
-	@OneToMany
-	@MapKey(name="state")
-	public Map<Integer,District> oldDistricts;
+	@Transient
+	public Map<String,District> oldDistricts;
 	public Set<Cluster> clusters;
 	public Set<Cluster> majMinClusters;
 	public Result majMinPrecinctStats;
@@ -51,21 +51,28 @@ public class State
 		}
 		this.majMinPrecinctStats = new Result(this.name,this.precincts.size());
         this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
-        oldDistricts = new HashMap<Integer,District>();
+        oldDistricts = new HashMap<String, District>();
+
 
 	}
 	public State(String name){
 		this.name = name;
 		this.districts = new HashMap<>();
+		this.precincts = new HashMap<String, Precinct>();
 		this.majMinPrecinctStats = new Result(this.name,this.precincts.size());
 		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
+		oldDistricts = new HashMap<String, District>();
 	}
 
 	public Set<Precinct> getPrecincts(){
         return new HashSet<>(precincts.values());
 		}
 
-        public Set<District> getDistricts() {
+	public void setPrecincts(Map<String,Precinct> precincts){
+		this.precincts=precincts;
+	}
+
+	public Set<District> getDistricts() {
 		return new HashSet<>(districts.values());
 	}
 

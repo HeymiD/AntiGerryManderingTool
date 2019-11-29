@@ -1,6 +1,7 @@
 package com.gerrymander.demo.models.DAO;
 
 import com.gerrymander.demo.models.concrete.District;
+import com.gerrymander.demo.models.concrete.State;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class DistrictDAO {
 //        return list_of_OldDistricts;
 //    }
 
-    public static District get(String id) {
+    public static District get(String id, State state) {
 
         District districtObj=null;
         try{
@@ -43,7 +44,8 @@ public class DistrictDAO {
             ResultSet resultSet = statement.executeQuery(query);
             while(resultSet.next()){
                 districtObj = new District();
-                districtObj.setID(resultSet.getString("id"));
+                districtObj.setState(state);
+                districtObj.setID("U.S. Rep "+resultSet.getString("id"));
                 districtObj.setGeoData(resultSet.getString("geojson"));
             }
         }

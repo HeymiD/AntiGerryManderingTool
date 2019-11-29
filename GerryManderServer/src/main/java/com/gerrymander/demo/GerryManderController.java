@@ -1,6 +1,7 @@
 package com.gerrymander.demo;
 
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.util.*;
 
 import com.gerrymander.demo.algorithm.Algorithm;
@@ -26,29 +27,34 @@ public class GerryManderController {
 
 	@RequestMapping("/state")
 	public String getSate(@RequestParam("state") String stateName,
-                          @RequestParam("districtId") int districtId,
-                          @RequestParam("electionType") String electionType) {
+                          @RequestParam("districtId") int districtId) {
         try{
             return state.oldDistricts.get(districtId).getGeoData();
         }
         catch(NullPointerException e){
             state = new State(stateName);
-            precinctsToSend.addAll(state.getPrecincts());
+            District d = DistrictDAO.get(districtId+"",state);
+            state.oldDistricts.put("U.S. Rep "+d.getID(),d);
+//            precinctsToSend.addAll(state.getPrecincts());
             algorithm = new Algorithm(state);
-            return state.oldDistricts.get(districtId).getGeoData();
+//            return state.oldDistricts.get("U.S. Rep "+districtId).getGeoData();
+            return d.getGeoData();
         }
 
 
 	}
 
     @RequestMapping("/precincts")
-    public String getPrecincts(@RequestParam("state") String stateName,
-                               @RequestParam("districtId") int districtId,
-                               @RequestParam("electionType") String electionType) {
+    public String getPrecincts(@RequestParam("state") String stateName) {
 	    if(state==null){
             state = new State(stateName);
-            precinctsToSend.addAll(state.getPrecincts());
             algorithm = new Algorithm(state);
+        }
+        try {
+            state.setPrecincts(PrecinctDAO.populatePrecincts());
+            precinctsToSend.addAll(state.getPrecincts());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000);
 	    if(precinctBatchToSend.isEmpty()){

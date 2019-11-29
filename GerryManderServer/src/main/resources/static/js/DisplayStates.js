@@ -50,24 +50,23 @@ function zoomOnState(e) {
 		url:"http://localhost:8080/state",
 		data:{
 			state: e.target.feature.properties.name,
-			districtId:1
+			count:0
 		},
-		success: function(response){
+		success: function(r){
 			map.removeLayer(geojson);
-			var districtFirst=JSON.parse(response);
-			var districtLayer = L.geoJson(districtFirst, {
+			// console.log(r);
+			var response=JSON.parse(r);
+			// console.log("success");
+			var texas_district = L.geoJson(response, {
 				style: style,
 				onEachFeature: stateEffects
 			}).addTo(map);
-			var districtId=2
-			while(districtId<37){
-				getDistricts(e,districtId);
-				districtId=districtId+1;
+			var count=1
+			while(count<37){
+				getDistricts(e,count);
+				count=count+1;
 			}
-			var done=0
-			while(done==0){
-			    getPrecinct(e,done)
-			}
+		 // console.log("success");
 		},
 		error:function(err){
 			console.log(err, "ERROR");
@@ -78,34 +77,43 @@ function zoomOnState(e) {
 	  map.panInsideBounds(e.target.getBounds(), { animate: false });
 	});
 	select.select.selectedIndex = 1;
-	mapContent.show();
+	stateData.update(e.target.feature.properties);
+	stateData.show();
 	// console.log(!outerMenuBtn.is(":visible
 	// outerMenuBtn.show();
 	if(body.attr('class') == 'active-nav'){
 		outerMenuBtn.hide();
-
 	}
 	else{
 		outerMenuBtn.show();
 	}
-	stateData.hide();
-	districtData.show();
 }
 
-function getDistrict(e,districtId){
+
+function stateEffects(feature, layer) {
+	layer.on({
+		mouseover: onHover,
+		mouseout: resetHighlight,
+		click: zoomOnState
+	});
+}
+
+function getDistricts(e,cnt){
 	$.ajax({
 		url:"http://localhost:8080/state",
 		data: {
 			state: e.target.feature.properties.name,
-			count: districtId
+			count: cnt
 		},
-		success: function(response){
-			// console.log(response);
-			var district = JSON.parse(response);
-			var districtLayer = L.geoJson(district, {
+		success: function(districts){
+			// console.log(disctricts);
+			var response = JSON.parse(districts);
+			// console.log("success");
+			var texas_district = L.geoJson(districts, {
 			    			style: style,
 			    			onEachFeature: stateEffects
 			    		});
+			//            map.removeLayer(geojson);
 			    map.addLayer(texas_district);
 		},
 		error:function(err){
@@ -114,33 +122,6 @@ function getDistrict(e,districtId){
 		}
 	})
 }
-
-function getPrecincts(e,done){
-	$.ajax({
-		url:"http://localhost:8080/state",
-		data: {
-			state: e.target.feature.properties.name
-		},
-		success: function(response){
-		    if(response=="done"){
-		        done=1
-		        return
-		    }
-			// console.log(response);
-			var precinct = JSON.parse(response);
-			var precinctLayer = L.geoJson(precinct, {
-			    			style: style,
-			    			onEachFeature: stateEffects
-			    		});
-			    map.addLayer(precinctLayer);
-		},
-		error:function(err){
-		console.log(err)
-		console.log("ERROR")
-		}
-	})
-}
-
 
 var geojson;
 var texas;

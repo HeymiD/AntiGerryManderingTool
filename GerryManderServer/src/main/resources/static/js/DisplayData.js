@@ -96,7 +96,7 @@ var phaseData = L.control();
 	};
 	phaseData.update = function (props) {
 	  this._div.innerHTML = '<h4>Majority Minority Precincts</h4>' + '<b>Num of Precincts: </b>' + '<br/><b>Num of Maj-Min Precincts: </b>'
-		+ '<br/><b>% of {insert selected race here} Majority: </b>' + '<br/><b>% of {insert selected race here} Majority: </b>' ;
+		+ '<br/><b>% of {insert selected race here} voted as a bloc: </b>' + '<br/><b>% of {insert selected race here} voted as bloc: </b>' ;
 	};
 	phaseData.show = function(){
 		$('#phase0info').show();
