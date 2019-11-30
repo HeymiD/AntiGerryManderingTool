@@ -23,20 +23,24 @@ public class GerryManderController {
 
     private State state;
 	private Algorithm algorithm;
-	private Queue<Precinct> precinctsToSend = new LinkedList<Precinct>();
+	public static Queue<Precinct> precinctsToSend = new LinkedList<Precinct>();
 
 	@RequestMapping("/state")
 	public String getSate(@RequestParam("state") String stateName,
                           @RequestParam("districtId") int districtId) {
+	    if(state==null){
+            state = new State(stateName);
+            algorithm = new Algorithm(state);
+        }
         try{
             return state.oldDistricts.get(districtId).getGeoData();
         }
         catch(NullPointerException e){
-            state = new State(stateName);
+
             District d = DistrictDAO.get(districtId+"",state);
-            state.oldDistricts.put("U.S. Rep "+d.getID(),d);
+            PrecinctDAO.initPrecinctsforDistrict(ELECTIONTYPE.Presidential2016,d);
+            state.oldDistricts.put(d.getID(),d);
 //            precinctsToSend.addAll(state.getPrecincts());
-            algorithm = new Algorithm(state);
 //            return state.oldDistricts.get("U.S. Rep "+districtId).getGeoData();
             return d.getGeoData();
         }
@@ -45,24 +49,24 @@ public class GerryManderController {
 	}
 
     @RequestMapping("/precincts")
-    public String getPrecincts(@RequestParam("state") String stateName) {
-	    if(state==null){
-            state = new State(stateName);
-            algorithm = new Algorithm(state);
+    public String getPrecincts(@RequestParam("state") String stateName,
+                               @RequestParam("districtId") int districtId) {
+//        Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000000);
+//	    if(precinctBatchToSend.isEmpty()){
+//	        System.out.println("No more precincts");
+//	        return "done";
+//        }
+//        else{
+//	        System.out.println(precinctBatchToSend.size()+"Precincts are sent");
+//            return JSONMaker.makeJSONCollection(precinctBatchToSend);
+//        }
+        Set<Precinct> precinctsDistrict = new HashSet<Precinct>();
+        for (Precinct p:state.getPrecincts()){
+            if(p.getOriginalDistrictID().equals("U.S. Rep "+districtId)){
+                precinctsDistrict.add(p);
+            }
         }
-        try {
-            state.setPrecincts(PrecinctDAO.populatePrecincts());
-            precinctsToSend.addAll(state.getPrecincts());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000);
-	    if(precinctBatchToSend.isEmpty()){
-	        return "done";
-        }
-        else{
-            return JSONMaker.makeJSONCollection(precinctBatchToSend);
-        }
+        return JSONMaker.makeJSONCollection(precinctsDistrict);
     }
     @RequestMapping("/phase0")
     public String sendResultPhaseZero(@RequestParam("votingThreshold") double votingThreshold,

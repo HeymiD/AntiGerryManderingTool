@@ -17,9 +17,9 @@ public class Precinct implements PrecinctInterface {
     @Transient
     private final String geometryJSON;
     @Transient
-    private final String originalDistrictID;
+    private String originalDistrictID;
     @Transient
-    private final int population;
+    private int population;
     @Transient
     private final int gop_vote;
     @Transient
@@ -38,6 +38,8 @@ public class Precinct implements PrecinctInterface {
     private final Set<String> neighborIDs;
     @Transient
     private Map<PARTYNAME, Integer> votesPerParty;
+    @Transient
+    public ELECTIONTYPE userSelectedElectionType=ELECTIONTYPE.Presidential2016;
 
 
 
@@ -88,6 +90,8 @@ public class Precinct implements PrecinctInterface {
 //            }
     }
 
+    public void setOriginalDistrictID(String districtID){originalDistrictID=districtID;}
+
     @Override
     public String getID() {
         	return ID;
@@ -123,6 +127,7 @@ public class Precinct implements PrecinctInterface {
     public int getPopulation() {
         	return population;
         }
+    public void setPopulation(int pop) { this.population =  pop;}
 
     @Override
     public int getGOPVote() {
@@ -192,6 +197,31 @@ public class Precinct implements PrecinctInterface {
             }
         }
     }
+
+    @Override
+    public String toString() {
+
+        return " {\"type\": "
+                + "\"Feature\""
+                + ", \"properties\": { "
+                + "\"PrecinctID\": "+"\""+this.ID +"\""+", "
+                + "\"DistrictID\": "+"\""+this.originalDistrictID+"\"" + ", "
+                + "\"White\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.WHITE)).toString()+"\"" + ", "
+                + "\"Black\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.AFROAM)).toString()+ "\""+", "
+                + "\"Hispanic\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.HISPANIC)).toString()+ "\""+", "
+                + "\"Native\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.NATIVE)).toString()+ "\""+", "
+                + "\"Pacific\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.PACISLAND)).toString()+ "\""+", "
+                + "\"Asian\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.ASIAN)).toString()+ "\""+", "
+                + "\"Other\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.OTHER)).toString()+ "\""+", "
+                + "\"Republican\": " + "\""+elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.REPUBLICAN)+"\""+ ", "
+                + "\"Democrat\": " + "\""+elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.DEMOCRAT)+"\""+ ", "
+                + "\"Green\": " +"\""+ elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.GREEN)+ "\""+", "
+                + "\"Libertarian\": " + "\""+elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.LIBERTARIAN)
+                + "\""+" }, "
+                +  geometryJSON.substring(geometryJSON.indexOf("\"geometry\""),geometryJSON.length());
+    }
+
+
 //        public PARTYNAME getWinningParty(ELECTIONTYPE electiontype){
 //        Map<PARTYNAME,Integer> votes = elections.get(electiontype);
 //        PARTYNAME winningParty = null;
@@ -212,4 +242,7 @@ public class Precinct implements PrecinctInterface {
 //        }
 //        return votes.get(party)/totalVotes;
 //    }
+
+
+
 }

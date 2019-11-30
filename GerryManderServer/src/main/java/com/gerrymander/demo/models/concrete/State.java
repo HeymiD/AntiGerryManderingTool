@@ -64,6 +64,8 @@ public class State
 		oldDistricts = new HashMap<String, District>();
 	}
 
+	public String getName(){return name;}
+
 	public Set<Precinct> getPrecincts(){
         return new HashSet<>(precincts.values());
 		}
@@ -71,6 +73,8 @@ public class State
 	public void setPrecincts(Map<String,Precinct> precincts){
 		this.precincts=precincts;
 	}
+
+	public void addPrecinct(Precinct precinct){precincts.put(precinct.getID(),precinct);}
 
 	public Set<District> getDistricts() {
 		return new HashSet<>(districts.values());

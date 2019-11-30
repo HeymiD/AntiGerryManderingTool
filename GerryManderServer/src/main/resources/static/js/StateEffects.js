@@ -54,21 +54,24 @@ function zoomOnState(e) {
 		},
 		success: function(response){
 			map.removeLayer(geojson);
+			map.removeLayer(texas)
 			var districtFirst=JSON.parse(response);
 			var districtLayer = L.geoJson(districtFirst, {
 				style: style,
 				onEachFeature: stateEffects
 			})
-//			map.addLayer(districtLayer);
-//			var districtId=2
+			map.addLayer(districtLayer);
+			var districtId=2
+			while(districtId<37){
+				getDistrict(e,districtId);
+				districtId=districtId+1;
+			}
+            console.log("Asking for precincts...")
+//            districtId=1
 //			while(districtId<37){
-//				getDistrict(e,districtId);
+//				getPrecincts(e,districtId);
 //				districtId=districtId+1;
 //			}
-			var done=0
-			while(done==0){
-			    getPrecincts(e,done)
-			}
 		},
 		error:function(err){
 			console.log(err, "ERROR");
@@ -168,9 +171,17 @@ function getDistrict(e,districtId){
 			var district = JSON.parse(response);
 			var districtLayer = L.geoJson(district, {
 			    			style: style,
-			    			onEachFeature: stateEffects
+			    			onEachFeature: districtEffects
 			    		});
 			    map.addLayer(districtLayer);
+			if(districtId==36){
+			districtID=1
+                while(districtID<37){
+                    console.log("District: "+districtID)
+                    getPrecincts(e,districtID);
+                    districtID=districtID+1;
+                }
+			}
 		},
 		error:function(err){
 		console.log(err)
@@ -179,22 +190,24 @@ function getDistrict(e,districtId){
 	})
 }
 
-function getPrecincts(e,done){
+function getPrecincts(e,districtId){
 	$.ajax({
 		url:"http://localhost:8080/precincts",
 		data: {
-			state: e.target.feature.properties.name
+			state: e.target.feature.properties.name,
+			districtId: districtId
 		},
 		success: function(response){
-		    if(response=="done"){
-		        done=1
-		        return
-		    }
-			// console.log(response);
+			 console.log(response);
 			var precinct = JSON.parse(response);
+//			if(precinct.localCompare("done")==0){
+//            		        done=1
+//            		        return
+//            		    }
+//			console.log(precinct)
 			var precinctLayer = L.geoJson(precinct, {
 			    			style: style,
-			    			onEachFeature: stateEffects
+			    			onEachFeature: precinctEffects
 			    		});
 			    map.addLayer(precinctLayer);
 		},
