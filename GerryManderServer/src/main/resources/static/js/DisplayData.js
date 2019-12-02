@@ -28,7 +28,7 @@ var districtData = L.control();
 	};
 	districtData.update = function (props) {
 	  this._div.innerHTML = '<h4>District Data</h4>' +  (props ?
-	  	'<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+	  	'<b>' + props.name + '</b><br />' + props.districtId + ' id'
 	  	: 'Hover over a District');
 	};
 	districtData.show = function(){
@@ -49,7 +49,19 @@ var precinctData = L.control();
 	};
 	precinctData.update = function (props) {
 	  this._div.innerHTML = '<h4>Precinct Data</h4>' +  (props ?
-	  	'<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+	  	'<b>PrecinctID: </b>' + props.PrecinctID +
+	  	'<b><br />DistrictID: </b>' + props.DistrictID +
+	  	'<b><br />Republican Votes: </b>' + props.Republican +
+	  	'<b><br />Democrat Votes: </b>' + props.Democrat +
+	  	'<b><br />Green Votes: </b>' + props.Green +
+	  	'<b><br />Libertarian Votes: </b>' + props.Libertarian +
+	  	'<b><br />White Population: </b>' + props.White +
+	  	'<b><br />Black Population: </b>' + props.Black +
+	  	'<b><br />Hispanic Population: </b>' + props.Hispanic +
+	  	'<b><br />Native Population: </b>' + props.Native +
+	  	'<b><br />Pacific Population: </b>' + props.Pacific +
+	  	'<b><br />Asian Population: </b>' + props.Asian +
+	  	'<b><br />Other Population: </b>' + props.Other
 	  	: 'Hover over a precinct');
 	};
 	precinctData.show = function(){
@@ -65,16 +77,35 @@ var precinctData = L.control();
 function selMapContent(content){
 	var thisContent;
 	var otherContent;
+
 	switch(content){
 		case 'districtContent':
 		thisContent = $('#districtContent');
 		otherContent = $('#precinctContent');
+		if(map.hasLayer(precLayer)){
+        	map.removeLayer(precLayer);
+        }
+        if(map.hasLayer(texas)){
+            map.removeLayer(texas);
+        }
+        if(!map.hasLayer(distLayer)){
+        	map.addLayer(distLayer);
+        }
 		districtData.show();
 		precinctData.hide();
 			break;
 		case 'precinctContent':
 			thisContent = $('#precinctContent');
 			otherContent = $('#districtContent');
+			if(map.hasLayer(distLayer)){
+                map.removeLayer(distLayer);
+            }
+            if(map.hasLayer(texas)){
+                map.removeLayer(texas);
+            }
+            if(!map.hasLayer(precLayer)){
+            	map.addLayer(precLayer);
+            }
 			districtData.hide();
 			precinctData.show();
 			break;
@@ -82,7 +113,6 @@ function selMapContent(content){
 	if(!thisContent.hasClass('active')){
 		thisContent.toggleClass('active');
 		otherContent.toggleClass('active');
-
 	}
 }
 

@@ -89,7 +89,12 @@ public class Precinct implements PrecinctInterface {
 //            elections.get(voting.getElectiontype()).put(voting.getParty(),voting.getVotes());
 //            }
     }
-
+    public Map<ELECTIONTYPE, Votes> getElections() {
+        return elections;
+    }
+    public Map<DEMOGRAPHIC, Integer> getPrecinctDemographics() {
+        return precinctDemographics;
+    }
     public void setOriginalDistrictID(String districtID){originalDistrictID=districtID;}
 
     @Override

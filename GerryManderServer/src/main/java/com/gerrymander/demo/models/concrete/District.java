@@ -1,7 +1,9 @@
 package com.gerrymander.demo.models.concrete;
 
 import com.gerrymander.demo.DEMOGRAPHIC;
+import com.gerrymander.demo.ELECTIONTYPE;
 import com.gerrymander.demo.Election;
+import com.gerrymander.demo.Votes;
 import com.gerrymander.demo.measures.DistrictInterface;
 import com.gerrymander.demo.models.concrete.State;
 import org.locationtech.jts.algorithm.MinimumBoundingCircle;
@@ -24,7 +26,7 @@ public class District implements DistrictInterface<Precinct>
     @Transient
     private int totPop;
     @Transient
-    private ArrayList<Election> electionData;
+    public Map<ELECTIONTYPE,Votes> electionData;
     @Transient
     private State state;
     @Transient
@@ -130,13 +132,13 @@ public class District implements DistrictInterface<Precinct>
         this.totPop = totPop;
     }
 
-    public ArrayList<Election> getElectionData() {
-        return electionData;
-    }
-
-    public void setElectionData(ArrayList<Election> electionData) {
-        this.electionData = electionData;
-    }
+//    public ArrayList<Election> getElectionData() {
+//        return electionData;
+//    }
+//
+//    public void setElectionData(ArrayList<Election> electionData) {
+//        this.electionData = electionData;
+//    }
 
     public String getGeoData() {
         return geoData;

@@ -1,183 +1,71 @@
 var usCenter = [37.8, -96];
 var texas_precincts;
-function recenterMap(){
-	map.setView(usCenter,5);
-}
-function getColor(d) {
-	// switch (feature.properties.party) {
-  //           case 'Republican': return {color: "#ff0000"};
-  //           case 'Democrat':   return {color: "#0000ff"};
-  //       };
-	return d > 10 ? '#ffb0a0' :
-				 d > 5  ? '#a0d4ff' :
-							     		  '#d7ffa0';
+var distPrecinct = {}
+var districtx = {}
+var distLayer = L.layerGroup();
+var precLayer = L.layerGroup();
+var disColor = ['#3078dd','#47c871','#72b189','#0de85a','#6d73c4','#57ab0f','#3078dd','#5186af','#3fa20b','#a490a0',
+                '#71aabe','#1940fe','#5bc4a3','#9a4d46','#866dc6','#80f4d0','#b0c7d7','#137a9d','#4d6d3a','#388f7a',
+                '#bfb119','#1e5c1e','#3d9ed7','#518d92','#420f26','#b81163','#973a02','#413db1','#00718e','#08e548',
+                '#191760','#c82d7d','#cdde56','#88670d','#612d87','#371b95','#eb95e9']
+
+function dicSize(x){
+    var  len = 0;
+    for (var item in x){
+        len ++;
+    }
+    return len;
 }
 
-function style(feature) { //need to change the way we set colors based on ???
-	return {
-	  weight: 2,
-		opacity: 1,
-		color: 'white',
-		dashArray: '3',
-		fillOpacity: 0.7,
-		fillColor: getColor(feature.properties.COLOR)
-	};
-}
-
-function onStateHover(e) {
-	var layer = e.target;
-	// console.log(e);
-	layer.setStyle({
-	weight: 5,
-	color: '#ffe135',
-	dashArray: '',
-	fillOpacity: 0.7
-  });
-  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-  	layer.bringToFront();
-  }
-  stateData.update(layer.feature.properties);
-}
-
-function stateMouseOut(e) {
-	geojson.resetStyle(e.target);
-	stateData.update();
-}
-
-function zoomOnState(e) {
-
-	$.ajax({
-		url:"http://localhost:8080/state",
-		data:{
-			state: e.target.feature.properties.name,
-			districtId:1
-		},
-		success: function(response){
-			map.removeLayer(geojson);
-			map.removeLayer(texas)
-			var districtFirst=JSON.parse(response);
-			var districtLayer = L.geoJson(districtFirst, {
-				style: style,
-				onEachFeature: stateEffects
-			})
-			map.addLayer(districtLayer);
-			var districtId=2
-			while(districtId<37){
-				getDistrict(e,districtId);
-				districtId=districtId+1;
-			}
-            console.log("Asking for precincts...")
-//            districtId=1
-//			while(districtId<37){
-//				getPrecincts(e,districtId);
-//				districtId=districtId+1;
-//			}
-		},
-		error:function(err){
-			console.log(err, "ERROR");
-		}
-	})
-	map.fitBounds(e.target.getBounds());
-	map.on('drag', function() {
-	  map.panInsideBounds(e.target.getBounds(), { animate: false });
-	});
-	select.select.selectedIndex = 1;
-	mapContent.show();
-	// console.log(!outerMenuBtn.is(":visible
-	// outerMenuBtn.show();
-	if(body.attr('class') == 'active-nav'){
-		outerMenuBtn.hide();
-
-	}
-	else{
-		outerMenuBtn.show();
-	}
-	stateData.hide();
-	districtData.show();
-}
-
-function stateEffects(feature, layer) {
-	layer.on({
-		mouseover: onStateHover,
-		mouseout: stateMouseOut,
-		click: zoomOnState
-	});
-}
-
-function onDistrictHover(e) {
-	var layer = e.target;
-	// console.log(e);
-	layer.setStyle({
-	weight: 5,
-	color: '#ffe135',
-	dashArray: '',
-	fillOpacity: 0.7
-  });
-  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-  	layer.bringToFront();
-  }
-  districtData.update(layer.feature.properties);
-}
-
-function districtMouseOut(e) {
-	geojson.resetStyle(e.target);
-	districtData.update();
-}
-
-function districtEffects(feature, layer) {
-	layer.on({
-		mouseover: onDistrictHover,
-		mouseout: districtMouseOut,
-		click: zoomOnState
-	});
-}
-function onPrecinctHover(e) {
-	var layer = e.target;
-	// console.log(e);
-	layer.setStyle({
-	weight: 5,
-	color: '#ffe135',
-	dashArray: '',
-	fillOpacity: 0.7
-  });
-  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-  	layer.bringToFront();
-  }
-  precinctData.update(layer.feature.properties);
-}
-
-function precinctMouseOut(e) {
-	geojson.resetStyle(e.target);
-	precinctData.update();
-}
-
-function precinctEffects(feature, layer) {
-	layer.on({
-		mouseover: onPrecinctHover,
-		mouseout: precinctMouseOut,
-		click: zoomOnState
-	});
-}
+function fetchDistrict(e){
+    if(dicSize(distPrecinct) == 0){
+        $.ajax({
+            url:"http://localhost:8080/state",
+            data:{
+                state: e.feature.properties.name,
+                districtId:1
+            },
+            success: function(response){
+                var districtFirst=JSON.parse(response);
+                var districtLayer = L.geoJson(districtFirst, {
+                    style: districtStyle,
+                    onEachFeature: districtEffects
+                })
+                districtLayer.addTo(distLayer);
+                var districtId=2
+                while(districtId<37){
+                    getDistrict(e,districtId);
+                    districtId=districtId+1;
+                }
+            },
+            error:function(err){
+                console.log(err, "ERROR");
+            }
+        })
+    }
+ }
 
 function getDistrict(e,districtId){
 	$.ajax({
 		url:"http://localhost:8080/state",
 		data: {
-			state: e.target.feature.properties.name,
+			state: e.feature.properties.name,
 			districtId: districtId
 		},
 		success: function(response){
 			// console.log(response);
 			var district = JSON.parse(response);
 			var districtLayer = L.geoJson(district, {
-			    			style: style,
+			    			style: districtStyle,
 			    			onEachFeature: districtEffects
 			    		});
-			    map.addLayer(districtLayer);
+			    districtLayer.addTo(distLayer);
+//			    map.addLayer(districtLayer);
+			    districtx[districtId] = districtLayer;
 			if(districtId==36){
 			districtID=1
                 while(districtID<37){
-                    console.log("District: "+districtID)
+//                    console.log("District: "+districtID)
                     getPrecincts(e,districtID);
                     districtID=districtID+1;
                 }
@@ -194,22 +82,20 @@ function getPrecincts(e,districtId){
 	$.ajax({
 		url:"http://localhost:8080/precincts",
 		data: {
-			state: e.target.feature.properties.name,
+			state: e.feature.properties.name,
 			districtId: districtId
 		},
 		success: function(response){
-			 console.log(response);
+//			 console.log(response);
 			var precinct = JSON.parse(response);
-//			if(precinct.localCompare("done")==0){
-//            		        done=1
-//            		        return
-//            		    }
-//			console.log(precinct)
 			var precinctLayer = L.geoJson(precinct, {
-			    			style: style,
+			    			style: precinctStyle,
 			    			onEachFeature: precinctEffects
 			    		});
-			    map.addLayer(precinctLayer);
+//			    map.addLayer(precinctLayer);
+                precinctLayer.addTo(precLayer);
+                distPrecinct[districtId] = precinctLayer;
+//            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
 		},
 		error:function(err){
 		console.log(err)
@@ -218,78 +104,201 @@ function getPrecincts(e,districtId){
 	})
 }
 
-// function getDistricts(e,cnt){
-// 	$.ajax({
-// 		url:"http://localhost:8080/state",
-// 		data: {
-// 			state: e.target.feature.properties.name,
-// 			count: cnt
-// 		},
-// 		success: function(districts){
-// 			// console.log(disctricts);
-// 			var response = JSON.parse(districts);
-// 			// console.log("success");
-// 			var texas_district = L.geoJson(districts, {
-// 			    			style: style,
-// 			    			onEachFeature: stateEffects
-// 			    		});
-// 			//            map.removeLayer(geojson);
-// 			    map.addLayer(texas_district);
-// 		},
-// 		error:function(err){
-// 		console.log(err)
-// 		console.log("ERROR")
-// 		}
-// 	})
-// }
+function recenterMap(){ map.setView(usCenter,5); }
 
+function getDistricData(districtId,elecType){
+$.ajax({
+		url:"http://localhost:8080/districtData",
+		data: {
+			districtId: districtId,
+			elecType: elecType
+		},
+		success: function(response){
+//			 console.log(response);
+			return JSON.parse(response);
+		},
+		error:function(err){
+		console.log(err)
+		console.log("ERROR")
+		}
+	})
+}
 
+//==================== State Zone ====================
 
+function stateColor(d){
+	return d > 3 ? '#ffb0a0' : d > 12  ? '#a0d4ff' : '#d7ffa0';
+}
 
+function stateStyle(feature){ //need to change the way we set colors based on ???
+	return {
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7,
+        fillColor: stateColor(feature.properties.COLOR)
+	};
+}
 
+function onStateHover(e) {
+    var layer = e.target;
 
-// function zoomOnState(e) {
-// 	$.ajax({
-// 		url:"http://localhost:8080/state",
-// 		data:{
-// 			state: e.target.feature.properties.name,
-// 			count:0
-// 		},
-// 		success: function(r){
-// 			map.removeLayer(geojson);
-// 			// console.log(r);
-// 			var response=JSON.parse(r);
-// 			// console.log("success");
-// 			var texas_district = L.geoJson(response, {
-// 				style: style,
-// 				onEachFeature: stateEffects
-// 			}).addTo(map);
-// 			var count=1
-// 			while(count<37){
-// 				getDistricts(e,count);
-// 				count=count+1;
-// 			}
-// 		 // console.log("success");
-// 		},
-// 		error:function(err){
-// 			console.log(err, "ERROR");
-// 		}
-// 	})
-// 	map.fitBounds(e.target.getBounds());
-// 	map.on('drag', function() {
-// 	  map.panInsideBounds(e.target.getBounds(), { animate: false });
-// 	});
-// 	select.select.selectedIndex = 1;
-// 	mapContent.show();
-// 	// console.log(!outerMenuBtn.is(":visible
-// 	// outerMenuBtn.show();
-// 	if(body.attr('class') == 'active-nav'){
-// 		outerMenuBtn.hide();
-// 
-// 	}
-// 	else{
-// 		outerMenuBtn.show();
-// 	}
-// 	stateData.hide();
-// 	districtData.show();
-// }
+    layer.setStyle({
+        weight: 5,
+        color: '#ffe135',
+        dashArray: '',
+        fillOpacity: 0.7
+    });
+
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+    stateData.update(layer.feature.properties);
+}
+
+function stateMouseOut(e) {
+	geojson.resetStyle(e.target);
+	stateData.update();
+}
+
+function zoomOnState(e) {
+    fetchDistrict(e.target);
+//    map.removeLayer(geojson);
+    map.removeLayer(texas)
+    map.addLayer(distLayer);
+//    map.addLayer(precLayer);
+	map.fitBounds(e.target.getBounds());
+//	map.on('drag', function() {
+//	  map.panInsideBounds(e.target.getBounds(), { animate: false });
+//	});
+	select.select.selectedIndex = 1;
+	mapContent.show();
+//    console.log(distPrecinct);
+	// console.log(!outerMenuBtn.is(":visible
+	// outerMenuBtn.show();
+	if(body.attr('class') == 'active-nav'){ outerMenuBtn.hide(); }
+	else{ outerMenuBtn.show(); }
+	stateData.hide();
+	districtData.show();
+}
+
+function stateEffects(feature, layer) {
+	layer.on({
+		mouseover: onStateHover,
+		mouseout: stateMouseOut,
+		click: zoomOnState
+	});
+}
+
+//==================== District Zone ====================
+function districtColor(d){ return disColor[d] }
+
+function districtStyle(feature){ //need to change the way we set colors based on ???
+	return {
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7,
+        fillColor: districtColor(feature.properties.fid)
+	};
+}
+
+function onDistrictHover(e) {
+	var layer = e.target;
+	// console.log(e);
+	layer.setStyle({
+        weight: 5,
+        color: '#ffe135',
+        dashArray: '',
+        fillOpacity: 0.7
+    });
+  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+  	layer.bringToFront();
+  }
+  if(distLayer.dicSize()==36){
+    var distData = getDistrictData(layer.feature.properties.fid,"Presidential2016")
+    districtData.update(distData)
+  }
+  else{
+    districtData.update("Loading...");
+  }
+}
+
+function districtMouseOut(e) {
+//	geojson.resetStyle(e.target);
+//    geoJson.style = districtStyle;
+//	distLayer.resetStyle(e.target);
+    var layer = e.target;
+    layer.setStyle({
+        weight: 2,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    });
+	districtData.update();
+}
+
+function zoomOnDistrict(e) { map.fitBounds(e.target.getBounds()); }
+
+function districtEffects(feature, layer) {
+	layer.on({
+		mouseover: onDistrictHover,
+		mouseout: districtMouseOut,
+		click: zoomOnDistrict
+	});
+}
+
+//==================== Precinct Zone ====================
+function precinctColor(r, d, g, l){
+    var power = Math.max(r,d,g,l)
+	return r == power ? '#E9141D' : d == power ? '#0015BC' : g == power  ? '#00ff00 ' : '#FED105';
+}
+
+function precinctStyle(feature){
+    return {
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7,
+        fillColor: precinctColor(feature.properties.Republican, feature.properties.Democrat, feature.properties.Green, feature.properties.Libertarian)
+    };
+}
+
+function onPrecinctHover(e) {
+	var layer = e.target;
+	// console.log(e);
+	layer.setStyle({
+	weight: 5,
+	color: '#ffe135',
+	dashArray: '',
+	fillOpacity: 0.7
+  });
+  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+  	layer.bringToFront();
+  }
+  precinctData.update(layer.feature.properties);
+}
+
+function precinctMouseOut(e) {
+    var layer = e.target;
+    layer.setStyle({
+        weight: 2,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    });
+	precinctData.update();
+}
+
+function zoomOnPrecinct(e) { map.fitBounds(e.target.getBounds()); }
+
+function precinctEffects(feature, layer) {
+	layer.on({
+		mouseover: onPrecinctHover,
+		mouseout: precinctMouseOut,
+		click: zoomOnPrecinct
+	});
+}

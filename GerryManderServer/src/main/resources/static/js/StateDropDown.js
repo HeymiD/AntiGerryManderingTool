@@ -44,12 +44,17 @@ var select = L.stateSelect();
 select.addTo(map);
 // var data = L.geoJson(statesData);
 select.on('change', function(e){
+    console.log(e);
 	try{
 		var state = L.geoJson(e.feature);
-	  map.fitBounds(state.getBounds());
-		map.on('drag', function() {
-			map.panInsideBounds(state.getBounds(), { animate: false });
-		});
+	    map.fitBounds(state.getBounds());
+	    fetchDistrict(e);
+	    map.removeLayer(texas)
+        map.addLayer(distLayer);
+//		map.on('drag', function() {
+//			map.panInsideBounds(state.getBounds(), { animate: false });
+//		});
+
 		// stateData.update(e.feature.properties);
 		// console.log(stateData);
 		outerMenuBtn.show();
@@ -67,6 +72,18 @@ select.on('change', function(e){
 	}
 	catch(error){
 		recenterMap();
+		if(map.hasLayer(precLayer)){
+            map.removeLayer(precLayer);
+        }
+        if(map.hasLayer(distLayer)){
+            map.removeLayer(distLayer);
+        }
+        if( $('#precinctContent').hasClass('active')){
+            $('#districtContent').toggleClass('active');
+            $('#precinctContent').toggleClass('active');
+        }
+		texas.addTo(map);
+//		distLayer.clearLayers();
 		// stateData.update();
 		districtData.hide();
 		precinctData.hide();

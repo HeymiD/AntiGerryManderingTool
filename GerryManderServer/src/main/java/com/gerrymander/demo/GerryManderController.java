@@ -64,10 +64,47 @@ public class GerryManderController {
         for (Precinct p:state.getPrecincts()){
             if(p.getOriginalDistrictID().equals("U.S. Rep "+districtId)){
                 precinctsDistrict.add(p);
+                state.oldDistricts.get("U.S. Rep "+districtId).putPrecinct(p.getID(),p);
             }
         }
         return JSONMaker.makeJSONCollection(precinctsDistrict);
     }
+    @RequestMapping("/districtData")
+    public String sendDistrictData(@RequestParam("districtId")String districtId,
+                                   @RequestParam("elecType") String elecType){
+        int districtPopulation = 0;
+        Map<PARTYNAME,Integer> votesDistrict = new HashMap<PARTYNAME,Integer>();
+        Map<DEMOGRAPHIC,Integer> demographicsDistrict = new HashMap<DEMOGRAPHIC,Integer>();
+        for (Precinct p:state.getPrecincts()){
+            if(p.getOriginalDistrictID().equals("U.S. Rep "+districtId)){
+                districtPopulation+=p.getPopulation();
+                Votes v = p.getElections().get(ELECTIONTYPE.valueOf(elecType));
+                for (PARTYNAME party:v.getVotes().keySet()){
+                    try{votesDistrict.put(party,votesDistrict.get(party)+v.getVotes().get(party));}
+                    catch(NullPointerException e){votesDistrict.put(party,v.getVotes().get(party));}
+                }
+                for (DEMOGRAPHIC demographic:p.getPrecinctDemographics().keySet()){
+                    try{demographicsDistrict.put(demographic,votesDistrict.get(demographic)+v.getVotes().get(demographic));}
+                    catch(NullPointerException e){demographicsDistrict.put(demographic,v.getVotes().get(demographic));}
+                }
+            }
+        }
+	    return "{" + "\"DistrictID\": "+"\""+districtId+"\"" + ", "
+                + "\"White\": " + "\""+(demographicsDistrict.get(DEMOGRAPHIC.WHITE)).toString()+"\"" + ", "
+                + "\"Black\": " + "\""+(demographicsDistrict.get(DEMOGRAPHIC.AFROAM)).toString()+ "\""+", "
+                + "\"Hispanic\": " + "\""+(demographicsDistrict.get(DEMOGRAPHIC.HISPANIC)).toString()+ "\""+", "
+                + "\"Native\": " + "\""+(demographicsDistrict.get(DEMOGRAPHIC.NATIVE)).toString()+ "\""+", "
+                + "\"Pacific\": " + "\""+(demographicsDistrict.get(DEMOGRAPHIC.PACISLAND)).toString()+ "\""+", "
+                + "\"Asian\": " + "\""+(demographicsDistrict.get(DEMOGRAPHIC.ASIAN)).toString()+ "\""+", "
+                + "\"Other\": " + "\""+(demographicsDistrict.get(DEMOGRAPHIC.OTHER)).toString()+ "\""+", "
+                + "\"Republican\": " + "\""+votesDistrict.get(PARTYNAME.REPUBLICAN)+"\""+ ", "
+                + "\"Democrat\": " + "\""+votesDistrict.get(PARTYNAME.DEMOCRAT)+"\""+ ", "
+                + "\"Green\": " +"\""+ votesDistrict.get(PARTYNAME.GREEN)+ "\""+", "
+                + "\"Libertarian\": " + "\""+votesDistrict.get(PARTYNAME.LIBERTARIAN)
+                +"\"Population\": "+districtPopulation
+                +"}";
+    }
+
     @RequestMapping("/phase0")
     public String sendResultPhaseZero(@RequestParam("votingThreshold") double votingThreshold,
                        @RequestParam("blockThreshold") double blockThreshold,
