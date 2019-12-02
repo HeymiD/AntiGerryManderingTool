@@ -28,7 +28,7 @@ var districtData = L.control();
 	};
 	districtData.update = function (props) {
 	  this._div.innerHTML = '<h4>District Data</h4>' +  (props ?
-	  	'<b>' + props.name + '</b><br />' + props.districtId + ' id'
+	  	'<b>' + props.Population + '</b><br />' + props.DistrictID + ' id'
 	  	: 'Hover over a District');
 	};
 	districtData.show = function(){

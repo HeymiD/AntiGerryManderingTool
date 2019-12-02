@@ -2,6 +2,7 @@ var usCenter = [37.8, -96];
 var texas_precincts;
 var distPrecinct = {}
 var districtx = {}
+var districtxData = {}
 var distLayer = L.layerGroup();
 var precLayer = L.layerGroup();
 var disColor = ['#3078dd','#47c871','#72b189','#0de85a','#6d73c4','#57ab0f','#3078dd','#5186af','#3fa20b','#a490a0',
@@ -106,7 +107,7 @@ function getPrecincts(e,districtId){
 
 function recenterMap(){ map.setView(usCenter,5); }
 
-function getDistricData(districtId,elecType){
+function getDistrictData(districtId,elecType){
 $.ajax({
 		url:"http://localhost:8080/districtData",
 		data: {
@@ -114,8 +115,11 @@ $.ajax({
 			elecType: elecType
 		},
 		success: function(response){
-//			 console.log(response);
-			return JSON.parse(response);
+		console.log(response)
+		var data = JSON.parse(response)
+		districtxData[data.DistrictID]=data
+		districtData.update(data)
+
 		},
 		error:function(err){
 		console.log(err)
@@ -217,9 +221,16 @@ function onDistrictHover(e) {
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
   	layer.bringToFront();
   }
-  if(distLayer.dicSize()==36){
-    var distData = getDistrictData(layer.feature.properties.fid,"Presidential2016")
-    districtData.update(distData)
+  if(distLayer.getLayers().length==36){
+    console.log("Getting district data")
+    var districtId = "U.S. Rep "+layer.feature.properties.fid
+    if(!(districtId in districtxData)){
+        getDistrictData(districtId,"Presidential2016");}
+    else{
+        districtData.update(districtxData[districtId])
+    }
+//    console.log(distData.DistrictID+", "+distData.Population)
+//    districtData.update(distData)
   }
   else{
     districtData.update("Loading...");
