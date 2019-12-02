@@ -28,7 +28,19 @@ var districtData = L.control();
 	};
 	districtData.update = function (props) {
 	  this._div.innerHTML = '<h4>District Data</h4>' +  (props ?
-	  	'<b>' + props.Population + '</b><br />' + props.DistrictID + ' id'
+	  	'<b>' +'District ID: '+props.DistrictID + '</b><br />'
+	  	+ 'Population: '+props.Population + '</b><br />'
+	  	+ 'White: ' + props.White + '</b><br />'
+	  	+ 'Black: ' +  props.Black + '</b><br />'
+	  	+ 'Hispanic: ' + props.Hispanic + '</b><br />'
+	  	+ 'Pacific: ' + props.Pacific + '</b><br />'
+	  	+ 'Native: ' + props.Native + '</b><br />'
+	  	+ 'Asian: ' + props.Asian + '</b><br />'
+	  	+ 'Other: ' + props.Other + '</b><br />'
+	  	+ 'Republican: ' + props.Republican + '</b><br />'
+	  	+ 'Democrat: ' + props.Democrat + '</b><br />'
+	  	+ 'Green: ' + props.Green + '</b><br />'
+	  	+ 'Libertarian: ' + props.Libertarian + '</b><br />'
 	  	: 'Hover over a District');
 	};
 	districtData.show = function(){
