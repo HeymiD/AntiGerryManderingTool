@@ -82,8 +82,8 @@
 							Minority-Group Population
 							<div id="minority-population-slider" class="slider-range" name="rangeInput"></div>
 							<div class="min-max-text">
-								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-minority-population" class="range-field" onChange="text2slider(this.id)"/>
-								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-minority-population" class="range-field" onChange="text2slider(this.id)"/>
+								Min:<input type="number" min=50 max="100" oninput="validity.valid || (value='0');" id="min-minority-population" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=50 max="100" oninput="validity.valid || (value='100');" id="max-minority-population" class="range-field" onChange="text2slider(this.id)"/>
 							</div>
 						</blockquote>
 				</li>
@@ -106,7 +106,7 @@
 			</a>
 			<div id='selectMapContent'>
 				<button id="districtContent" class="mapContentbtn active" onClick="selMapContent(this.id)">District</button>
-			  <button id="precinctContent" class="mapContentbtn" onclick="selMapContent(this.id)">Precinct</button>
+			  <button id="precinctContent" class="mapContentbtn" onclick="selMapContent(this.id)" disabled>Precinct</button>
 			</div>
 		</div>
 		<script type="text/javascript" src="./js/SidePanel.js"></script>
