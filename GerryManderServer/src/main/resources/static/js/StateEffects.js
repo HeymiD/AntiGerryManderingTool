@@ -20,7 +20,7 @@ function dicSize(x){
 }
 
 function fetchDistrict(e){
-    if(dicSize(distPrecinct) == 0){
+    if(dicSize(districtx) == 0){
         $.ajax({
             url:"http://localhost:8080/state",
             data:{
@@ -33,6 +33,7 @@ function fetchDistrict(e){
                     style: districtStyle,
                     onEachFeature: districtEffects
                 })
+                districtx[1]=districtLayer
                 districtLayer.addTo(distLayer);
                 var districtId=2
                 while(districtId<37){

@@ -95,14 +95,25 @@ function selMapContent(content){
 		case 'districtContent':
 		thisContent = $('#districtContent');
 		otherContent = $('#precinctContent');
-		if(map.hasLayer(precLayer)){
-        	map.removeLayer(precLayer);
-        }
+//		if(map.hasLayer(precLayer)){
+//        	map.removeLayer(precLayer);
+//        }
         if(map.hasLayer(texas)){
             map.removeLayer(texas);
         }
-        if(!map.hasLayer(distLayer)){
-        	map.addLayer(distLayer);
+//        if(!map.hasLayer(distLayer)){
+//        	map.addLayer(distLayer);
+//        }
+        for (var districtId in districtx){
+            var district = districtx[districtId];
+            var precinct = precinctData[districtId];
+            if(map.hasLayer(precinct)){
+                map.removeLayer(precinct);
+                }
+
+            if(!map.hasLayer(district)){
+                map.addLayer(district);
+            }
         }
 		districtData.show();
 		precinctData.hide();
@@ -110,15 +121,20 @@ function selMapContent(content){
 		case 'precinctContent':
 			thisContent = $('#precinctContent');
 			otherContent = $('#districtContent');
-			if(map.hasLayer(distLayer)){
-                map.removeLayer(distLayer);
-            }
-            if(map.hasLayer(texas)){
-                map.removeLayer(texas);
-            }
-            if(!map.hasLayer(precLayer)){
-            	map.addLayer(precLayer);
-            }
+			if(map.hasLayer(texas)){
+                            map.removeLayer(texas);
+                        }
+			for (var districtId in districtx){
+			    var district = districtx[districtId];
+			    var precinct = precinctData[districtId];
+			    if(map.hasLayer(district)){
+			        map.removeLayer(district);
+			        }
+
+                if(!map.hasLayer(precLayer)){
+                    map.addLayer(precLayer);
+                }
+			}
 			districtData.hide();
 			precinctData.show();
 			if(dicSize(distPrecinct) == 0){
