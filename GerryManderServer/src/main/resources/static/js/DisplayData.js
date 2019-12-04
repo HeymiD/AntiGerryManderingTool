@@ -1,4 +1,5 @@
 // control that shows state info on hover
+
 var stateData = L.control();
 	stateData.onAdd = function (map) {
 		this._div = L.DomUtil.create('div', 'selectedinfo');
@@ -120,7 +121,18 @@ function selMapContent(content){
             }
 			districtData.hide();
 			precinctData.show();
+			if(dicSize(distPrecinct) == 0){
+			    var districtID = 1
+                while(districtID<37){
+                    console.log("getting Precincts now")
+                    getPrecincts(currState,districtID);
+                    console.log("Got precinct for district id: " + districtID)
+                    districtID=districtID+1;
+                }
+			}
+
 			break;
+
 	}
 	if(!thisContent.hasClass('active')){
 		thisContent.toggleClass('active');

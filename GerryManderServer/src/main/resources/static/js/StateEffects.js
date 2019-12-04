@@ -1,4 +1,5 @@
 var usCenter = [37.8, -96];
+var currState;
 var texas_precincts;
 var distPrecinct = {}
 var districtx = {}
@@ -38,11 +39,13 @@ function fetchDistrict(e){
                     getDistrict(e,districtId);
                     districtId=districtId+1;
                 }
+
             },
             error:function(err){
                 console.log(err, "ERROR");
             }
         })
+
     }
  }
 
@@ -63,14 +66,17 @@ function getDistrict(e,districtId){
 			    districtLayer.addTo(distLayer);
 //			    map.addLayer(districtLayer);
 			    districtx[districtId] = districtLayer;
-			if(districtId==36){
-			districtID=1
-                while(districtID<37){
-//                    console.log("District: "+districtID)
-                    getPrecincts(e,districtID);
-                    districtID=districtID+1;
+                if(distLayer.getLayers().length == 36){
+                    $('#precinctContent').prop('disabled', false);
                 }
-			}
+//			if(districtId==36){
+//			districtID=1
+//                while(districtID<37){
+////                    console.log("District: "+districtID)
+//                    getPrecincts(e,districtID);
+//                    districtID=districtID+1;
+//                }
+//			}
 		},
 		error:function(err){
 		console.log(err)
@@ -167,7 +173,10 @@ function stateMouseOut(e) {
 }
 
 function zoomOnState(e) {
+
+    console.log(e);
     fetchDistrict(e.target);
+    currState = e.target;
 //    map.removeLayer(geojson);
     map.removeLayer(texas)
     map.addLayer(distLayer);
