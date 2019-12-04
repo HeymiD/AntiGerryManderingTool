@@ -95,7 +95,8 @@ public class PrecinctDAO {
                 dis.putPrecinct(resultSet.getString("PCTKEY"),precinctobj);
                 dis.getState().addPrecinct(precinctobj);
             }
-            if(dis.getID().equals("U.S. Rep 36")){
+//            if(dis.getID().equals("U.S. Rep 36")){
+                if(dis.getState().getPrecincts().size()==8936 ){
                 query = "select * " +
                         "from timberwolves."+election.toString();
                 resultSet = statement.executeQuery(query);

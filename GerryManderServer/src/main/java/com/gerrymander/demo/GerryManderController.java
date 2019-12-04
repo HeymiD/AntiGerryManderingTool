@@ -109,7 +109,7 @@ public class GerryManderController {
     @RequestMapping("/phase0")
     public String sendResultPhaseZero(@RequestParam("votingThreshold") double votingThreshold,
                        @RequestParam("blockThreshold") double blockThreshold,
-                       @RequestParam("districtId") String demographicGroups,
+                       @RequestParam("demographicGroup") String demographicGroups,
                        @RequestParam("electionType") String electionType){
         String demographicsCombination[] = demographicGroups.split(",");
         Set<DEMOGRAPHIC> demographicsSelectedByUser = new HashSet<DEMOGRAPHIC>();
