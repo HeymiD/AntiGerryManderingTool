@@ -109,17 +109,10 @@ public class GerryManderController {
     @RequestMapping("/phase0")
     public String sendResultPhaseZero(@RequestParam("votingThreshold") double votingThreshold,
                        @RequestParam("blockThreshold") double blockThreshold,
-                       @RequestParam("demographicGroup") String demographicGroups,
                        @RequestParam("electionType") String electionType){
-        String demographicsCombination[] = demographicGroups.split(",");
-        Set<DEMOGRAPHIC> demographicsSelectedByUser = new HashSet<DEMOGRAPHIC>();
-        for (String demographic : demographicsCombination){
-            demographicsSelectedByUser.add(DEMOGRAPHIC.valueOf(demographic));
-        }
 	    Result resultPhaseZero = algorithm.phaseZero(blockThreshold,votingThreshold,
-                ELECTIONTYPE.valueOf(electionType),
-                demographicsSelectedByUser);
-        return JSONMaker.makeResult(resultPhaseZero);
+                ELECTIONTYPE.valueOf(electionType));
+        return resultPhaseZero.toString();
 
     }
 
@@ -134,7 +127,7 @@ public class GerryManderController {
         }
         return precinctBatchToSend;
     }
-	
-	
-	
+
+
+
 }

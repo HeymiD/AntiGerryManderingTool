@@ -431,9 +431,8 @@ public class Algorithm
         return (precinctsToCheck.size() == 0);
     }
 
-    public Result phaseZero(Double blockThreshold, Double votingThreshold, ELECTIONTYPE election,
-                            Set<DEMOGRAPHIC> combinedDemographics){
-        return state.findMajMinPrecincts(blockThreshold,votingThreshold,election,combinedDemographics);
+    public Result phaseZero(Double blockThreshold, Double votingThreshold, ELECTIONTYPE election){
+        return state.findMajMinPrecincts(blockThreshold,votingThreshold,election);
     }
 
     public void phaseOne(boolean update){
