@@ -92,11 +92,10 @@ public class State
 		return this.population;
 	}
 
-	public Result findMajMinPrecincts(Double blockThreshold, Double votingThreshold, ELECTIONTYPE election,
-									  Set<DEMOGRAPHIC> combinedDemographics){
+	public Result findMajMinPrecincts(Double blockThreshold, Double votingThreshold, ELECTIONTYPE election){
 		for(Precinct precinct : this.getPrecincts()){
 			precinct.setIsMajorityMinority(precinct.findVotingBlock(majMinPrecinctStats,blockThreshold,
-					votingThreshold,election,combinedDemographics ));
+					votingThreshold,election));
 		}
 		return majMinPrecinctStats;
 	}

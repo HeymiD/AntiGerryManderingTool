@@ -148,44 +148,27 @@ public class Precinct implements PrecinctInterface {
 
     public boolean getIsMajorityMinority(){return isMajorityMinority;}
 
-    public Set<DEMOGRAPHIC> getLargestDemographic(Set<DEMOGRAPHIC> demographicsToCombine){
+    public DEMOGRAPHIC getLargestDemographic(){
         Integer maxDemographicSize = 0;
         DEMOGRAPHIC largestDemographic = null;
-        Integer combinedDemographicSize = 0;
         for(DEMOGRAPHIC demographic : DEMOGRAPHIC.values()){
             if(precinctDemographics.get(demographic) > maxDemographicSize){
                 maxDemographicSize = precinctDemographics.get(demographic);
                 largestDemographic = demographic;
             }
         }
-        Set<DEMOGRAPHIC> demographicToReturn = new HashSet<>();
-        demographicToReturn.add(largestDemographic);
-        try {
-            for (DEMOGRAPHIC userSelectedDemographic : demographicsToCombine) {
-                combinedDemographicSize += precinctDemographics.get(userSelectedDemographic);
-            }
-        }
-        catch(NullPointerException e) {
-            return demographicToReturn;
-        }
-        if (maxDemographicSize < combinedDemographicSize) {
-            return demographicsToCombine;
-        }
-        return demographicToReturn;
+        return largestDemographic;
     }
 
-    public double calculateDemographicSize(Set<DEMOGRAPHIC> largestDemographic, int population){
-        Integer demographicSize = 0;
-        for(DEMOGRAPHIC demographic : largestDemographic){
-            demographicSize += precinctDemographics.get(demographic);
-        }
+    public double calculateDemographicSize(DEMOGRAPHIC largestDemographic, int population){
+        Integer demographicSize = precinctDemographics.get(largestDemographic);
         return Double.valueOf(demographicSize)/population;
     }
 
     public boolean findVotingBlock(Result majorityMinorityResult, Double blockThreshold, Double votingThreshold,
-                                   ELECTIONTYPE election, Set<DEMOGRAPHIC> combinedDemographics){
-        Set<DEMOGRAPHIC> largestDemographicsSet = this.getLargestDemographic(combinedDemographics);
-        double demographicSize = this.calculateDemographicSize(largestDemographicsSet, this.population);
+                                   ELECTIONTYPE election){
+        DEMOGRAPHIC largestDemographic = this.getLargestDemographic();
+        double demographicSize = this.calculateDemographicSize(largestDemographic, this.population);
         if(demographicSize < blockThreshold){
             return false;
         }
@@ -197,7 +180,7 @@ public class Precinct implements PrecinctInterface {
                 return false;
             }
             else{
-                majorityMinorityResult.addToResult(this.ID, largestDemographicsSet, winningParty);
+                majorityMinorityResult.addToResult(this.ID, largestDemographic, winningParty);
                 return true;
             }
         }
