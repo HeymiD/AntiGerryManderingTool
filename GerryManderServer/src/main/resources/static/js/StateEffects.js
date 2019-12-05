@@ -67,7 +67,7 @@ function getDistrict(e,districtId){
 			    districtLayer.addTo(distLayer);
 //			    map.addLayer(districtLayer);
 			    districtx[districtId] = districtLayer;
-                if(distLayer.getLayers().length == 36){
+                if(distLayer.getLayers().length == 36 ){
                     $('#precinctContent').prop('disabled', false);
                 }
 //			if(districtId==36){
@@ -86,12 +86,13 @@ function getDistrict(e,districtId){
 	})
 }
 
-function getPrecincts(e,districtId){
+function getPrecincts(e,districtId,electType){
 	$.ajax({
 		url:"http://localhost:8080/precincts",
 		data: {
 			state: e.feature.properties.name,
-			districtId: districtId
+			districtId: districtId,
+			electType: electType
 		},
 		success: function(response){
 //			 console.log(response);
@@ -231,11 +232,12 @@ function onDistrictHover(e) {
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
   	layer.bringToFront();
   }
-  if(distLayer.getLayers().length==36){
+  if(distLayer.getLayers().length==36 && electionType.val() != 'Election Type'   & electionYear.val() != 'Election Year'){
     console.log("Getting district data")
     var districtId = "U.S. Rep "+layer.feature.properties.fid
     if(!(districtId in districtxData)){
-        getDistrictData(districtId,"Presidential2016");}
+        console.log('electionType.val()+electionYear.val() = '+ electionType.val() + electionYear.val())
+        getDistrictData(districtId, electionType.val()+electionYear.val());}
     else{
         districtData.update(districtxData[districtId])
     }

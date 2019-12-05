@@ -7,7 +7,6 @@ import com.gerrymander.demo.models.DAO.DistrictDAO;
 //import com.gerrymander.demo.models.DAO.DistrictDAOInterface;
 //import com.gerrymander.demo.models.Service.DistrictService;
 import com.gerrymander.demo.models.DAO.PrecinctDAO;
-import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;

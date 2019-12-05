@@ -122,30 +122,36 @@ function selMapContent(content){
 			thisContent = $('#precinctContent');
 			otherContent = $('#districtContent');
 			if(map.hasLayer(texas)){
-                            map.removeLayer(texas);
-                        }
-			for (var districtId in districtx){
-			    var district = districtx[districtId];
-			    var precinct = precinctData[districtId];
-			    if(map.hasLayer(district)){
-			        map.removeLayer(district);
-			        }
+                map.removeLayer(texas);
+            }
+            if(electionYear.val() == 'Election Year' || electionType.val() == 'Election Type'){
+                alert('select something');
+            }
+            else{
 
-                if(!map.hasLayer(precLayer)){
-                    map.addLayer(precLayer);
+                for (var districtId in districtx){
+                    var district = districtx[districtId];
+                    var precinct = precinctData[districtId];
+                    if(map.hasLayer(district)){
+                        map.removeLayer(district);
+                        }
+
+                    if(!map.hasLayer(precLayer)){
+                        map.addLayer(precLayer);
+                    }
                 }
-			}
-			districtData.hide();
-			precinctData.show();
-			if(dicSize(distPrecinct) == 0){
-			    var districtID = 1
-                while(districtID<37){
-                    console.log("getting Precincts now")
-                    getPrecincts(currState,districtID);
-                    console.log("Got precinct for district id: " + districtID)
-                    districtID=districtID+1;
+                districtData.hide();
+                precinctData.show();
+                if(dicSize(distPrecinct) == 0 && electionYear.val() != 'Election Year' && electionType.val() != 'Election Type'){
+                    var districtID = 1
+                    while(districtID<37){
+                        console.log("getting Precincts now")
+                        getPrecincts(currState,districtID, electionType.val() + electionYear.val());
+                        console.log("Got precinct for district id: " + districtID)
+                        districtID=districtID+1;
+                    }
                 }
-			}
+            }
 
 			break;
 

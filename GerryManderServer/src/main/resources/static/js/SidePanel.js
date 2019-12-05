@@ -4,6 +4,9 @@ var phases = ['Select a Phase', 'Phase 0', 'Phase 1', 'Phase 2'];
 var selectedMinority = 0;
 // var demographics = ['White','Black','Asain','Hispanic'];
 var phaseSelector = $('#phaseType');
+var electionType = $('#electionType');
+var electionYear = $('#yearType');
+
 $('#objectiveBtn').hide();
 $('#abuttonBtn').hide();
 
@@ -169,12 +172,24 @@ var prerequisites = $('#prereq-block');
 prerequisites.change(function(){
   // console.log('sup im changing');
   // console.log(selectedMinority);
-  if($('#electionType').val() != 'Election Type' && $('#yearType').val() != 'Election Year' && selectedMinority > 0 && phaseSelector.val() != 'Select a Phase') {
-    $('#objectiveBtn').show();
+//  && phaseSelector.val() != 'Select a Phase'
+  if($('#electionType').val() != 'Election Type' && $('#yearType').val() != 'Election Year') {
+//    $('#objectiveBtn').show();
     $('#abuttonBtn').show();
+
   }
   else{
-    $('#objectiveBtn').hide();
     $('#abuttonBtn').hide();
+    $('#objectiveBtn').hide();
   }
+});
+
+var algorithms = $('#abutton-block');
+algorithms.change(function(){
+    if(phaseSelector.val() != 'Select a Phase' && phaseSelector.val() != 'Phase 0'){
+        $('#objectiveBtn').show();
+    }
+    else{
+        $('#objectiveBtn').hide();
+    }
 });
