@@ -1,9 +1,11 @@
 var elecType = ['Election Type','Presidential', 'Congressional'];    //get from backend later on
 var yearType = ['Election Year','2016', '2018'];
 var phases = ['Select a Phase', 'Phase 0', 'Phase 1', 'Phase 2'];
+var algorithms = ['Select Algorithm', 'Algorithm 1', 'Algorithm 2', 'Algorithm 3'];
 var selectedMinority = 0;
 // var demographics = ['White','Black','Asain','Hispanic'];
 var phaseSelector = $('#phaseType');
+var algorithmSelector = $('#algorithmType');
 var electionType = $('#electionType');
 var electionYear = $('#yearType');
 
@@ -28,6 +30,13 @@ for(var i=0; i<phases.length; i++){
   option.setAttribute('value', phases[i]);
   option.text = phases[i];
   document.getElementById('phaseType').appendChild(option);
+}
+
+for(var i=0; i<algorithms.length; i++){
+  var option = document.createElement('option');
+  option.setAttribute('value', algorithms[i]);
+  option.text = algorithms[i];
+  document.getElementById('algorithmType').appendChild(option);
 }
 // for(var i=0; i<demographics.length; i++){
 //   var checkbox = document.createElement('input');
@@ -59,6 +68,10 @@ function hambrgrToggle(id) {
     outerMenuBtn.show();
   }
   body.toggleClass('active-nav');
+  $('#prereq-block').css('display', 'None')
+  $('#abutton-block').css('display', 'None')
+  $('#objectives-block').css('display', 'None')
+
 }
 
 $(function () {
@@ -173,14 +186,17 @@ prerequisites.change(function(){
   // console.log('sup im changing');
   // console.log(selectedMinority);
 //  && phaseSelector.val() != 'Select a Phase'
-  if($('#electionType').val() != 'Election Type' && $('#yearType').val() != 'Election Year') {
+  if(electionType.val() != 'Election Type' && electionYear.val() != 'Election Year') {
 //    $('#objectiveBtn').show();
     $('#abuttonBtn').show();
-
+    districtData.show();
   }
   else{
     $('#abuttonBtn').hide();
+    $('#abutton-block').css('display', 'None')
+    $('#phaseType :nth-child(0)').prop('selected', true);
     $('#objectiveBtn').hide();
+    districtData.hide();
   }
 });
 

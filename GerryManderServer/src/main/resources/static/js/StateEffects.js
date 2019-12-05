@@ -195,7 +195,7 @@ function zoomOnState(e) {
 	if(body.attr('class') == 'active-nav'){ outerMenuBtn.hide(); }
 	else{ outerMenuBtn.show(); }
 	stateData.hide();
-	districtData.show();
+//	districtData.show();
 }
 
 function stateEffects(feature, layer) {
@@ -221,32 +221,29 @@ function districtStyle(feature){ //need to change the way we set colors based on
 }
 
 function onDistrictHover(e) {
-	var layer = e.target;
-	// console.log(e);
-	layer.setStyle({
+    var layer = e.target;
+    // console.log(e);
+    layer.setStyle({
         weight: 5,
         color: '#ffe135',
         dashArray: '',
         fillOpacity: 0.7
     });
-  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-  	layer.bringToFront();
-  }
-  if(distLayer.getLayers().length==36 && electionType.val() != 'Election Type'   & electionYear.val() != 'Election Year'){
-    console.log("Getting district data")
-    var districtId = "U.S. Rep "+layer.feature.properties.fid
-    if(!(districtId in districtxData)){
-        console.log('electionType.val()+electionYear.val() = '+ electionType.val() + electionYear.val())
-        getDistrictData(districtId, electionType.val()+electionYear.val());}
-    else{
-        districtData.update(districtxData[districtId])
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+    layer.bringToFront();
     }
-//    console.log(distData.DistrictID+", "+distData.Population)
-//    districtData.update(distData)
-  }
-  else{
-    districtData.update("Loading...");
-  }
+    if(distLayer.getLayers().length==36 && electionType.val() != 'Election Type' && electionYear.val() != 'Election Year'){
+        console.log("Getting district data")
+        var districtId = "U.S. Rep "+layer.feature.properties.fid
+        if(!(districtId in districtxData)){
+    //        console.log('electionType.val()+electionYear.val() = '+ electionType.val() + electionYear.val())
+            getDistrictData(districtId, electionType.val()+electionYear.val());}
+        else{
+            districtData.update(districtxData[districtId])
+        }
+        //    console.log(distData.DistrictID+", "+distData.Population)
+        //    districtData.update(distData)
+    }
 }
 
 function districtMouseOut(e) {
