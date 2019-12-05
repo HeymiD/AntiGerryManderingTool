@@ -8,7 +8,8 @@ var phaseSelector = $('#phaseType');
 var algorithmSelector = $('#algorithmType');
 var electionType = $('#electionType');
 var electionYear = $('#yearType');
-
+var runAlgoBtn = $('#runAlgo');
+runAlgoBtn.hide();
 $('#objectiveBtn').hide();
 $('#abuttonBtn').hide();
 
@@ -202,10 +203,19 @@ prerequisites.change(function(){
 
 var algorithms = $('#abutton-block');
 algorithms.change(function(){
-    if(phaseSelector.val() != 'Select a Phase' && phaseSelector.val() != 'Phase 0'){
-        $('#objectiveBtn').show();
-    }
-    else{
+    if(phaseSelector.val() == 'Select a Phase' || algorithmSelector.val() == 'Select Algorithm' || selectedMinority == 0){
         $('#objectiveBtn').hide();
     }
+    else{
+        if(selectedMinority > 0){
+                    runAlgoBtn.show();
+                }
+                else{
+                    runAlgoBtn.hide();
+                }
+                if(phaseSelector.val() != 'Phase 0'){
+                    $('#objectiveBtn').show();
+                }
+    }
+
 });

@@ -32,8 +32,12 @@ nav ul li{
   width: 29%;
 }
 
-nav ul li #minoritySelect{
-    align: left;
+
+#phaseSelect {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px 0;
 }
 
 #minoritySelect{
@@ -44,7 +48,7 @@ nav ul li #minoritySelect{
 }
 
 #minoritySelect input{
-float: left;
+    float: left;
   /* display: block;
   margin-left: auto;
   vertical-align: bottom;
