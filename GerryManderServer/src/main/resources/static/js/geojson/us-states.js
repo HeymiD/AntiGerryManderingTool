@@ -19,3 +19,4 @@ var statesData = {
   ]};
 
 
+var txDistrictData;
