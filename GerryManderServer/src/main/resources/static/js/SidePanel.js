@@ -12,6 +12,7 @@ var runAlgoBtn = $('#runAlgo');
 runAlgoBtn.hide();
 $('#objectiveBtn').hide();
 $('#abuttonBtn').hide();
+$('#minorities').hide();
 
 for(var i=0; i<elecType.length; i++){
   var option = document.createElement('option');
@@ -194,8 +195,9 @@ prerequisites.change(function(){
   }
   else{
     $('#abuttonBtn').hide();
-    $('#abutton-block').css('display', 'None')
+    $('#abutton-block').css('display', 'None');
     $('#phaseType :nth-child(0)').prop('selected', true);
+    $('#objectives-block').css('display','None');
     $('#objectiveBtn').hide();
     districtData.hide();
   }
@@ -203,19 +205,30 @@ prerequisites.change(function(){
 
 var algorithms = $('#abutton-block');
 algorithms.change(function(){
-    if(phaseSelector.val() == 'Select a Phase' || algorithmSelector.val() == 'Select Algorithm' || selectedMinority == 0){
+    console.log(selectedMinority);
+    if(phaseSelector.val() == 'Select a Phase' || algorithmSelector.val() == 'Select Algorithm'){
+        $('#objectives-block').css('display','None');
         $('#objectiveBtn').hide();
+        $('#minorities').hide();
+        runAlgoBtn.hide();
     }
     else{
-        if(selectedMinority > 0){
-                    runAlgoBtn.show();
-                }
-                else{
-                    runAlgoBtn.hide();
-                }
-                if(phaseSelector.val() != 'Phase 0'){
-                    $('#objectiveBtn').show();
-                }
+//        if(selectedMinority > 0){
+//            runAlgoBtn.show();
+//        }
+//        else{
+//            runAlgoBtn.hide();
+//        }
+        runAlgoBtn.show();
+        if(phaseSelector.val() != 'Phase 0'){
+            $('#objectiveBtn').show();
+            $('#minorities').show();
+        }
+        else{
+            $('#minorities').hide();
+            $('#objectives-block').css('display','None');
+            $('#objectiveBtn').hide();
+        }
     }
 
 });

@@ -115,9 +115,12 @@ function selMapContent(content){
                     map.addLayer(district);
                 }
             }
-//            districtData.show();
+
             if(electionYear.val() == 'Election Year' && electionType.val() == 'Election Type'){
                 districtData.hide();
+            }
+            else{
+                districtData.show();
             }
             precinctData.hide();
             if(!thisContent.hasClass('active')){
