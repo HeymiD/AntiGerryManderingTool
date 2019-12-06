@@ -5,6 +5,7 @@ import com.gerrymander.demo.*;
 import com.gerrymander.demo.algorithm.Algorithm;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
+import com.gerrymander.demo.models.concrete.State;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
@@ -145,6 +146,79 @@ public class PrecinctDAO {
             System.out.println("Precinct Database connection Problem");
         }
         return dis.getPrecincts();
+    }
+
+    public static Set<Precinct> initAllPrecincts(State state) {
+
+//        String query = "select T.*, C.Democrat, C.Republican, C.Green, C.Libertarian, C.District, P.geojson " +
+//                "from timberwolves.Precincts_GEO P, "+election.toString()+" C, timberwolves.texas_demographics T " +
+//                "where P.PCTKEY=C.PCTKEY AND P.PCTKEY=T.PCTKEY AND C.District=\'"+dis.getID()+"\'";
+        String query = "select * " +
+                "from timberwolves.PrecinctsGEO ";
+        try{
+            Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
+            Statement statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(query);
+            while(resultSet.next()){
+                Precinct precinctobj = new Precinct(resultSet.getString("PCTKEY"),
+                        resultSet.getString("geojson"));
+                precinctobj.setOriginalDistrictID(resultSet.getString("District"));
+                System.out.println("Key: "+resultSet.getString("PCTKEY"));
+                System.out.println("District: "+resultSet.getString("District"));
+                state.addPrecinct(precinctobj);
+            }
+            for(ELECTIONTYPE election:ELECTIONTYPE.values()){
+
+                query = "select * " +
+                        "from timberwolves."+election.toString();
+                resultSet = statement.executeQuery(query);
+                while(resultSet.next()){
+                    Precinct p = state.getPrecinct(resultSet.getString("PCTKEY"));
+                    Votes v = new Votes();
+                    Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
+                    votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
+                    votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
+                    votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
+                    votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
+                    v.setVotes(votesPrecinct);
+                    v.setElectiontype(election);
+                    p.addVotes(election,v);
+                }
+            }
+            query = "select * " +
+                    "from timberwolves.texas_demographics";
+            resultSet = statement.executeQuery(query);
+            while(resultSet.next()){
+                Precinct precinctobj = state.getPrecinct(resultSet.getString("PCTKEY"));
+                int totPop = 0;
+                precinctobj.addDemographic(DEMOGRAPHIC.AFROAM, Integer.parseInt(resultSet.getString("Black")));
+                totPop+=Integer.parseInt(resultSet.getString("Black"));
+                precinctobj.addDemographic(DEMOGRAPHIC.WHITE, Integer.parseInt(resultSet.getString("White")));
+                totPop+=Integer.parseInt(resultSet.getString("White"));
+                precinctobj.addDemographic(DEMOGRAPHIC.ASIAN, Integer.parseInt(resultSet.getString("Asian")));
+                totPop+=Integer.parseInt(resultSet.getString("Asian"));
+                precinctobj.addDemographic(DEMOGRAPHIC.HISPANIC, Integer.parseInt(resultSet.getString("Hispanic")));
+                totPop+=Integer.parseInt(resultSet.getString("Hispanic"));
+                precinctobj.addDemographic(DEMOGRAPHIC.NATIVE, Integer.parseInt(resultSet.getString("Native")));
+                totPop+=Integer.parseInt(resultSet.getString("Native"));
+                precinctobj.addDemographic(DEMOGRAPHIC.OTHER, Integer.parseInt(resultSet.getString("Other")));
+                totPop+=Integer.parseInt(resultSet.getString("Other"));
+                precinctobj.addDemographic(DEMOGRAPHIC.PACISLAND, Integer.parseInt(resultSet.getString("Pacific")));
+                totPop+=Integer.parseInt(resultSet.getString("Pacific"));
+                precinctobj.setPopulation(totPop);
+            }
+            GerryManderController.precinctsToSend.addAll(state.getPrecincts());
+
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            System.out.println("Query: \n"+query);
+            System.out.println("Precinct Database connection Problem");
+        }
+        return state.getPrecincts();
     }
 
 

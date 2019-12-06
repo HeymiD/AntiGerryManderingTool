@@ -175,6 +175,8 @@ public class Precinct implements PrecinctInterface {
         else{
             Votes selectedElection = elections.get(election);
             PARTYNAME winningParty = selectedElection.getWinningParty();
+            if(winningParty==null){return false;}
+            System.out.println("Precinct ID: "+this.ID+" Winning Party: "+winningParty.toString());
             Double winningPartyRatio = selectedElection.calculateWinningPartyRatio(winningParty);
             if(winningPartyRatio < votingThreshold){
                 return false;

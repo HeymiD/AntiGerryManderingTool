@@ -110,6 +110,7 @@ public class GerryManderController {
     public String sendResultPhaseZero(@RequestParam("votingThreshold") double votingThreshold,
                        @RequestParam("blockThreshold") double blockThreshold,
                        @RequestParam("electionType") String electionType){
+        state.majMinPrecinctStats = new Result(state.getName(),state.getPrecincts().size());
 	    Result resultPhaseZero = algorithm.phaseZero(blockThreshold,votingThreshold,
                 ELECTIONTYPE.valueOf(electionType));
         return resultPhaseZero.toString();

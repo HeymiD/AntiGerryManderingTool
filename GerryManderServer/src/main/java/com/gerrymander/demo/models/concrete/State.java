@@ -58,7 +58,6 @@ public class State
 		this.name = name;
 		this.districts = new HashMap<>();
 		this.precincts = new HashMap<String, Precinct>();
-		this.majMinPrecinctStats = new Result(this.name,this.precincts.size());
 		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
 		oldDistricts = new HashMap<String, District>();
 	}
