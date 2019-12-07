@@ -1,5 +1,6 @@
 package com.gerrymander.demo;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class Edge {
@@ -13,6 +14,9 @@ public class Edge {
 	{
 		this.src=src;
 		this.dest=dest;
+		clusters=new HashSet<Cluster>();
+		clusters.add(src);
+		clusters.add(dest);
 	}
 	
 //	public Cluster getNeighbor(Cluster c)
@@ -39,14 +43,19 @@ public class Edge {
 		return null;
 	}
 
+	@Override
+	public int hashCode() {
+		return clusters.hashCode();
+	}
 
-	public boolean compareTo(Edge e){
-		if(clusters.equals(e.clusters)){
-			return true;
+
+	@Override
+	public boolean equals(Object o){
+		if(o instanceof Cluster){
+			Edge toCompare = (Edge) o;
+			return this.clusters.equals(toCompare.clusters);
 		}
-		else{
-			return false;
-		}
+		return false;
 	}
 
 }

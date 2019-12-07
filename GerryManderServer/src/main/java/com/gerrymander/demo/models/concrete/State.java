@@ -63,6 +63,7 @@ public class State
 		this.precincts = new HashMap<String, Precinct>();
 		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
 		oldDistricts = new HashMap<String, District>();
+		clusters = new HashSet<Cluster>();
 	}
 
 	public String getName(){return name;}

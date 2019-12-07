@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import com.gerrymander.demo.algorithm.Algorithm;
+import com.gerrymander.demo.models.DAO.ClusterDAO;
 import com.gerrymander.demo.models.DAO.DistrictDAO;
 import com.gerrymander.demo.models.DAO.PrecinctDAO;
 import com.gerrymander.demo.models.concrete.District;
@@ -30,6 +31,7 @@ public class GerryManderController {
 	    if(state==null){
             state = new State(stateName);
             PrecinctDAO.initAllPrecincts(state);
+            ClusterDAO.initNeighbors(state);
 //            System.out.println("BEGIN fetching precincts");
 //            for(int i=1;i<37;i++){
 //                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+i,state);

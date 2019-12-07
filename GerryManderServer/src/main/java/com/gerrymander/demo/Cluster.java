@@ -3,6 +3,7 @@ package com.gerrymander.demo;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 
 public class Cluster {
@@ -19,6 +20,9 @@ public class Cluster {
 	public Cluster(String id){
 		ID=id;
 		precincts = new HashSet<Precinct>();
+		edges = new HashSet<Edge>();
+		clusterDemographics = new HashMap<DEMOGRAPHIC,Integer>();
+		elections = new HashMap<ELECTIONTYPE,Votes>();
 	}
 	public Map<DEMOGRAPHIC, Integer> getClusterDemographics(){ return clusterDemographics;}
 	public Map<ELECTIONTYPE, Votes> getElections(){return elections;}
@@ -68,13 +72,26 @@ public class Cluster {
 		return new District();
 	}
 
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof Cluster){
+            Cluster toCompare = (Cluster) o;
+            return this.ID.equals(toCompare.ID);
+        }
+        return false;
+    }
 
-	public boolean equals(Cluster c) {
-		if(this.ID==c.ID){
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
+//    @Override
+//	public boolean equals(Object c) {
+//		if(this.ID==((Cluster)c).ID){
+//			return true;
+//		}
+//		else{
+//			return false;
+//		}
+//	}
+	@Override
+    public int hashCode() {
+        return ID.hashCode();
+    }
 }
