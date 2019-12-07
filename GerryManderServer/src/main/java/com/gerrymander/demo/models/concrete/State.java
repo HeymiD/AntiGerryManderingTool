@@ -28,6 +28,9 @@ public class State
 	public Set<Cluster> clusters;
 	public Set<Cluster> majMinClusters;
 	public Result majMinPrecinctStats;
+	public double userVoteThreshold;
+	public double userDemographicThreshold;
+	public ELECTIONTYPE userSelectedElection;
 //	public boolean clusterListModified;
 	private int population;
 
@@ -110,17 +113,18 @@ public class State
 				boolean undo = false;
 				Cluster combined = combineClusters(c,neighbor);
 				int oldNumMajMinCluster = majMinClusters.size();
-				if (combined.checkMajMin()){
+				if (combined.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
 					if(!majMinClusters.contains(combined)){
 						majMinClusters.add(combined);
 					}
 				}
 				if(majMinClusters.size()<oldNumMajMinCluster){
-					undo_combineCluster(c,neighbor,combined);
+					undo_combineCluster(combined,c,neighbor);
 					undo=true;
 				}
 				if(undo==false){
 					clusterListModified=true;
+
 				}
 			}
 		}
@@ -129,6 +133,15 @@ public class State
 
 	public Cluster combineClusters(Cluster c1, Cluster c2){
 		clusters.remove(c2);
+		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
+			int combined = c1.getClusterDemographics().get(demograhpic) + c2.getClusterDemographics().get(demograhpic);
+			c1.getClusterDemographics().put(demograhpic,combined);
+		}
+		for(PARTYNAME partyname :PARTYNAME.values()){
+			int combined = c1.getElections().get(userSelectedElection).getVotes().get(partyname) +
+					c2.getElections().get(userSelectedElection).getVotes().get(partyname);
+			c1.getElections().get(userSelectedElection).getVotes().put(partyname, combined);
+		}
 		if (majMinClusters.contains(c2)){
 			majMinClusters.remove(c2);
 		}
@@ -157,11 +170,20 @@ public class State
 			majMinClusters.remove(combined);
 		}
 		clusters.remove(combined);
-		if(c1.checkMajMin()){
+		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
+			int combinedDem = combined.getClusterDemographics().get(demograhpic) - c2.getClusterDemographics().get(demograhpic);
+			c1.getClusterDemographics().put(demograhpic,combinedDem);
+		}
+		for(PARTYNAME partyname :PARTYNAME.values()){
+			int combinedElection = combined.getElections().get(userSelectedElection).getVotes().get(partyname) -
+					c2.getElections().get(userSelectedElection).getVotes().get(partyname);
+			c1.getElections().get(userSelectedElection).getVotes().put(partyname, combinedElection);
+		}
+		if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
 			majMinClusters.add(c1);
 		}
 		clusters.add(c1);
-		if(c2.checkMajMin()){
+		if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
 			majMinClusters.add(c2);
 		}
 		clusters.add(c2);
