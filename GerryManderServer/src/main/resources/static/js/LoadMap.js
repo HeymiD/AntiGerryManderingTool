@@ -6,6 +6,8 @@ var nav = $('nav');
 var bounds = [[20, -150],[55, -40]];
 var geojson;
 var texas;
+var texasDistrictsLayer;
+//var texasPrecinctsLayer;
 
 
 var map = L.map('map', {
@@ -36,6 +38,18 @@ texas = L.geoJson(txStateData, {
 	style: stateStyle,
 	onEachFeature: stateEffects
 }).addTo(map);
+
+texasDistrictsLayer =  L.geoJson(texas_districts, {
+                  	style: districtStyle,
+                  	onEachFeature: districtEffects
+                  });
+
+//texasPrecinctsLayer = L.geoJson(texas_precintcs, {
+//                                        	style: stateStyle,
+//                                        	onEachFeature: stateEffects
+//                                        });
+
+
 
 recenterMap();
 outerMenuBtn.hide();

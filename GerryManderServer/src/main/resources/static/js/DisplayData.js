@@ -104,17 +104,17 @@ function selMapContent(content){
     //        if(!map.hasLayer(distLayer)){
     //        	map.addLayer(distLayer);
     //        }
-            for (var districtId in districtx){
-                var district = districtx[districtId];
-                var precinct = precinctData[districtId];
-                if(map.hasLayer(precinct)){
-                    map.removeLayer(precinct);
+//            for (var districtId in districtx){
+//                var district = districtx[districtId];
+//                var precinct = precinctData[districtId];
+                if(map.hasLayer(precLayer)){
+                    map.removeLayer(precLayer);
                     }
 
-                if(!map.hasLayer(district)){
-                    map.addLayer(district);
+                if(!map.hasLayer(texasDistrictsLayer)){
+                    map.addLayer(texasDistrictsLayer);
                 }
-            }
+//            }
 
             if(electionYear.val() == 'Election Year' && electionType.val() == 'Election Type'){
                 districtData.hide();
@@ -139,20 +139,22 @@ function selMapContent(content){
 
             }
             else{
-                for (var districtId in districtx){
-                    var district = districtx[districtId];
-                    var precinct = precinctData[districtId];
-                    if(map.hasLayer(district)){
-                        map.removeLayer(district);
+//                for (var districtId in districtx){
+//                    var district = districtx[districtId];
+//                    var precinct = precinctData[districtId];
+                    if(map.hasLayer(texasDistrictsLayer)){
+                        map.removeLayer(texasDistrictsLayer);
                         }
 
                     if(!map.hasLayer(precLayer)){
                         map.addLayer(precLayer);
                     }
-                }
+//                }
                 districtData.hide();
                 precinctData.show();
-                if(dicSize(distPrecinct) == 0 && electionYear.val() != 'Election Year' && electionType.val() != 'Election Type'){
+                if(precLayer.getLayers().length == 0 && electionYear.val() != 'Election Year' && electionType.val() != 'Election Type'){
+                    console.log("Getting Precincts...")
+//                    getPrecincts(currState)
                     var districtID = 1
                     while(districtID<37){
                         console.log("getting Precincts now")
@@ -160,6 +162,14 @@ function selMapContent(content){
                         console.log("Got precinct for district id: " + districtID)
                         districtID=districtID+1;
                     }
+
+//                    for (pctkey in precinctKeys.PrecinctKeys) {
+//                        console.log("Precinct: "+pctkey);
+//                        getPrecincts(currState,precinctKeys.PrecinctKeys[pctkey])
+//
+//                        //Do something
+//                    }
+
                 }
                 if(!thisContent.hasClass('active')){
                     thisContent.toggleClass('active');

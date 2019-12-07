@@ -2,6 +2,9 @@ package com.gerrymander.demo;
 
 import com.gerrymander.demo.models.concrete.Precinct;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -34,6 +37,25 @@ public class JSONMaker {
     public static String makeResult(Result result){
         return result.toString();
     }
+
+    public static String makeJSONArray(Set<Precinct> precincts){
+        String jsonArray = "{"+"\"PrecinctKeys\": "+"[";
+        int i=0;
+        for(Precinct p : precincts){
+            jsonArray+="\""+p.getID()+"\"";
+            if(i<precincts.size()-1){
+                jsonArray+=", ";
+            }
+            else{
+                jsonArray+=" ]"+"}";
+            }
+            i++;
+
+        }
+        return jsonArray;
+    }
+
+
 
 
 }

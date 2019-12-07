@@ -1,6 +1,10 @@
 var usCenter = [37.8, -96];
+var precinctKeys;
+var phase0Data;
+var stateInit = 0;
 var currState;
 var texas_precincts;
+//var precinctDict = {}
 var distPrecinct = {}
 var districtx = {}
 var districtxData = {}
@@ -20,26 +24,33 @@ function dicSize(x){
 }
 
 function fetchDistrict(e){
-    if(dicSize(districtx) == 0){
+//    if(dicSize(districtx) == 0){
         $.ajax({
             url:"http://localhost:8080/state",
             data:{
-                state: e.feature.properties.name,
-                districtId:1
+                state: e.feature.properties.name
+//                districtId:1
             },
             success: function(response){
-                var districtFirst=JSON.parse(response);
-                var districtLayer = L.geoJson(districtFirst, {
-                    style: districtStyle,
-                    onEachFeature: districtEffects
-                })
-                districtx[1]=districtLayer
-                districtLayer.addTo(distLayer);
-                var districtId=2
-                while(districtId<37){
-                    getDistrict(e,districtId);
-                    districtId=districtId+1;
-                }
+                    precinctKeys = JSON.parse(response)
+                    console.log(precinctKeys)
+                    stateInit=1;
+                    $('#precinctContent').prop('disabled', false);
+
+
+
+//                var districtFirst=JSON.parse(response);
+//                var districtLayer = L.geoJson(districtFirst, {
+//                    style: districtStyle,
+//                    onEachFeature: districtEffects
+//                })
+//                districtx[1]=districtLayer
+//                districtLayer.addTo(distLayer);
+//                var districtId=2
+//                while(districtId<37){
+//                    getDistrict(e,districtId);
+//                    districtId=districtId+1;
+//                }
 
             },
             error:function(err){
@@ -47,7 +58,7 @@ function fetchDistrict(e){
             }
         })
 
-    }
+//    }
  }
 
 function getDistrict(e,districtId){
@@ -67,9 +78,9 @@ function getDistrict(e,districtId){
 			    districtLayer.addTo(distLayer);
 //			    map.addLayer(districtLayer);
 			    districtx[districtId] = districtLayer;
-                if(distLayer.getLayers().length == 36 ){
-                    $('#precinctContent').prop('disabled', false);
-                }
+//                if(distLayer.getLayers().length == 36 ){
+//                    $('#precinctContent').prop('disabled', false);
+//                }
 //			if(districtId==36){
 //			districtID=1
 //                while(districtID<37){
@@ -86,25 +97,27 @@ function getDistrict(e,districtId){
 	})
 }
 
-function getPrecincts(e,districtId,electType){
+function getPrecincts(e,districtId){
 	$.ajax({
 		url:"http://localhost:8080/precincts",
 		data: {
 			state: e.feature.properties.name,
-			districtId: districtId,
-			electType: electType
+			districtId: districtId
+//			electType: electType
 		},
 		success: function(response){
-//			 console.log(response);
-			var precinct = JSON.parse(response);
-			var precinctLayer = L.geoJson(precinct, {
-			    			style: precinctStyle,
-			    			onEachFeature: precinctEffects
-			    		});
-//			    map.addLayer(precinctLayer);
-                precinctLayer.addTo(precLayer);
-                distPrecinct[districtId] = precinctLayer;
-//            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
+  			 console.log(response);
+             var precinct = JSON.parse(response);
+             var precinctLayer = L.geoJson(precinct, {
+                             style: precinctStyle,
+                             onEachFeature: precinctEffects
+                         });
+                map.addLayer(precinctLayer);
+                  precinctLayer.addTo(precLayer);
+//                  precinctDict[districtId]=precinctLayer;
+                  distPrecinct[districtId] = precinctLayer;
+  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
+
 		},
 		error:function(err){
 		console.log(err)
@@ -112,6 +125,57 @@ function getPrecincts(e,districtId,electType){
 		}
 	})
 }
+
+//function getPrecincts(e){
+//var districtId=1
+//while(districtId<37){
+//    var done=0
+//    distPrecinct[districtId]=[]
+//    getPrecinctsByDistrict(e,"Begin U.S. Rep "+districtId,done,distPrecinct[districtId])
+//    while(done==0){
+//            getPrecinctsByDistrict(e,districtId,done,distPrecinct[districtId])
+//        }
+//        districtId=districtId+1
+//    }
+//
+//}
+//
+//function getPrecinctsByDistrict(e,districtId,done,districtList){
+//	$.ajax({
+//		url:"http://localhost:8080/precincts",
+//		data: {
+//			state: e.feature.properties.name,
+//			districtId: districtId
+////			electType: electType
+//		},
+//		success: function(response){
+//  			 console.log(response);
+//  			 if(response==="District Done"){
+//  			    done=1;
+//  			    return done
+//  			 }
+//             var precinct = JSON.parse(response);
+//             var precinctLayer = L.geoJson(precinct, {
+//                             style: precinctStyle,
+//                             onEachFeature: precinctEffects
+//                         });
+//                map.addLayer(precinctLayer);
+//                precLayer.addLayer(precinctLayer)
+//                districtList.push(precinctLayer)
+//                return
+////                  precinctLayer.addTo(precLayer);
+////                  precinctDict[precinctId]=precinctLayer;
+//
+////                  distPrecinct[districtId] = precinctLayer;
+//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
+//
+//		},
+//		error:function(err){
+//		console.log(err)
+//		console.log("ERROR")
+//		}
+//	})
+//}
 
 function recenterMap(){ map.setView(usCenter,5); }
 
@@ -127,6 +191,26 @@ $.ajax({
 		var data = JSON.parse(response)
 		districtxData[data.DistrictID]=data
 		districtData.update(data)
+
+		},
+		error:function(err){
+		console.log(err)
+		console.log("ERROR")
+		}
+	})
+}
+
+function getPhaseZeroData(elecType,votingThreshold,blockThreshold){
+$.ajax({
+		url:"http://localhost:8080/phase0",
+		data: {
+			votingThreshold: votingThreshold,
+			blockThreshold: blockThreshold,
+			electionType: elecType
+		},
+		success: function(response){
+		console.log(response)
+		phase0Data = JSON.parse(response)
 
 		},
 		error:function(err){
@@ -177,11 +261,13 @@ function stateMouseOut(e) {
 function zoomOnState(e) {
 
     console.log(e);
-    fetchDistrict(e.target);
     currState = e.target;
-//    map.removeLayer(geojson);
     map.removeLayer(texas)
-    map.addLayer(distLayer);
+    map.addLayer(texasDistrictsLayer)
+    fetchDistrict(e.target);
+
+//    map.removeLayer(geojson);
+//    map.addLayer(distLayer);
 //    map.addLayer(precLayer);
 	map.fitBounds(e.target.getBounds());
 //	map.on('drag', function() {
@@ -232,7 +318,8 @@ function onDistrictHover(e) {
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
     layer.bringToFront();
     }
-    if(distLayer.getLayers().length==36 && electionType.val() != 'Election Type' && electionYear.val() != 'Election Year'){
+//    distLayer.getLayers().length==36
+    if(stateInit==1 && electionType.val() != 'Election Type' && electionYear.val() != 'Election Year'){
         console.log("Getting district data")
         var districtId = "U.S. Rep "+layer.feature.properties.fid
         if(!(districtId in districtxData)){

@@ -232,3 +232,9 @@ algorithms.change(function(){
     }
 
 });
+function runAlgorithm(){
+    console.log("Phase 0 Results: ")
+    getPhaseZeroData(electionType.val()+electionYear.val(),0.75,0.8);
+    console.log(phase0Data)
+}
+//runAlgoBtn.on("click",runAlgorithm());

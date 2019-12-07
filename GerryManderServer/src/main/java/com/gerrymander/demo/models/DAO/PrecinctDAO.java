@@ -28,7 +28,8 @@ public class PrecinctDAO {
         ResultSet resultSet = statement.executeQuery(queryGEO);
         System.out.println("Loading Precincts");
         while (resultSet.next()){
-            Precinct p = new Precinct(resultSet.getString("PCTKEY"),resultSet.getString("geojson"));
+            Precinct p = new Precinct(resultSet.getString("PCTKEY"));
+            p.setGeometryJSON(resultSet.getString("geojson"));
             precincts.put(resultSet.getString("PCTKEY"),p);
         }
         System.out.println("Precincts loaded");
@@ -88,8 +89,8 @@ public class PrecinctDAO {
 
             ResultSet resultSet = statement.executeQuery(query);
             while(resultSet.next()){
-                Precinct precinctobj = new Precinct(resultSet.getString("PCTKEY"),
-                        resultSet.getString("geojson"));
+                Precinct precinctobj = new Precinct(resultSet.getString("PCTKEY"));
+                precinctobj.setGeometryJSON(resultSet.getString("geojson"));
                 precinctobj.setOriginalDistrictID(resultSet.getString("District"));
                 System.out.println("Key: "+resultSet.getString("PCTKEY"));
                 System.out.println("District: "+resultSet.getString("District"));
@@ -153,37 +154,45 @@ public class PrecinctDAO {
 //        String query = "select T.*, C.Democrat, C.Republican, C.Green, C.Libertarian, C.District, P.geojson " +
 //                "from timberwolves.Precincts_GEO P, "+election.toString()+" C, timberwolves.texas_demographics T " +
 //                "where P.PCTKEY=C.PCTKEY AND P.PCTKEY=T.PCTKEY AND C.District=\'"+dis.getID()+"\'";
-        String query = "select * " +
-                "from timberwolves.PrecinctsGEO ";
+        String query = "";
         try{
             Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
             Statement statement = connection.createStatement();
-
-            ResultSet resultSet = statement.executeQuery(query);
-            while(resultSet.next()){
-                Precinct precinctobj = new Precinct(resultSet.getString("PCTKEY"),
-                        resultSet.getString("geojson"));
-                precinctobj.setOriginalDistrictID(resultSet.getString("District"));
-                System.out.println("Key: "+resultSet.getString("PCTKEY"));
-                System.out.println("District: "+resultSet.getString("District"));
-                state.addPrecinct(precinctobj);
-            }
+            ResultSet resultSet=null;
             for(ELECTIONTYPE election:ELECTIONTYPE.values()){
 
                 query = "select * " +
                         "from timberwolves."+election.toString();
                 resultSet = statement.executeQuery(query);
                 while(resultSet.next()){
-                    Precinct p = state.getPrecinct(resultSet.getString("PCTKEY"));
-                    Votes v = new Votes();
-                    Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
-                    votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
-                    votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
-                    votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
-                    votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
-                    v.setVotes(votesPrecinct);
-                    v.setElectiontype(election);
-                    p.addVotes(election,v);
+                    try{
+                        Precinct p = state.getPrecinct(resultSet.getString("PCTKEY"));
+                        Votes v = new Votes();
+                        Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
+                        votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
+                        votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
+                        votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
+                        votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
+                        v.setVotes(votesPrecinct);
+                        v.setElectiontype(election);
+                        p.addVotes(election,v);
+                    }
+                    catch(NullPointerException e){
+                        Precinct p = new Precinct(resultSet.getString("PCTKEY"));
+                        p.setOriginalDistrictID(resultSet.getString("District"));
+                        Votes v = new Votes();
+                        Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
+                        votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
+                        votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
+                        votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
+                        votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
+                        v.setVotes(votesPrecinct);
+                        v.setElectiontype(election);
+                        p.addVotes(election,v);
+                        state.addPrecinct(p);
+                    }
+
+
                 }
             }
             query = "select * " +
@@ -191,6 +200,8 @@ public class PrecinctDAO {
             resultSet = statement.executeQuery(query);
             while(resultSet.next()){
                 Precinct precinctobj = state.getPrecinct(resultSet.getString("PCTKEY"));
+//                System.out.println("PCTKEY: "+resultSet.getString("PCTKEY"));
+//                System.out.println("Precinct: "+precinctobj.getID());
                 int totPop = 0;
                 precinctobj.addDemographic(DEMOGRAPHIC.AFROAM, Integer.parseInt(resultSet.getString("Black")));
                 totPop+=Integer.parseInt(resultSet.getString("Black"));
@@ -208,7 +219,7 @@ public class PrecinctDAO {
                 totPop+=Integer.parseInt(resultSet.getString("Pacific"));
                 precinctobj.setPopulation(totPop);
             }
-            GerryManderController.precinctsToSend.addAll(state.getPrecincts());
+
 
 
         }
@@ -220,6 +231,60 @@ public class PrecinctDAO {
         }
         return state.getPrecincts();
     }
+
+    public static Set<Precinct> getPrecinctGeoJSONByDistrict(String disID,State state){
+        try{
+            Set<Precinct> precincts = new HashSet<Precinct>();
+            String queryGEO = "select * from timberwolves.PrecinctsGEO where District=\""+disID+"\"";
+            Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(queryGEO);
+            while (resultSet.next()){
+                state.getPrecinct(resultSet.getString("PCTKEY"))
+                        .setGeometryJSON(resultSet.getString("geojson"));
+                precincts.add(state.getPrecinct(resultSet.getString("PCTKEY")));
+            }
+            return precincts;
+        }catch (SQLException e){
+            return null;
+        }
+
+    }
+
+    public static void getAllPrecinctGeoJSON(State state){
+        try{
+            Set<Precinct> precincts = new HashSet<Precinct>();
+            String queryGEO = "select * from timberwolves.PrecinctsGEO";
+            Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(queryGEO);
+            while (resultSet.next()){
+                state.getPrecinct(resultSet.getString("PCTKEY"))
+                        .setGeometryJSON(resultSet.getString("geojson"));
+            }
+            return;
+        }catch (SQLException e){
+            return;
+        }
+
+    }
+
+    public static String getPrecinctGeoJSONById(String precinctId){
+        try{
+            Set<Precinct> precincts = new HashSet<Precinct>();
+            String queryGEO = "select geojson from timberwolves.PrecinctsGEO where PCTKEY='"+precinctId+"'";
+            System.out.println(queryGEO);
+            Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(queryGEO);
+            resultSet.next();
+            return resultSet.getString("geojson");
+        }catch (SQLException e){
+            return "";
+        }
+
+    }
+
 
 
 

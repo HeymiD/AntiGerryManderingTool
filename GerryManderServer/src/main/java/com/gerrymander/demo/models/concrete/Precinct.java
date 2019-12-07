@@ -15,7 +15,7 @@ public class Precinct implements PrecinctInterface {
     @Transient
     private final Geometry geometry;
     @Transient
-    private final String geometryJSON;
+    private String geometryJSON;
     @Transient
     private String originalDistrictID;
     @Transient
@@ -67,9 +67,9 @@ public class Precinct implements PrecinctInterface {
             this.neighborIDs = neighborIDs;
 
     }
-    public Precinct(String id,String geojson){
+    public Precinct(String id){
         ID=id;
-        geometryJSON=geojson;
+        geometryJSON="";
         originalDistrictID="";
         this.precinctDemographics=new HashMap<DEMOGRAPHIC,Integer>();
         this.geometry=null;
@@ -104,6 +104,9 @@ public class Precinct implements PrecinctInterface {
 
     public String getGeometryJSON() {
         return geometryJSON;
+    }
+    public void setGeometryJSON(String geojson) {
+         this.geometryJSON=geojson;
     }
 
     public Geometry getGeometry() {
