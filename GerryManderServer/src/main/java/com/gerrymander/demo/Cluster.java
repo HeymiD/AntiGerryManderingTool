@@ -22,4 +22,14 @@ public class Cluster {
 	public District clusterToDistrict(){
 		return new District();
 	}
+
+
+	public boolean equals(Cluster c) {
+		if(this.ID==c.ID){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 }
