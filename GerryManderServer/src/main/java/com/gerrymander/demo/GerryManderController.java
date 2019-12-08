@@ -24,7 +24,11 @@ public class GerryManderController {
 
     private State state;
 	private Algorithm algorithm;
-	public static Stack<Precinct> precinctsToSend = new Stack<>();
+	public Map<String,Stack<Precinct>> precinctQueue = new HashMap<String, Stack<Precinct>>();
+//	public Map<String,Integer> queueStatus = new HashMap<String, Integer>();
+//	public Stack<Precinct> precinctsToSend = new Stack<Precinct>();
+	public Stack<Precinct> precinctsToSend = new Stack<Precinct>();
+	public static int queueStatus=0;
 //    @RequestParam("districtId") int districtId
 	@RequestMapping("/state")
 	public String getSate(@RequestParam("state") String stateName) {
@@ -32,11 +36,25 @@ public class GerryManderController {
             state = new State(stateName);
             PrecinctDAO.initAllPrecincts(state);
             ClusterDAO.initNeighbors(state);
+            PrecinctDAO.getAllPrecinctGeoJSON(state);
+            for(Precinct p:state.getPrecincts()){
+                precinctsToSend.push(p);
+            }
+
+//            for(int i=1;i<37;i++){
+//                precinctQueue.put("U.S. Rep "+i,new Stack<Precinct>());
+//            }
+//            for(int i=1;i<37;i++){
+//                queueStatus.put("U.S. Rep "+i,-1);
+//            }
+//            for(Precinct p: state.getPrecincts()){
+//                p.setGeometryJSON(PrecinctDAO.getPrecinctGeoJSONById(p.getID()));
+//            }
 //            System.out.println("BEGIN fetching precincts");
 //            for(int i=1;i<37;i++){
 //                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+i,state);
 //            }
-////            PrecinctDAO.getAllPrecinctGeoJSON(state);
+
 //            System.out.println("END fetching precincts");
 //            for(Precinct p :state.getPrecincts()){
 //                precinctsToSend.push(p);
@@ -59,10 +77,15 @@ public class GerryManderController {
 
 
 	}
-//
+//@RequestParam("districtId") String districtId
     @RequestMapping("/precincts")
-    public String getPrecincts(@RequestParam("state") String stateName,
-                               @RequestParam("districtId") String districtId) {
+    public String getPrecincts(@RequestParam("state") String stateName) {
+        if(queueStatus==1){
+            return "Done";
+        }
+        System.out.println("Sending precincts...");
+        Set<Precinct> precinctBatchToSend = makePrecinctBatch(50);
+        return JSONMaker.makeJSONCollection(precinctBatchToSend);
 //        Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000000);
 //	    if(precinctBatchToSend.isEmpty()){
 //	        System.out.println("No more precincts");
@@ -72,15 +95,33 @@ public class GerryManderController {
 //	        System.out.println(precinctBatchToSend.size()+"Precincts are sent");
 //            return JSONMaker.makeJSONCollection(precinctBatchToSend);
 //        }
-//
-        return JSONMaker.makeJSONCollection(
-                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+districtId,state));
 
+//        String districtID = districtId;
+//        if(districtId.contains("Begin")){
+//            districtID = districtId.substring(6,districtId.length());
+//            Set<Precinct> precinctsDistrict = PrecinctDAO.
+//                    getPrecinctGeoJSONByDistrict("U.S. Rep "+districtID,state);
+//            for (Precinct p: precinctsDistrict){
+//                precinctQueue.get("U.S. Rep "+districtID).push(p);
+//            }
+//            queueStatus.put("U.S. Rep "+districtID,0);
+//        }
+//        Set<Precinct> precinctBatchToSend = makePrecinctBatch(100,precinctQueue.get("U.S. Rep "+districtID),
+//                "U.S. Rep "+districtID);
+//        if (queueStatus.get("U.S. Rep "+districtID)==1){return "District Done";}
+//        else{return JSONMaker.makeJSONCollection(precinctBatchToSend);}
+//
+//        return JSONMaker.makeJSONCollection(
+//                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+districtId,state));
 
 //        System.out.println("PCTKEY: "+precinctId);
 ////        state.getPrecinct(precinctId).setGeometryJSON(PrecinctDAO.getPrecinctGeoJSONById(precinctId));
 //        return state.getPrecinct(precinctId).toString();
 
+    }
+    @RequestMapping("/precinctsInit")
+    public String getPrecinctsInit(@RequestParam("state") String stateName) {
+	    return "ready";
     }
     @RequestMapping("/districtData")
     public String sendDistrictData(@RequestParam("districtId")String districtId,
@@ -133,15 +174,16 @@ public class GerryManderController {
 
     }
 
-    public int calculatePrecinctBatchSize(Set<Precinct> batchPrecincts){
-	    return JSONMaker.makeJSONCollection(batchPrecincts).length();
-    }
+//    public int calculatePrecinctBatchSize(Set<Precinct> batchPrecincts){
+//	    return JSONMaker.makeJSONCollection(batchPrecincts).length();
+//    }
 
     public Set<Precinct> makePrecinctBatch(int batchSize){
         Set<Precinct> precinctBatchToSend = new HashSet<Precinct>();
-        while (batchSize>calculatePrecinctBatchSize(precinctBatchToSend) && !precinctsToSend.isEmpty()){
+        while (batchSize>(precinctBatchToSend.size()) && !precinctsToSend.isEmpty()){
             precinctBatchToSend.add(precinctsToSend.pop());
         }
+        if(precinctsToSend.isEmpty()){queueStatus=1;}
         return precinctBatchToSend;
     }
 

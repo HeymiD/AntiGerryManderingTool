@@ -136,7 +136,7 @@ public class PrecinctDAO {
                     totPop+=Integer.parseInt(resultSet.getString("Pacific"));
                     precinctobj.setPopulation(totPop);
                 }
-                GerryManderController.precinctsToSend.addAll(dis.getState().getPrecincts());
+//                GerryManderController.precinctsToSend.addAll(dis.getState().getPrecincts());
             }
 
         }
@@ -273,7 +273,7 @@ public class PrecinctDAO {
         try{
             Set<Precinct> precincts = new HashSet<Precinct>();
             String queryGEO = "select geojson from timberwolves.PrecinctsGEO where PCTKEY='"+precinctId+"'";
-            System.out.println(queryGEO);
+//            System.out.println(queryGEO);
             Connection connection = DriverManager.getConnection(database_url,database_username,database_password);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(queryGEO);

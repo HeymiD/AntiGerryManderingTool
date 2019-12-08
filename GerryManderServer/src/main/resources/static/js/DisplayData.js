@@ -107,9 +107,9 @@ function selMapContent(content){
 //            for (var districtId in districtx){
 //                var district = districtx[districtId];
 //                var precinct = precinctData[districtId];
-                if(map.hasLayer(precLayer)){
-                    map.removeLayer(precLayer);
-                    }
+//                if(map.hasLayer(precLayer)){
+//                    map.removeLayer(precLayer);
+//                    }
 
                 if(!map.hasLayer(texasDistrictsLayer)){
                     map.addLayer(texasDistrictsLayer);
@@ -155,19 +155,25 @@ function selMapContent(content){
                 if(precLayer.getLayers().length == 0 && electionYear.val() != 'Election Year' && electionType.val() != 'Election Type'){
                     console.log("Getting Precincts...")
 //                    getPrecincts(currState)
-                    var districtID = 1
-                    while(districtID<37){
+//                    var districtID = 1
+//                    while(districtID<37){
+//                        console.log("getting Precincts now")
+//                        getPrecincts(currState,districtID);
+////                        getPrecinctsByDistrictInit(currState,districtID)
+//                        console.log("Got precinct for district id: " + districtID)
+//                        districtID=districtID+1;
+//                    }
+
+                    var done=0;
+                    while(done<8936){
                         console.log("getting Precincts now")
-                        getPrecincts(currState,districtID, electionType.val() + electionYear.val());
-                        console.log("Got precinct for district id: " + districtID)
-                        districtID=districtID+1;
+                        getPrecincts(currState)
+                        done=done+50
                     }
 
 //                    for (pctkey in precinctKeys.PrecinctKeys) {
 //                        console.log("Precinct: "+pctkey);
 //                        getPrecincts(currState,precinctKeys.PrecinctKeys[pctkey])
-//
-//                        //Do something
 //                    }
 
                 }

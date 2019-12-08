@@ -97,15 +97,72 @@ function getDistrict(e,districtId){
 	})
 }
 
-function getPrecincts(e,districtId){
+//function getPrecincts(e,districtId){
+//	$.ajax({
+//		url:"http://localhost:8080/precincts",
+//		data: {
+//			state: e.feature.properties.name,
+//			districtId: districtId
+////			electType: electType
+//		},
+//		success: function(response){
+//  			 console.log(response);
+//             var precinct = JSON.parse(response);
+//             var precinctLayer = L.geoJson(precinct, {
+//                             style: precinctStyle,
+//                             onEachFeature: precinctEffects
+//                         });
+//                map.addLayer(precinctLayer);
+//                  precinctLayer.addTo(precLayer);
+////                  precinctDict[districtId]=precinctLayer;
+//                  distPrecinct[districtId] = precinctLayer;
+//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
+//
+//		},
+//		error:function(err){
+//		console.log(err)
+//		console.log("ERROR")
+//		}
+//	})
+//}
+
+//function getPrecincts(e,districtId){
+//	$.ajax({
+//		url:"http://localhost:8080/precincts",
+//		data: {
+//			state: e.feature.properties.name,
+//			districtId: districtId,
+//		},
+//		success: function(response){
+//  			 console.log(response);
+//             var precinct = JSON.parse(response);
+//             var precinctLayer = L.geoJson(precinct, {
+//                             style: precinctStyle,
+//                             onEachFeature: precinctEffects
+//                         });
+//                map.addLayer(precinctLayer);
+//                  precinctLayer.addTo(precLayer);
+////                  precinctDict[districtId]=precinctLayer;
+//                  distPrecinct[districtId] = precinctLayer;
+//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
+//
+//		},
+//		error:function(err){
+//		console.log(err)
+//		console.log("ERROR")
+//		},
+//
+//	})
+//}
+
+function getPrecincts(e){
 	$.ajax({
 		url:"http://localhost:8080/precincts",
 		data: {
-			state: e.feature.properties.name,
-			districtId: districtId
-//			electType: electType
+			state: e.feature.properties.name
 		},
 		success: function(response){
+
   			 console.log(response);
              var precinct = JSON.parse(response);
              var precinctLayer = L.geoJson(precinct, {
@@ -115,14 +172,15 @@ function getPrecincts(e,districtId){
                 map.addLayer(precinctLayer);
                   precinctLayer.addTo(precLayer);
 //                  precinctDict[districtId]=precinctLayer;
-                  distPrecinct[districtId] = precinctLayer;
+//                  distPrecinct[districtId] = precinctLayer;
   //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
 
 		},
 		error:function(err){
 		console.log(err)
 		console.log("ERROR")
-		}
+		},
+
 	})
 }
 
@@ -140,42 +198,69 @@ function getPrecincts(e,districtId){
 //
 //}
 //
-//function getPrecinctsByDistrict(e,districtId,done,districtList){
-//	$.ajax({
-//		url:"http://localhost:8080/precincts",
-//		data: {
-//			state: e.feature.properties.name,
-//			districtId: districtId
-////			electType: electType
-//		},
-//		success: function(response){
-//  			 console.log(response);
-//  			 if(response==="District Done"){
-//  			    done=1;
-//  			    return done
-//  			 }
-//             var precinct = JSON.parse(response);
-//             var precinctLayer = L.geoJson(precinct, {
-//                             style: precinctStyle,
-//                             onEachFeature: precinctEffects
-//                         });
-//                map.addLayer(precinctLayer);
-//                precLayer.addLayer(precinctLayer)
-//                districtList.push(precinctLayer)
-//                return
-////                  precinctLayer.addTo(precLayer);
-////                  precinctDict[precinctId]=precinctLayer;
-//
-////                  distPrecinct[districtId] = precinctLayer;
-//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
-//
-//		},
-//		error:function(err){
-//		console.log(err)
-//		console.log("ERROR")
-//		}
-//	})
-//}
+function getPrecinctsByDistrictInit(e,districtId){
+	$.ajax({
+		url:"http://localhost:8080/precinctsInit",
+		data: {
+			state: e.feature.properties.name,
+		},
+		success: function(response){
+  			 getPrecinctsByDistrict(e,districtId)
+		},
+		error:function(err){
+		console.log(err)
+		console.log("ERROR")
+		},
+	})
+}
+
+function getPrecinctsByDistrict(e,districtId){
+    var increment = 0;
+    var done = 1
+
+    while(increment>-1){
+        if(increment==0){
+                districtId = "Begin "+districtId
+            }
+        $.ajax({
+        		url:"http://localhost:8080/precincts",
+        		data: {
+        			state: e.feature.properties.name,
+        			districtId: districtId
+        		},
+        		success: function(response){
+          			 console.log(response);
+                    if(response==="District Done"){
+                        done=1
+                        return
+                    }
+                     var precinct = JSON.parse(response);
+                     var precinctLayer = L.geoJson(precinct, {
+                                     style: precinctStyle,
+                                     onEachFeature: precinctEffects
+                                 });
+                        map.addLayer(precinctLayer);
+                        precLayer.addLayer(precinctLayer)
+                        return
+        //                  precinctLayer.addTo(precLayer);
+        //                  precinctDict[precinctId]=precinctLayer;
+
+        //                  distPrecinct[districtId] = precinctLayer;
+          //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
+
+        		},
+        		error:function(err){
+        		console.log(err)
+        		console.log("ERROR")
+        		},
+        		async: false
+        	})
+        	increment=increment+1
+        	if(done==1){break}
+    }
+
+}
+
 
 function recenterMap(){ map.setView(usCenter,5); }
 
