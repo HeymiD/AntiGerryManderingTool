@@ -155,21 +155,21 @@ function selMapContent(content){
                 if(precLayer.getLayers().length == 0 && electionYear.val() != 'Election Year' && electionType.val() != 'Election Type'){
                     console.log("Getting Precincts...")
 //                    getPrecincts(currState)
-//                    var districtID = 1
-//                    while(districtID<37){
-//                        console.log("getting Precincts now")
-//                        getPrecincts(currState,districtID);
-////                        getPrecinctsByDistrictInit(currState,districtID)
-//                        console.log("Got precinct for district id: " + districtID)
-//                        districtID=districtID+1;
-//                    }
-
-                    var done=0;
-                    while(done<8936){
+                    var districtID = 1
+                    while(districtID<37){
                         console.log("getting Precincts now")
-                        getPrecincts(currState)
-                        done=done+50
+                        getPrecincts(currState,districtID);
+//                        getPrecinctsByDistrictInit(currState,districtID)
+                        console.log("Got precinct for district id: " + districtID)
+                        districtID=districtID+1;
                     }
+
+//                    var done=0;
+//                    while(done<8936){
+//                        console.log("getting Precincts now")
+//                        getPrecincts(currState)
+//                        done=done+40
+//                    }
 
 //                    for (pctkey in precinctKeys.PrecinctKeys) {
 //                        console.log("Precinct: "+pctkey);

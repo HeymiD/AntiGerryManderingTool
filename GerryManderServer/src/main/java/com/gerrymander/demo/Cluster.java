@@ -6,28 +6,30 @@ import com.gerrymander.demo.models.concrete.Precinct;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 
-public class Cluster {
+public class Cluster extends District{
 	
 	public Set<Edge> edges;
-	public Set<Precinct> precincts;
+	public Set<Precinct> precinctsCluster;
 	private Map<DEMOGRAPHIC, Integer> clusterDemographics;
 	private Map<ELECTIONTYPE, Votes> elections;
 	private boolean isMajorityMinority;
-	private int population;
-	public String ID;
+
+//	private int population;
+//	public String ID;
 
 
 	public Cluster(String id){
-		ID=id;
-		precincts = new HashSet<Precinct>();
+		super();
+		setID(id);
+		precinctsCluster = new HashSet<Precinct>();
 		edges = new HashSet<Edge>();
 		clusterDemographics = new HashMap<DEMOGRAPHIC,Integer>();
 		elections = new HashMap<ELECTIONTYPE,Votes>();
 	}
 	public Map<DEMOGRAPHIC, Integer> getClusterDemographics(){ return clusterDemographics;}
 	public Map<ELECTIONTYPE, Votes> getElections(){return elections;}
-	public int getPopulation(){return population;}
-	public void setPopulation(int population){this.population = population;}
+//	public int getPopulation(){return population;}
+//	public void setPopulation(int population){this.population = population;}
 	public boolean getIsMajorityMinority(){return isMajorityMinority;}
 	public void setIsMajorityMinority(boolean majorityMinority){this.isMajorityMinority = majorityMinority;}
 
@@ -51,7 +53,7 @@ public class Cluster {
 	public boolean checkMajorityMinority(Double blockThreshold, Double votingThreshold,
 								   ELECTIONTYPE election){
 		DEMOGRAPHIC largestDemographic = this.getLargestDemographic();
-		double demographicSize = this.calculateDemographicSize(largestDemographic, this.population);
+		double demographicSize = this.calculateDemographicSize(largestDemographic, getPopulation());
 		if(demographicSize < blockThreshold){
 			return false;
 		}
@@ -69,14 +71,17 @@ public class Cluster {
 		}
 	}
 	public District clusterToDistrict(){
-		return new District();
+
+		District district = new District();
+
+		return district;
 	}
 
     @Override
     public boolean equals(Object o){
         if(o instanceof Cluster){
             Cluster toCompare = (Cluster) o;
-            return this.ID.equals(toCompare.ID);
+            return this.getID().equals(toCompare.getID());
         }
         return false;
     }
@@ -92,6 +97,6 @@ public class Cluster {
 //	}
 	@Override
     public int hashCode() {
-        return ID.hashCode();
+        return getID().hashCode();
     }
 }

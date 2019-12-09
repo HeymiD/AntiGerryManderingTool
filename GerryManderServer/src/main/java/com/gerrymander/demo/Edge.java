@@ -36,7 +36,7 @@ public class Edge {
 
 	public Cluster getNeighbor(Cluster c){
 		for (Cluster cluster:clusters){
-			if(cluster.ID!=c.ID){
+			if(cluster.getID()!=c.getID()){
 				return cluster;
 			}
 		}

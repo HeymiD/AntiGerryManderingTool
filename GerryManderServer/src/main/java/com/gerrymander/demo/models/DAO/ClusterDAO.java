@@ -28,7 +28,8 @@ public class ClusterDAO {
             while (resultSet.next()) {
                 Precinct precinct = state.getPrecinct(resultSet.getString("PCTKEY"));
                 Cluster cluster = new Cluster(precinct.getID());
-                cluster.precincts.add(precinct);
+                ((District)cluster).population = precinct.getPopulation();
+                cluster.precinctsCluster.add(precinct);
                 state.clusters.add(cluster);
                 String neighborsString = (resultSet.getString("neighbors"));
                 String[] neighbors = neighborsString.split("\\|");
@@ -36,10 +37,10 @@ public class ClusterDAO {
 //                    System.out.println("neighbor id: "+neighbor);
                     Precinct neighborPrecinct = state.getPrecinct(neighbor);
                     Cluster neighborCluster = new Cluster(neighborPrecinct.getID());
-                    neighborCluster.precincts.add(neighborPrecinct);
+                    ((District)cluster).population = neighborCluster.getPopulation();
+                    neighborCluster.precinctsCluster.add(neighborPrecinct);
                     state.clusters.add(neighborCluster);
                     Edge edge = new Edge(cluster, neighborCluster);
-
                     cluster.edges.add(edge);
                     neighborCluster.edges.add(edge);
                 }
@@ -50,11 +51,15 @@ public class ClusterDAO {
         }
         System.out.println("Init clusters!");
         System.out.println("Cluster Size: "+state.clusters.size());
-//        for(Cluster c:state.clusters){
+        for(Cluster c:state.clusters){
+            ((District)c).setDem_vote(c.getElections().get(state.userSelectedElection).getVotes().get(PARTYNAME.DEMOCRAT));
+            ((District)c).setGop_vote(c.getElections().get(state.userSelectedElection).getVotes().get(PARTYNAME.REPUBLICAN));
+            ((District)c).setExternalEdges(c.edges.size());
+            state.putDistrict(c);
 //            System.out.println("Cluster ID: "+c.ID);
 //            System.out.println("Cluster precincts size: "+c.precincts.size());
 //            System.out.println("Edge count: "+c.edges.size());
-//        }
+        }
 
 
     }

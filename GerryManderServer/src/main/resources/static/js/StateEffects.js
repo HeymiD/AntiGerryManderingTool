@@ -126,43 +126,14 @@ function getDistrict(e,districtId){
 //	})
 //}
 
-//function getPrecincts(e,districtId){
-//	$.ajax({
-//		url:"http://localhost:8080/precincts",
-//		data: {
-//			state: e.feature.properties.name,
-//			districtId: districtId,
-//		},
-//		success: function(response){
-//  			 console.log(response);
-//             var precinct = JSON.parse(response);
-//             var precinctLayer = L.geoJson(precinct, {
-//                             style: precinctStyle,
-//                             onEachFeature: precinctEffects
-//                         });
-//                map.addLayer(precinctLayer);
-//                  precinctLayer.addTo(precLayer);
-////                  precinctDict[districtId]=precinctLayer;
-//                  distPrecinct[districtId] = precinctLayer;
-//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
-//
-//		},
-//		error:function(err){
-//		console.log(err)
-//		console.log("ERROR")
-//		},
-//
-//	})
-//}
-
-function getPrecincts(e){
+function getPrecincts(e,districtId){
 	$.ajax({
 		url:"http://localhost:8080/precincts",
 		data: {
-			state: e.feature.properties.name
+			state: e.feature.properties.name,
+			districtId: districtId,
 		},
 		success: function(response){
-
   			 console.log(response);
              var precinct = JSON.parse(response);
              var precinctLayer = L.geoJson(precinct, {
@@ -172,7 +143,7 @@ function getPrecincts(e){
                 map.addLayer(precinctLayer);
                   precinctLayer.addTo(precLayer);
 //                  precinctDict[districtId]=precinctLayer;
-//                  distPrecinct[districtId] = precinctLayer;
+                  distPrecinct[districtId] = precinctLayer;
   //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
 
 		},
@@ -183,6 +154,35 @@ function getPrecincts(e){
 
 	})
 }
+
+//function getPrecincts(e){
+//	$.ajax({
+//		url:"http://localhost:8080/precincts",
+//		data: {
+//			state: e.feature.properties.name
+//		},
+//		success: function(response){
+//
+//  			 console.log(response);
+//             var precinct = JSON.parse(response);
+//             var precinctLayer = L.geoJson(precinct, {
+//                             style: precinctStyle,
+//                             onEachFeature: precinctEffects
+//                         });
+//                map.addLayer(precinctLayer);
+//                  precinctLayer.addTo(precLayer);
+////                  precinctDict[districtId]=precinctLayer;
+////                  distPrecinct[districtId] = precinctLayer;
+//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
+//
+//		},
+//		error:function(err){
+//		console.log(err)
+//		console.log("ERROR")
+//		},
+//
+//	})
+//}
 
 //function getPrecincts(e){
 //var districtId=1

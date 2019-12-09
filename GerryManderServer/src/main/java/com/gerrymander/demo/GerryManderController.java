@@ -36,9 +36,10 @@ public class GerryManderController {
             state = new State(stateName);
             PrecinctDAO.initAllPrecincts(state);
             ClusterDAO.initNeighbors(state);
-            PrecinctDAO.getAllPrecinctGeoJSON(state);
+//            PrecinctDAO.getAllPrecinctGeoJSON(state);
             for(Precinct p:state.getPrecincts()){
                 precinctsToSend.push(p);
+                state.population+=p.getPopulation();
             }
 
 //            for(int i=1;i<37;i++){
@@ -79,13 +80,14 @@ public class GerryManderController {
 	}
 //@RequestParam("districtId") String districtId
     @RequestMapping("/precincts")
-    public String getPrecincts(@RequestParam("state") String stateName) {
+    public String getPrecincts(@RequestParam("state") String stateName,
+                               @RequestParam("districtId") String districtId) {
         if(queueStatus==1){
             return "Done";
         }
-        System.out.println("Sending precincts...");
-        Set<Precinct> precinctBatchToSend = makePrecinctBatch(50);
-        return JSONMaker.makeJSONCollection(precinctBatchToSend);
+//        System.out.println("Sending precincts...");
+//        Set<Precinct> precinctBatchToSend = makePrecinctBatch(200);
+//        return JSONMaker.makeJSONCollection(precinctBatchToSend);
 //        Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000000);
 //	    if(precinctBatchToSend.isEmpty()){
 //	        System.out.println("No more precincts");
@@ -111,8 +113,8 @@ public class GerryManderController {
 //        if (queueStatus.get("U.S. Rep "+districtID)==1){return "District Done";}
 //        else{return JSONMaker.makeJSONCollection(precinctBatchToSend);}
 //
-//        return JSONMaker.makeJSONCollection(
-//                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+districtId,state));
+        return JSONMaker.makeJSONCollection(
+                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+districtId,state));
 
 //        System.out.println("PCTKEY: "+precinctId);
 ////        state.getPrecinct(precinctId).setGeometryJSON(PrecinctDAO.getPrecinctGeoJSONById(precinctId));
@@ -181,7 +183,9 @@ public class GerryManderController {
     public Set<Precinct> makePrecinctBatch(int batchSize){
         Set<Precinct> precinctBatchToSend = new HashSet<Precinct>();
         while (batchSize>(precinctBatchToSend.size()) && !precinctsToSend.isEmpty()){
-            precinctBatchToSend.add(precinctsToSend.pop());
+            Precinct p = precinctsToSend.pop();
+            p.setGeometryJSON(PrecinctDAO.getPrecinctGeoJSONById(p.getID()));
+            precinctBatchToSend.add(p);
         }
         if(precinctsToSend.isEmpty()){queueStatus=1;}
         return precinctBatchToSend;

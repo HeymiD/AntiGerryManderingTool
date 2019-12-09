@@ -32,7 +32,7 @@ public class State
 	public double userDemographicThreshold;
 	public ELECTIONTYPE userSelectedElection;
 //	public boolean clusterListModified;
-	private int population;
+	public int population;
 
 	public State(String name, Set<Precinct> inPrecincts) {
 		this.name = name;
@@ -61,10 +61,13 @@ public class State
 		this.name = name;
 		this.districts = new HashMap<>();
 		this.precincts = new HashMap<String, Precinct>();
-		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
+//		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
 		oldDistricts = new HashMap<String, District>();
 		clusters = new HashSet<Cluster>();
+		this.population=0;
 	}
+
+	public void putDistrict(District d){districts.put(d.getID(),d);}
 
 	public String getName(){return name;}
 
@@ -133,27 +136,37 @@ public class State
 	}
 
 	public Cluster combineClusters(Cluster c1, Cluster c2){
-		clusters.remove(c2);
-		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
-			int combined = c1.getClusterDemographics().get(demograhpic) + c2.getClusterDemographics().get(demograhpic);
-			c1.getClusterDemographics().put(demograhpic,combined);
+
+		clusters.remove(c1);
+		districts.remove(c1.getID());
+		if (majMinClusters.contains(c1)){
+			majMinClusters.remove(c1);
 		}
+		Cluster combinedCluster = c1;
+		clusters.remove(c2);
+		districts.remove(c2.getID());
+		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
+			int combined = combinedCluster.getClusterDemographics().get(demograhpic) + c2.getClusterDemographics().get(demograhpic);
+			combinedCluster.getClusterDemographics().put(demograhpic,combined);
+		}
+		((District)combinedCluster).population = ((District)combinedCluster).population+((District)c2).population;
 		for(PARTYNAME partyname :PARTYNAME.values()){
-			int combined = c1.getElections().get(userSelectedElection).getVotes().get(partyname) +
+			int combined = combinedCluster.getElections().get(userSelectedElection).getVotes().get(partyname) +
 					c2.getElections().get(userSelectedElection).getVotes().get(partyname);
-			c1.getElections().get(userSelectedElection).getVotes().put(partyname, combined);
+			combinedCluster.getElections().get(userSelectedElection).getVotes().put(partyname, combined);
 		}
 		if (majMinClusters.contains(c2)){
 			majMinClusters.remove(c2);
 		}
-		Set<Edge[]> commonNeighbors = findCommonNeighbors(c1,c2);
+		((District)combinedCluster).internalEdges = ((District)c1).internalEdges+((District)c2).internalEdges+1;
+		Set<Edge[]> commonNeighbors = findCommonNeighbors(combinedCluster,c2);
 		Set<Edge> averageEdges = new HashSet<Edge>();
 		for (Edge[] edge_pair:commonNeighbors){
 			try{
 				averageEdges.add(makeAverageEdge(edge_pair[0],edge_pair[1]));
 				for(Edge e:edge_pair){
-					if(c1.edges.contains(e)){
-						c1.edges.remove(e);
+					if(combinedCluster.edges.contains(e)){
+						combinedCluster.edges.remove(e);
 					}
 				}
 			}
@@ -161,40 +174,46 @@ public class State
 
 			}
 		}
+		((District)combinedCluster).externalEdges = combinedCluster.edges.size()-((District)combinedCluster).internalEdges;
 		for (Edge e:averageEdges){
-			c1.edges.add(e);
+			combinedCluster.edges.add(e);
 		}
-		return c1;
+		clusters.add(combinedCluster);
+		districts.put(combinedCluster.getID(),combinedCluster);
+		return combinedCluster;
 	}
 	public void undo_combineCluster(Cluster combined, Cluster c1, Cluster c2){
 		if (majMinClusters.contains(combined)){
 			majMinClusters.remove(combined);
 		}
 		clusters.remove(combined);
-		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
-			int combinedDem = combined.getClusterDemographics().get(demograhpic) - c2.getClusterDemographics().get(demograhpic);
-			c1.getClusterDemographics().put(demograhpic,combinedDem);
-		}
-		for(PARTYNAME partyname :PARTYNAME.values()){
-			int combinedElection = combined.getElections().get(userSelectedElection).getVotes().get(partyname) -
-					c2.getElections().get(userSelectedElection).getVotes().get(partyname);
-			c1.getElections().get(userSelectedElection).getVotes().put(partyname, combinedElection);
-		}
+		districts.remove(combined.getID());
+//		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
+//			int combinedDem = combined.getClusterDemographics().get(demograhpic) - c2.getClusterDemographics().get(demograhpic);
+//			c1.getClusterDemographics().put(demograhpic,combinedDem);
+//		}
+//		for(PARTYNAME partyname :PARTYNAME.values()){
+//			int combinedElection = combined.getElections().get(userSelectedElection).getVotes().get(partyname) -
+//					c2.getElections().get(userSelectedElection).getVotes().get(partyname);
+//			c1.getElections().get(userSelectedElection).getVotes().put(partyname, combinedElection);
+//		}
 		if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
 			majMinClusters.add(c1);
 		}
 		clusters.add(c1);
+		districts.put(c1.getID(),c1);
 		if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
 			majMinClusters.add(c2);
 		}
 		clusters.add(c2);
+		districts.put(c2.getID(),c2);
 		return;
 	}
 	public Set<Edge[]> findCommonNeighbors(Cluster c1, Cluster c2){
 		Set<Edge[]> commonNeighbors = new HashSet<Edge[]>();
 		for (Edge edge:c1.edges){
 			for (Edge edge2: c2.edges){
-				if(edge.getNeighbor(c1).ID==edge2.getNeighbor(c2).ID){
+				if(edge.getNeighbor(c1).getID()==edge2.getNeighbor(c2).getID()){
 					Edge[] commonEdges = new Edge[2];
 					commonEdges[0]=edge;
 					commonEdges[1]=edge2;
@@ -202,11 +221,29 @@ public class State
 				}
 			}
 		}
+		for(Edge e:c2.edges){
+			c1.edges.add(e);
+		}
+		for(Edge e:c1.edges){
+			e.clusters.remove(e.src);
+			e.clusters.add(c1);
+			e.src=c1;
+		}
+		for(Edge e:c1.edges){
+			Cluster neighbor = e.getNeighbor(c1);
+			for(Edge edge:neighbor.edges){
+				if(edge.dest.getID()==c1.getID()){
+					edge.clusters.remove(edge.dest);
+					edge.dest=c1;
+					edge.clusters.add(c1);
+				}
+			}
+		}
 		return commonNeighbors;
 	}
 
 	public Edge makeAverageEdge(Edge e1,Edge e2){
-		if ((e1.src.ID!=e2.src.ID) ||(e1.dest.ID!=e2.dest.ID)){
+		if ((e1.src.getID()!=e2.src.getID()) ||(e1.dest.getID()!=e2.dest.getID())){
 			System.out.print("They are not common edges.");
 			return null;
 		}
@@ -214,6 +251,8 @@ public class State
 		averageEdge.weight=(e1.weight+e2.weight)/2;
 		return averageEdge;
 	}
+
+
 
 
 }

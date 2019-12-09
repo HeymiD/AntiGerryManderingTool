@@ -12,21 +12,21 @@ import org.locationtech.jts.geom.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
-@Entity
-@Table(name="Districts")
-public class District implements DistrictInterface<Precinct>
+//@Entity
+//@Table(name="Districts")
+public class District implements DistrictInterface<Precinct>{
 //        implements DistrictInterface<com.gerrymander.demo.models.concrete.Precinct>
-{   @Column(name="geojson")
+//{   @Column(name="geojson")
     private String geoData;
-    @Id
-    @Column(name="id",nullable = false)
+//    @Id
+//    @Column(name="id",nullable = false)
     private String ID;
-    @Transient
+//    @Transient
     private HashMap<DEMOGRAPHIC,Double> demographics;
-    @Transient
-    private int totPop;
-    @Transient
-    public Map<ELECTIONTYPE,Votes> electionData;
+//    @Transient
+//    private int totPop;
+//    @Transient
+//    public Map<ELECTIONTYPE,Votes> electionData;
     @Transient
     private State state;
     @Transient
@@ -38,15 +38,15 @@ public class District implements DistrictInterface<Precinct>
     @Transient
     private static final int MINY = 3;
     @Transient
-    private int population;
+    public int population;
     @Transient
     private int gop_vote;
     @Transient
     private int dem_vote;
     @Transient
-    private int internalEdges = 0;
+    public int internalEdges = 0;
     @Transient
-    private int externalEdges = 0;
+    public int externalEdges = 0;
     @Transient
     private HashMap<String, Precinct> precincts;
     @Transient
@@ -73,6 +73,7 @@ public class District implements DistrictInterface<Precinct>
         population = 0;
         gop_vote = 0;
         dem_vote = 0;
+        internalEdges=0;
         precincts = new HashMap<String, Precinct>();
         borderPrecincts = new HashSet<Precinct>();
 //        this.state = state;
@@ -108,6 +109,14 @@ public class District implements DistrictInterface<Precinct>
         return dem_vote;
     }
 
+    public void setGop_vote(int gop_vote) {
+        this.gop_vote = gop_vote;
+    }
+
+    public void setDem_vote(int dem_vote) {
+        this.dem_vote = dem_vote;
+    }
+
     public int getInternalEdges() {
         return internalEdges;
     }
@@ -116,21 +125,29 @@ public class District implements DistrictInterface<Precinct>
         return externalEdges;
     }
 
-    public HashMap<DEMOGRAPHIC, Double> getDemographics() {
-        return demographics;
+    public void setInternalEdges(int internalEdges) {
+        this.internalEdges = internalEdges;
     }
 
-    public void setDemographics(HashMap<DEMOGRAPHIC, Double> demographics) {
-        this.demographics = demographics;
+    public void setExternalEdges(int externalEdges) {
+        this.externalEdges = externalEdges;
     }
 
-    public int getTotPop() {
-        return totPop;
-    }
-
-    public void setTotPop(int totPop) {
-        this.totPop = totPop;
-    }
+//    public HashMap<DEMOGRAPHIC, Double> getDemographics() {
+//        return demographics;
+//    }
+//
+//    public void setDemographics(HashMap<DEMOGRAPHIC, Double> demographics) {
+//        this.demographics = demographics;
+//    }
+//
+//    public int getTotPop() {
+//        return totPop;
+//    }
+//
+//    public void setTotPop(int totPop) {
+//        this.totPop = totPop;
+//    }
 
 //    public ArrayList<Election> getElectionData() {
 //        return electionData;
@@ -152,7 +169,7 @@ public class District implements DistrictInterface<Precinct>
     {
         for (DEMOGRAPHIC minority: demographics.keySet())
         {
-            if ((demographics.get(minority)/totPop)>=0.5)
+            if ((demographics.get(minority)/population)>=0.5)
             {
                 return true;
             }
