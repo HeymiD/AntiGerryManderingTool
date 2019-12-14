@@ -3,8 +3,9 @@ package com.gerrymander.demo.algorithm;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
 import com.gerrymander.demo.models.concrete.State;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+
 
 public enum Measure implements MeasureFunction<Precinct, District> {
 	PARTISAN_FAIRNESS {

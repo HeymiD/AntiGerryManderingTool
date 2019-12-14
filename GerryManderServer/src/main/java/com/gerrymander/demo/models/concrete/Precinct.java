@@ -2,7 +2,8 @@ package com.gerrymander.demo.models.concrete;
 
 import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.PrecinctInterface;
-import org.locationtech.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Geometry;
+
 
 import javax.persistence.*;
 import java.util.*;
@@ -12,8 +13,8 @@ public class Precinct implements PrecinctInterface {
 //    @Id
 //    @Column(name="PCTKEY")
     private final String ID;
-//    @Transient
-    private final Geometry geometry;
+    //    @Transient
+    private Geometry geometry;
 //    @Transient
     private String geometryJSON;
 //    @Transient
@@ -101,6 +102,9 @@ public class Precinct implements PrecinctInterface {
     public void setOriginalDistrictID(String districtID){originalDistrictID=districtID;}
     public void addNeighbor(String ID){
         neighborIDs.add(ID);
+    }
+    public void setGeometry(Geometry geometry) {
+        this.geometry = geometry;
     }
 
     @Override

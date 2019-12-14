@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import com.gerrymander.demo.algorithm.Algorithm;
+import com.gerrymander.demo.algorithm.Measure;
 import com.gerrymander.demo.models.DAO.ClusterDAO;
 import com.gerrymander.demo.models.DAO.DistrictDAO;
 import com.gerrymander.demo.models.DAO.PrecinctDAO;
@@ -197,6 +198,10 @@ public class GerryManderController {
         algorithm.popThreshMin=0.5;
         algorithm.demString = demString;
         state.demString=demString;
+        algorithm.weights= new HashMap<Measure,Double>();
+        for(Measure m:Measure.values()){
+            algorithm.weights.put(m,0.2);
+        }
 //        if(state.majMinClusters.isEmpty()){
 //            for(Cluster c:state.clusters){
 //                if(c.checkMajorityMinority(blockThreshold,votingThreshold,ELECTIONTYPE.valueOf(electionType))){

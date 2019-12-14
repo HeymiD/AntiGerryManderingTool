@@ -1,9 +1,11 @@
 package com.gerrymander.demo.algorithm;
 
 import com.gerrymander.demo.*;
+import com.gerrymander.demo.measures.DefaultMeasures;
 import com.gerrymander.demo.measures.DistrictInterface;
 import com.gerrymander.demo.measures.PrecinctInterface;
 import com.gerrymander.demo.measures.StateInterface;
+import com.gerrymander.demo.models.DAO.PrecinctDAO;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
 import com.gerrymander.demo.models.concrete.State;
@@ -24,6 +26,7 @@ public class Algorithm
     private HashMap<District, Double> currentScores;
     private District currentDistrict = null;
     public FACTOR[] factors;
+    public Map<Measure,Double> weights;
     public Double popThreshMax;
     public Double popThreshMin;
     public Double voteThresh;
@@ -756,5 +759,25 @@ public class Algorithm
             state.clusters.add(newCluster);
         }
     }
+
+    public void phase2(){
+        PrecinctDAO.getAllPrecinctGeoJSON(state);
+        precinctDistrictMap = new HashMap<String, String>();
+        setDistrictScoreFunction(DefaultMeasures.defaultMeasuresWithWeights(weights));
+        for(Cluster c: state.clusters){
+            for(Precinct p: c.precinctsCluster){
+                c.precincts.put(p.getID(),p);
+                precinctDistrictMap.put(p.getID(),c.getID());
+            }
+            c.findBorderPrecincts();
+            state.putDistrict(c);
+        }
+        updateScores();
+        for(District d:state.getDistricts()){
+            getMoveFromDistrict(d);
+        }
+    }
+
+
 
 }

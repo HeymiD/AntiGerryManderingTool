@@ -3,8 +3,17 @@ package com.gerrymander.demo.models.concrete;
 import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.DistrictInterface;
 import com.gerrymander.demo.models.concrete.State;
-import org.locationtech.jts.algorithm.MinimumBoundingCircle;
-import org.locationtech.jts.geom.*;
+import com.vividsolutions.jts.algorithm.MinimumBoundingCircle;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.*;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
+//import com.vividsolutions.jts.algorithm;
+
+//import org.locationtech.jts.algorithm.MinimumBoundingCircle;
+
+
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -45,7 +54,7 @@ public class District implements DistrictInterface<Precinct>{
 
     public int externalEdges = 0;
 
-    private HashMap<String, Precinct> precincts;
+    public HashMap<String, Precinct> precincts;
 
     private Set<Precinct> borderPrecincts;
 
@@ -295,16 +304,16 @@ public class District implements DistrictInterface<Precinct>{
         return boundingCircle;
     }
 
-    public Map<Precinct,District> findBorderPrecincts(){
-        Map<Precinct,District> borderPrecincts = new HashMap<Precinct,District>();
+    public void findBorderPrecincts(){
+
         for (String pctkey:precincts.keySet()){
             for(String neighborID: precincts.get(pctkey).getNeighborIDs()){
                 if(precincts.get(neighborID)==null){
-                    borderPrecincts.put(precincts.get(pctkey),
-                            state.findCluster(state.getPrecinct(neighborID).newDistrictID));
+                    borderPrecincts.add(precincts.get(pctkey));
+                    break;
                 }
             }
         }
-        return borderPrecincts;
+        return;
     }
 }

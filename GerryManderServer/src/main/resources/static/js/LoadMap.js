@@ -43,22 +43,7 @@ texasDistrictsLayer =  L.geoJson(texas_districts, {
                   	style: districtStyle,
                   	onEachFeature: districtEffects
                   });
-loadjscssfile("./js/geojson/PrecinctsPart3.js", "js",function (){
-                                                             console.log(precincts3)
-                                                             var precinctBoundary = L.geoJson(precincts3, {
-                                                             	style: precinctStyle,
-                                                             	onEachFeature: precinctEffects
-                                                             })
-                                                             precLayer.addLayer(precinctBoundary)
-                                                         })
-loadjscssfile("./js/geojson/PrecinctsPart4.js", "js",function (){
-                                                         console.log(precincts4)
-                                                         var precinctBoundary = L.geoJson(precincts4, {
-                                                            style: precinctStyle,
-                                                            onEachFeature: precinctEffects
-                                                         })
-                                                         precLayer.addLayer(precinctBoundary)
-                                                     })
+
 
 //texasPrecinctsLayer = L.geoJson(texas_precintcs, {
 //                                        	style: stateStyle,
