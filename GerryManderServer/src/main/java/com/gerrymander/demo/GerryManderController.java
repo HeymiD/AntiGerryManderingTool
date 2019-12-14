@@ -187,21 +187,24 @@ public class GerryManderController {
                                       @RequestParam("blockThreshold") double blockThreshold,
                                       @RequestParam("electionType") String electionType,
                                      @RequestParam("targetNumDistricts") int targetNumDistricts,
-                                     @RequestParam("update") boolean update){
+                                     @RequestParam("update") boolean update,
+                                     @RequestParam("demString") String[] demString){
         state.userDemographicThreshold = blockThreshold;
         state.userVoteThreshold = votingThreshold;
         state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
         algorithm.targetNumDist = targetNumDistricts;
         algorithm.popThreshMax=0.8;
         algorithm.popThreshMin=0.5;
-        if(state.majMinClusters.isEmpty()){
-            for(Cluster c:state.clusters){
-                if(c.checkMajorityMinority(blockThreshold,votingThreshold,ELECTIONTYPE.valueOf(electionType))){
-                    state.majMinClusters.add(c);
-                }
-            }
-            System.out.println("MajMin Clusters Size: "+state.majMinClusters.size());
-        }
+        algorithm.demString = demString;
+        state.demString=demString;
+//        if(state.majMinClusters.isEmpty()){
+//            for(Cluster c:state.clusters){
+//                if(c.checkMajorityMinority(blockThreshold,votingThreshold,ELECTIONTYPE.valueOf(electionType))){
+//                    state.majMinClusters.add(c);
+//                }
+//            }
+//            System.out.println("MajMin Clusters Size: "+state.majMinClusters.size());
+//        }
         algorithm.phaseOne(update);
         return "";
 

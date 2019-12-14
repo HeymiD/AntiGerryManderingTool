@@ -27,6 +27,7 @@ public class State
 	public int population;
 	public Set<Cluster> combinedClusters;
 	public Set<Cluster> visited;
+	public String[] demString;
 
 	public State(String name, Set<Precinct> inPrecincts) {
 		this.name = name;
@@ -223,7 +224,7 @@ public class State
         }
         combinedCluster.setGop_vote(c1.getGOPVote()+c2.getGOPVote());
         combinedCluster.setDem_vote(c1.getDEMVote()+c2.getDEMVote());
-        if(combinedCluster.externalEdges>50){
+        if(combinedCluster.population>700000){
             return null;
         }
         boolean majmin = false;
@@ -231,17 +232,17 @@ public class State
         if(combinedCluster.population>800000){
             return null;
         }
-        if(combinedCluster.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+        if(combinedCluster.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection,demString)){
             majmin=true;
             newSizeMajMinClusters++;
         }
         if(majmin==false){
             return null;
         }
-        if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+        if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection,demString)){
             newSizeMajMinClusters--;
         }
-        if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+        if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection,demString)){
             newSizeMajMinClusters--;
         }
         if(newSizeMajMinClusters>0){

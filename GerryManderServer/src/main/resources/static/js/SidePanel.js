@@ -235,7 +235,7 @@ algorithms.change(function(){
 function runAlgorithm(){
     console.log("Phase 0 Results: ")
 //    getPhaseZeroData(electionType.val()+electionYear.val(),0.75,0.8);
-    getPhaseOneData(electionType.val()+electionYear.val(),0.75,0.8,false,36);
+    getPhaseOneData(electionType.val()+electionYear.val(),0.75,0.6,false,36,"ASIAN,PACISLAND");
     console.log(phase0Data)
 }
 //runAlgoBtn.on("click",runAlgorithm());

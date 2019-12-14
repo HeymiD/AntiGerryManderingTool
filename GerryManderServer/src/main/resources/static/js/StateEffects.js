@@ -305,7 +305,7 @@ $.ajax({
 	})
 }
 
-function getPhaseOneData(elecType,votingThreshold,blockThreshold,update,targetNumDistricts){
+function getPhaseOneData(elecType,votingThreshold,blockThreshold,update,targetNumDistricts,demString){
 $.ajax({
 		url:"http://localhost:8080/phase1",
 		data: {
@@ -313,7 +313,8 @@ $.ajax({
 			blockThreshold: blockThreshold,
 			electionType: elecType,
 			update: update,
-			targetNumDistricts: targetNumDistricts
+			targetNumDistricts: targetNumDistricts,
+			demString: demString
 		},
 		success: function(response){
 		console.log(response)

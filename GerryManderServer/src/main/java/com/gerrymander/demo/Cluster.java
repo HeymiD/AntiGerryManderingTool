@@ -42,6 +42,9 @@ public class Cluster extends District{
 		Integer maxDemographicSize = 0;
 		DEMOGRAPHIC largestDemographic = null;
 		for(DEMOGRAPHIC demographic : DEMOGRAPHIC.values()){
+			if(demographic==DEMOGRAPHIC.WHITE){
+				continue;
+			}
 //			System.out.println(demographic.toString()+": "+clusterDemographics.get(demographic));
 			if(clusterDemographics.get(demographic) >= maxDemographicSize){
 				maxDemographicSize = clusterDemographics.get(demographic);
@@ -60,11 +63,19 @@ public class Cluster extends District{
 	}
 
 	public boolean checkMajorityMinority(double blockThreshold, double votingThreshold,
-								   ELECTIONTYPE election){
-
+								   ELECTIONTYPE election, String[] demsStrings){
+		int demSize=0;
+		for(String d:demsStrings){
+			demSize+=clusterDemographics.get(DEMOGRAPHIC.valueOf(d));
+		}
 		DEMOGRAPHIC largestDemographic = this.getLargestDemographic();
-		double demographicSize = this.calculateDemographicSize(largestDemographic, getPopulation());
-
+		double demographicSize = 0.0;
+		if(demSize>clusterDemographics.get(largestDemographic)){
+			 demographicSize = demSize/population;
+		}
+		else{
+			 demographicSize = this.calculateDemographicSize(largestDemographic, getPopulation());
+		}
 		if(demographicSize < blockThreshold){
 			return false;
 		}

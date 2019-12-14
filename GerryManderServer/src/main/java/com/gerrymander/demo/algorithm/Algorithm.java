@@ -28,6 +28,7 @@ public class Algorithm
     public Double popThreshMin;
     public Double voteThresh;
     public int targetNumDist;
+    public String[] demString;
 
 
     public MeasureFunction<Precinct, District> getDistrictScoreFunction() {
@@ -471,7 +472,10 @@ public class Algorithm
             finalIteration();
             int newStateSize = 0;
             state.clusters.forEach(c->{
-                System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population);
+                System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population
+                        +"\n MajMin: "
+                        +c.checkMajorityMinority(state.userDemographicThreshold,
+                        state.userVoteThreshold,state.userSelectedElection,demString));
             });
             for(Cluster c:state.clusters){
                 newStateSize+=c.population;
@@ -671,7 +675,7 @@ public class Algorithm
                 double largestPopulationRatio = combinedCluster.calculateDemographicSize(combinedCluster.getLargestDemographic(),
                         combinedCluster.population);
 
-                nonMMJoinability+=0.6*f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
+                nonMMJoinability+=0.5*f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
             }
             else{
                 if(f==FACTOR.EQPOP){
@@ -694,6 +698,10 @@ public class Algorithm
                 return;
             }
             Cluster currCluster = iterator.next();
+            if(currCluster.checkMajorityMinority(state.userDemographicThreshold,
+                    state.userVoteThreshold,state.userSelectedElection,demString)){
+                continue;
+            }
             Set<Cluster> neighbors = new HashSet<Cluster>();
             for (Edge edge: currCluster.edges){
                 neighbors.add(edge.getNeighbor(currCluster));
