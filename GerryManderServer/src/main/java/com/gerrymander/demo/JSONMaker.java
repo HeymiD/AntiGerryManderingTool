@@ -2,17 +2,12 @@ package com.gerrymander.demo;
 
 import com.gerrymander.demo.models.concrete.Precinct;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class JSONMaker {
 
     public static String makeJSONCollection(Set<Precinct> precincts){
-
-
 
         String json = "{\"type\":\"FeatureCollection\",\"features\":[";
 
@@ -55,7 +50,45 @@ public class JSONMaker {
         return jsonArray;
     }
 
+    public static String phase1Data(List<Cluster> clusters){
+        String data = "{";
+        for(Cluster cluster:clusters){
+            for(Precinct p:cluster.precinctsCluster){
+                data+="\"PCTKEY\": "+"\""+p.getID()+"\""+" \"COLOR\": "+"\""+p.newDistrictID+"\"";
+            }
+        }
+        data+="}";
+        return data;
+    }
 
+    public static String makeJSONDict(Set<Precinct> precincts){
+        String jsonDict = "{";
+        int i=0;
+        for(Precinct p:precincts){
+            if(i<precincts.size()-1){
+                jsonDict+=p.toString()+", ";
+            }
+            else{
+                jsonDict+=p.toString();
+            }
+        }
+        jsonDict+="}";
+        return jsonDict;
+    }
 
+    public static String makeJSONDict(Set<Precinct> precincts, ELECTIONTYPE electiontype){
+        String jsonDict = "{";
+        int i=0;
+        for(Precinct p:precincts){
+            if(i<precincts.size()-1){
+                jsonDict+=p.electData(electiontype)+", ";
+            }
+            else{
+                jsonDict+=p.electData(electiontype);
+            }
+        }
+        jsonDict+="}";
+        return jsonDict;
+    }
 
 }

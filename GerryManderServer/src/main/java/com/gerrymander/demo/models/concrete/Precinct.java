@@ -165,7 +165,7 @@ public class Precinct implements PrecinctInterface {
         Integer maxDemographicSize = 0;
         DEMOGRAPHIC largestDemographic = null;
         for(DEMOGRAPHIC demographic : DEMOGRAPHIC.values()){
-            if(precinctDemographics.get(demographic) > maxDemographicSize){
+            if(demographic!=DEMOGRAPHIC.WHITE&&precinctDemographics.get(demographic) >= maxDemographicSize){
                 maxDemographicSize = precinctDemographics.get(demographic);
                 largestDemographic = demographic;
             }
@@ -204,10 +204,7 @@ public class Precinct implements PrecinctInterface {
     @Override
     public String toString() {
 
-        return " {\"type\": "
-                + "\"Feature\""
-                + ", \"properties\": { "
-                + "\"PrecinctID\": "+"\""+this.ID +"\""+", "
+        return "\""+this.ID +"\": { "
                 + "\"DistrictID\": "+"\""+this.originalDistrictID+"\"" + ", "
                 + "\"White\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.WHITE)).toString()+"\"" + ", "
                 + "\"Black\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.AFROAM)).toString()+ "\""+", "
@@ -216,12 +213,20 @@ public class Precinct implements PrecinctInterface {
                 + "\"Pacific\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.PACISLAND)).toString()+ "\""+", "
                 + "\"Asian\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.ASIAN)).toString()+ "\""+", "
                 + "\"Other\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.OTHER)).toString()+ "\""+", "
-                + "\"Republican\": " + "\""+elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.REPUBLICAN)+"\""+ ", "
-                + "\"Democrat\": " + "\""+elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.DEMOCRAT)+"\""+ ", "
-                + "\"Green\": " +"\""+ elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.GREEN)+ "\""+", "
-                + "\"Libertarian\": " + "\""+elections.get(userSelectedElectionType).getVotes().get(PARTYNAME.LIBERTARIAN)
-                + "\""+" }, "
-                +  geometryJSON.substring(geometryJSON.indexOf("\"geometry\""),geometryJSON.length());
+                +" }";
+    }
+
+    public String electData(ELECTIONTYPE electiontype){
+        return "\""+this.ID +"\": { "
+                +"\"Republican\": "
+                + "\""+elections.get(electiontype).getVotes().get(PARTYNAME.REPUBLICAN)+"\""+ ", "
+                + "\"Democrat\": "
+                + "\""+elections.get(electiontype).getVotes().get(PARTYNAME.DEMOCRAT)+"\""+ ", "
+                + "\"Green\": "
+                +"\""+ elections.get(electiontype).getVotes().get(PARTYNAME.GREEN)+ "\""+", "
+                + "\"Libertarian\": "
+                + "\""+elections.get(electiontype).getVotes().get(PARTYNAME.LIBERTARIAN)+ "\""
+                +"}";
     }
 
 

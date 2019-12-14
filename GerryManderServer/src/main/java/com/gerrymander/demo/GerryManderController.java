@@ -81,17 +81,17 @@ public class GerryManderController {
 ////            return state.oldDistricts.get("U.S. Rep "+districtId).getGeoData();
 //            return d.getGeoData();
 //        }
-        return JSONMaker.makeJSONArray(state.getPrecincts());
+        return JSONMaker.makeJSONDict(state.getPrecincts());
 
 
 	}
 //@RequestParam("districtId") String districtId
     @RequestMapping("/precincts")
     public String getPrecincts(@RequestParam("state") String stateName,
-                               @RequestParam("districtId") String districtId) {
-        if(queueStatus==1){
-            return "Done";
-        }
+                               @RequestParam("electionType") String elecType) {
+	    ELECTIONTYPE e = ELECTIONTYPE.valueOf(elecType);
+        return JSONMaker.makeJSONDict(state.getPrecincts(),e);
+	}
 //        System.out.println("Sending precincts...");
 //        Set<Precinct> precinctBatchToSend = makePrecinctBatch(200);
 //        return JSONMaker.makeJSONCollection(precinctBatchToSend);
@@ -120,18 +120,13 @@ public class GerryManderController {
 //        if (queueStatus.get("U.S. Rep "+districtID)==1){return "District Done";}
 //        else{return JSONMaker.makeJSONCollection(precinctBatchToSend);}
 //
-        return JSONMaker.makeJSONCollection(
-                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+districtId,state));
+//        return JSONMaker.makeJSONCollection(
+//                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+districtId,state));
 
 //        System.out.println("PCTKEY: "+precinctId);
 ////        state.getPrecinct(precinctId).setGeometryJSON(PrecinctDAO.getPrecinctGeoJSONById(precinctId));
 //        return state.getPrecinct(precinctId).toString();
 
-    }
-    @RequestMapping("/precinctsInit")
-    public String getPrecinctsInit(@RequestParam("state") String stateName) {
-	    return "ready";
-    }
     @RequestMapping("/districtData")
     public String sendDistrictData(@RequestParam("districtId")String districtId,
                                    @RequestParam("elecType") String elecType){
@@ -211,7 +206,7 @@ public class GerryManderController {
 //            System.out.println("MajMin Clusters Size: "+state.majMinClusters.size());
 //        }
         algorithm.phaseOne(update);
-        return "";
+        return JSONMaker.phase1Data(state.clusters);
 
     }
 
