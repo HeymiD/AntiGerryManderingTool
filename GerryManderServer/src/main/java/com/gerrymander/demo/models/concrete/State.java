@@ -103,7 +103,7 @@ public class State
 		return majMinPrecinctStats;
 	}
 	public boolean makeMajMinClusters() {
-
+	    combinedClusters.clear();
         boolean clusterListModified = false;
         Iterator<Cluster> iterator = clusters.iterator();
         while (iterator.hasNext()) {
@@ -118,6 +118,7 @@ public class State
                 if (testCombineClusters(currCluster, neighbor) != null) {
                     clusterListModified = true;
                     combineClusters(currCluster, neighbor);
+                    combinedClusters.add(neighbor);
                     iterator.remove();
                     break;
                 }
@@ -204,7 +205,6 @@ public class State
     }
 
 	public Cluster testCombineClusters(Cluster c1, Cluster c2){
-
         Cluster combinedCluster = new Cluster(c1.getID());
         combinedCluster.clusterDemographics.putAll(c1.getClusterDemographics());
 		combinedCluster.elections.putAll(c1.elections);
@@ -229,9 +229,6 @@ public class State
         }
         boolean majmin = false;
         int newSizeMajMinClusters = 0;
-        if(combinedCluster.population>800000){
-            return null;
-        }
         if(combinedCluster.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection,demString)){
             majmin=true;
             newSizeMajMinClusters++;

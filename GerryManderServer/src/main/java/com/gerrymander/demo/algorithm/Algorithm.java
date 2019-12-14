@@ -675,7 +675,7 @@ public class Algorithm
                 double largestPopulationRatio = combinedCluster.calculateDemographicSize(combinedCluster.getLargestDemographic(),
                         combinedCluster.population);
 
-                nonMMJoinability+=0.5*f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
+                nonMMJoinability+=0.4*f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
             }
             else{
                 if(f==FACTOR.EQPOP){

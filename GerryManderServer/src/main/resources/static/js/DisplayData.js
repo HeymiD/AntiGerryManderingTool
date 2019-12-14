@@ -154,15 +154,16 @@ function selMapContent(content){
                 precinctData.show();
                 if(precLayer.getLayers().length == 0 && electionYear.val() != 'Election Year' && electionType.val() != 'Election Type'){
                     console.log("Getting Precincts...")
+                    map.addLayer(precLayer)
 //                    getPrecincts(currState)
-                    var districtID = 1
-                    while(districtID<37){
-                        console.log("getting Precincts now")
-                        getPrecincts(currState,districtID);
-//                        getPrecinctsByDistrictInit(currState,districtID)
-                        console.log("Got precinct for district id: " + districtID)
-                        districtID=districtID+1;
-                    }
+//                    var districtID = 1
+//                    while(districtID<37){
+//                        console.log("getting Precincts now")
+//                        getPrecincts(currState,districtID);
+////                        getPrecinctsByDistrictInit(currState,districtID)
+//                        console.log("Got precinct for district id: " + districtID)
+//                        districtID=districtID+1;
+//                    }
 
 //                    var done=0;
 //                    while(done<8936){
