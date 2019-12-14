@@ -437,65 +437,314 @@ public class Algorithm
 
     public void phaseOne(boolean update){
         if (!update){
-            while((2*targetNumDist)<state.clusters.size()){
+            while(2*targetNumDist<state.clusters.size()){
+                Collections.sort(state.clusters,new SortByPopulation());
                 if(!state.makeMajMinClusters()){
                     makeNonMMClusters();
+                    int newStateSize = 0;
+                    for(Cluster c:state.clusters){
+                        newStateSize+=c.population;
+                    }
+                    int pop = 0;
+                    for(Cluster c:state.clusters){
+                        pop+=c.getPopulation();
+                        System.out.println("CID: "+c.getID()+" POP: "+c.getPopulation());
+                    }
+                    System.out.println("New State Size: "+newStateSize+" Old size: "+state.population);
                 }
+                System.out.println("Number of Clusters"+state.clusters.size());
             }
+            for(Cluster c:state.clusters){
+                System.out.println("CID: "+c.getID()+" POP: "+c.getPopulation());
+            }
+            int pop = 0;
+            int numClusters = 0;
+            for(Cluster c:state.clusters){
+                numClusters+=c.precinctsCluster.size();
+                pop+=c.getPopulation();
+//                    System.out.println("CID: "+c.getID()+" POP: "+c.getPopulation());
+            }
+            System.out.println("StatePop: "+state.population+" NewPop: "+pop);
+            System.out.println("New Precinct Size: "+numClusters);
+
+            System.out.println("FINAL ITERATION");
             finalIteration();
+            int newStateSize = 0;
+            state.clusters.forEach(c->{
+                System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population);
+            });
+            for(Cluster c:state.clusters){
+                newStateSize+=c.population;
+            }
+            System.out.println("New State Size: "+newStateSize+" Old size: "+state.population);
+
             return;
         }
         else{
             if((2*targetNumDist)>=state.clusters.size()){
+                state.clusters.forEach(c->{
+                    System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population);
+                });
+                System.out.println("FINAL ITERATION");
                 finalIteration();
+                int newStateSize = 0;
+                state.clusters.forEach(c->{
+                    System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population);
+                });
+                for(Cluster c:state.clusters){
+                    newStateSize+=c.population;
+                }
+                System.out.println("New State Size: "+newStateSize+" Old size: "+state.population);
+
             }
             else{
+
                 if(!state.makeMajMinClusters()){
+                    System.out.println("Number of Clusters"+state.clusters.size());
                     makeNonMMClusters();
                 }
+                int pop = 0;
+                int numClusters = 0;
+                for(Cluster c:state.clusters){
+                    numClusters+=c.precinctsCluster.size();
+                    pop+=c.getPopulation();
+//                    System.out.println("CID: "+c.getID()+" POP: "+c.getPopulation());
+                }
+                System.out.println("StatePop: "+state.population+" NewPop: "+pop);
+                System.out.println("New Precinct Size: "+numClusters);
             }
+            System.out.println("Number of Clusters"+state.clusters.size());
 
-            return;
         }
-    }
-    public void finalIteration(){
         return;
     }
+
+    public void finalIteration(){
+
+        int cSize = state.clusters.size();
+        Collections.sort(state.clusters,new SortByPopulation());
+        int lowerQuartile = state.clusters.size()/4;
+        int upperQuartile = lowerQuartile*3;
+        Iterator<Cluster> iterator = state.clusters.iterator();
+        int counter=0;
+        while (iterator.hasNext()) {
+            if(targetNumDist>cSize){
+                return;
+            }
+            if(counter>=lowerQuartile){
+                break;
+            }
+            Cluster currCluster = iterator.next();
+
+            Set<Cluster> neighborsToCheck = new HashSet<Cluster>();
+            for (Edge edge: currCluster.edges){
+                Cluster neighbor = edge.getNeighbor(currCluster);
+                if(state.clusters.indexOf(neighbor)>=upperQuartile){
+                    neighborsToCheck.add(neighbor);
+                }
+            }
+            if(neighborsToCheck.size()==0){
+                continue;
+            }
+            boolean combined = false;
+            for(Cluster neighbor:neighborsToCheck){
+                if (state.testCombineClusters(currCluster, neighbor) != null) {
+                    state.combineClusters(currCluster, neighbor);
+                    iterator.remove();
+                    cSize--;
+                    combined=true;
+                    break;
+                }
+            }
+            if(combined==false){
+                Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighborsToCheck);
+                state.combineClusters(currCluster,mostJoinableCluster);
+                iterator.remove();
+                cSize--;
+            }
+            counter++;
+        }
+
+        if(cSize>targetNumDist){
+            iterator = state.clusters.iterator();
+            while (iterator.hasNext()) {
+                if(targetNumDist>cSize){
+                    return;
+                }
+                Cluster currCluster = iterator.next();
+                Set<Cluster> neighborsToCheck = new HashSet<Cluster>();
+                for (Edge edge: currCluster.edges){
+                    Cluster neighbor = edge.getNeighbor(currCluster);
+                    neighborsToCheck.add(neighbor);
+                }
+                if(neighborsToCheck.size()==0){
+                    continue;
+                }
+                for(Cluster neighbor:neighborsToCheck){
+                    if (state.testCombineClusters(currCluster, neighbor) != null) {
+                        state.combineClusters(currCluster, neighbor);
+                        iterator.remove();
+                        cSize--;
+                        break;
+                    }
+                }
+            }
+            iterator = state.clusters.iterator();
+            while (iterator.hasNext()) {
+                if(targetNumDist>cSize){
+                    return;
+                }
+                Cluster currCluster = iterator.next();
+                Set<Cluster> neighbors = new HashSet<Cluster>();
+                for (Edge edge: currCluster.edges){
+                    neighbors.add(edge.getNeighbor(currCluster));
+                }
+                Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighbors);
+                state.combineClusters(currCluster,mostJoinableCluster);
+                iterator.remove();
+                cSize--;
+            }
+        }
+        return;
+    }
+
     public Cluster findMostJoinableCluster(Cluster c,Set<Cluster> neighbors){
+
         Cluster mostJoinableCluster = null;
-        Double max_NonMMJoinability = 0.0;
+        double max_NonMMJoinability = Double.NEGATIVE_INFINITY;
         for (Cluster neighbor:neighbors){
-            Double joinability = calculateNonMMJoinability(c,neighbor);
-            if(joinability>max_NonMMJoinability){
+//            System.out.println("EDGE ID: "+neighbor.getID());
+            double joinability = calculateNonMMJoinability(c,neighbor);
+            if(joinability>=max_NonMMJoinability){
                 max_NonMMJoinability=joinability;
                 mostJoinableCluster=neighbor;
             }
         }
+//        System.out.println("Value: "+max_NonMMJoinability);
+        System.out.println("MJC: "+mostJoinableCluster.getID());
         return mostJoinableCluster;
     }
 
-    public Double calculateNonMMJoinability(Cluster c1,Cluster c2){
-        Cluster combined = state.combineClusters(c1,c2);
-        Double nonMMJoinability = districtScoreFunction.calculateMeasure(combined.clusterToDistrict());
-        state.undo_combineCluster(combined,c1,c2);
+    public double calculateNonMMJoinability(Cluster c1,Cluster c2){
+        Cluster combinedCluster = new Cluster(c1.getID());
+        combinedCluster.clusterDemographics.putAll(c1.getClusterDemographics());
+        combinedCluster.elections.putAll(c1.elections);
+        combinedCluster.setDem_vote(c1.getDEMVote());
+        combinedCluster.setGop_vote(c1.getGOPVote());
+        combinedCluster.setState(c1.getState());
+        combinedCluster.precinctsCluster.addAll(c1.precinctsCluster);
+        combinedCluster.precinctsCluster.addAll(c2.precinctsCluster);
+        int internalEdges = 0;
+        int externalEdges = 0;
+        for (Precinct p : combinedCluster.precinctsCluster) {
+            for (String neighborID : p.getNeighborIDs()) {
+                if (combinedCluster.precinctsCluster.stream().anyMatch(precinct -> {
+                    return precinct.getID().equals(neighborID);
+                })) {
+                    internalEdges++;
+                }
+                else{
+                    externalEdges++;
+                }
+            }
+        }
+        if((externalEdges+internalEdges)==0){
+            System.out.println("HOUSTON WE HAVE A PROBLEM!");
+        }
+        combinedCluster.internalEdges = internalEdges;
+        combinedCluster.externalEdges = externalEdges;
+        for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
+            int combined = combinedCluster.getClusterDemographics().get(demograhpic) + c2.getClusterDemographics().get(demograhpic);
+            combinedCluster.getClusterDemographics().put(demograhpic,combined);
+        }
+        ((District)combinedCluster).population = ((District)combinedCluster).population+((District)c2).population;
+        for(PARTYNAME partyname :PARTYNAME.values()){
+            int combined = combinedCluster.getElections().get(state.userSelectedElection).getVotes().get(partyname) +
+                    c2.getElections().get(state.userSelectedElection).getVotes().get(partyname);
+            combinedCluster.getElections().get(state.userSelectedElection).getVotes().put(partyname, combined);
+        }
+        combinedCluster.setGop_vote(c1.getGOPVote()+c2.getGOPVote());
+        combinedCluster.setDem_vote(c1.getDEMVote()+c2.getDEMVote());
+        double nonMMJoinability=0.0;
+        for(FACTOR f:FACTOR.values()){
+            if(f==FACTOR.MAJMIN){
+                double largestPopulationRatio = combinedCluster.calculateDemographicSize(combinedCluster.getLargestDemographic(),
+                        combinedCluster.population);
+
+                nonMMJoinability+=0.6*f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
+            }
+            else{
+                if(f==FACTOR.EQPOP){
+                    nonMMJoinability+=0.8*f.calculateMeasure(combinedCluster);
+                }
+                else{
+                    nonMMJoinability+=0.0005*f.calculateMeasure(combinedCluster);
+                }
+
+            }
+        }
         return nonMMJoinability;
     }
 
     public void makeNonMMClusters(){
-        for (Cluster c : state.clusters){
-            Set<Cluster> neighbors = new HashSet<Cluster>();
-            for (Edge edge: c.edges){
-                neighbors.add(edge.getNeighbor(c));
+        int cSize = state.clusters.size();
+        Iterator<Cluster> iterator = state.clusters.iterator();
+        while (iterator.hasNext()) {
+            if(2*targetNumDist>cSize){
+                return;
             }
-            Cluster mostJoinableCluster = findMostJoinableCluster(c,neighbors);
-            state.combineClusters(c,mostJoinableCluster);
+            Cluster currCluster = iterator.next();
+            Set<Cluster> neighbors = new HashSet<Cluster>();
+            for (Edge edge: currCluster.edges){
+                neighbors.add(edge.getNeighbor(currCluster));
+            }
+            Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighbors);
+//            System.out.println("Size of most joinable: "+mostJoinableCluster.precinctsCluster.size());
+//            System.out.println("Size of current: "+currCluster.precinctsCluster.size());
+            state.combineClusters(currCluster,mostJoinableCluster);
+            iterator.remove();
+//            int totP = 0;
+//            for(Cluster c:state.clusters){
+//                totP+=c.precinctsCluster.size();
+//            }
+//            if(totP!=8936){
+//                System.out.println("Size of current after: "+currCluster.precinctsCluster.size());
+//                System.out.println("Precincts: "+totP);
+//                System.exit(0);
+//            }
+            cSize--;
         }
     }
 
     public void initClusters(){
         for(Precinct precinct:state.getPrecincts()){
             Cluster newCluster = new Cluster(precinct.getID());
-            newCluster.precincts.add(precinct);
+            newCluster.precinctsCluster.add(precinct);
+            newCluster.setDem_vote(precinct.getElections().
+                    get(state.userSelectedElection).getVotes().get(PARTYNAME.DEMOCRAT));
+            newCluster.setGop_vote(precinct.getElections().
+                    get(state.userSelectedElection).getVotes().get(PARTYNAME.REPUBLICAN));
+            newCluster.population=precinct.getPopulation();
+            Map<DEMOGRAPHIC,Integer> dems = new HashMap<DEMOGRAPHIC,Integer>();
+            for(DEMOGRAPHIC d:DEMOGRAPHIC.values()){
+                dems.put(d,precinct.getPrecinctDemographics().get(d));
+            }
+            newCluster.setClusterDemographics(dems);
+            newCluster.elections=new HashMap<ELECTIONTYPE,Votes>();
+            for(ELECTIONTYPE e:ELECTIONTYPE.values()){
+                Votes v = new Votes();
+                Map<PARTYNAME,Integer> votes = new HashMap<PARTYNAME,Integer>();
+                for(PARTYNAME p:PARTYNAME.values()){
+                    votes.put(p,precinct.getElections().get(e).getVotes().get(p));
+                }
+                v.setVotes(votes);
+                newCluster.elections.put(e,v);
+            }
+            for(Precinct p:newCluster.precinctsCluster){
+                newCluster.externalEdges+=p.getNeighborIDs().size();
+            }
+            newCluster.setState(state);
+            precinct.newDistrictID=newCluster.getID();
             state.clusters.add(newCluster);
         }
     }

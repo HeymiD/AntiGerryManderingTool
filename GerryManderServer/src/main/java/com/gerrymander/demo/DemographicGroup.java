@@ -5,18 +5,18 @@ import com.gerrymander.demo.models.concrete.Precinct;
 import javax.persistence.*;
 import java.util.HashMap;
 
-@Entity
-@Table(name="texas_demographics_formatted")
+//@Entity
+//@Table(name="texas_demographics_formatted")
 public class DemographicGroup {
-    @Column(name="Demographic")
-    @Enumerated
+//    @Column(name="Demographic")
+//    @Enumerated
     private DEMOGRAPHIC groupDemographic;
-    @Column(name="population")
+//    @Column(name="population")
     private int population;
-    @ManyToOne
+//    @ManyToOne
     private Precinct precinct;
-    @Id
-    @Column(name = "PCTKEY")
+//    @Id
+//    @Column(name = "PCTKEY")
     private String pctkey;
 
     public DemographicGroup(){}

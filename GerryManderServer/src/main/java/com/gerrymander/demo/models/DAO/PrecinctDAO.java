@@ -183,6 +183,7 @@ public class PrecinctDAO {
                         Votes v = new Votes();
                         Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
                         votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
+
                         votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
                         votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
                         votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
@@ -203,21 +204,22 @@ public class PrecinctDAO {
 //                System.out.println("PCTKEY: "+resultSet.getString("PCTKEY"));
 //                System.out.println("Precinct: "+precinctobj.getID());
                 int totPop = 0;
-                precinctobj.addDemographic(DEMOGRAPHIC.AFROAM, Integer.parseInt(resultSet.getString("Black")));
-                totPop+=Integer.parseInt(resultSet.getString("Black"));
-                precinctobj.addDemographic(DEMOGRAPHIC.WHITE, Integer.parseInt(resultSet.getString("White")));
-                totPop+=Integer.parseInt(resultSet.getString("White"));
-                precinctobj.addDemographic(DEMOGRAPHIC.ASIAN, Integer.parseInt(resultSet.getString("Asian")));
-                totPop+=Integer.parseInt(resultSet.getString("Asian"));
-                precinctobj.addDemographic(DEMOGRAPHIC.HISPANIC, Integer.parseInt(resultSet.getString("Hispanic")));
-                totPop+=Integer.parseInt(resultSet.getString("Hispanic"));
-                precinctobj.addDemographic(DEMOGRAPHIC.NATIVE, Integer.parseInt(resultSet.getString("Native")));
-                totPop+=Integer.parseInt(resultSet.getString("Native"));
-                precinctobj.addDemographic(DEMOGRAPHIC.OTHER, Integer.parseInt(resultSet.getString("Other")));
-                totPop+=Integer.parseInt(resultSet.getString("Other"));
-                precinctobj.addDemographic(DEMOGRAPHIC.PACISLAND, Integer.parseInt(resultSet.getString("Pacific")));
-                totPop+=Integer.parseInt(resultSet.getString("Pacific"));
+                precinctobj.addDemographic(DEMOGRAPHIC.AFROAM, (resultSet.getInt("Black")));
+                totPop+=(resultSet.getInt("Black"));
+                precinctobj.addDemographic(DEMOGRAPHIC.WHITE, (resultSet.getInt("White")));
+                totPop+=(resultSet.getInt("White"));
+                precinctobj.addDemographic(DEMOGRAPHIC.ASIAN, (resultSet.getInt("Asian")));
+                totPop+=(resultSet.getInt("Asian"));
+                precinctobj.addDemographic(DEMOGRAPHIC.HISPANIC, (resultSet.getInt("Hispanic")));
+                totPop+=(resultSet.getInt("Hispanic"));
+                precinctobj.addDemographic(DEMOGRAPHIC.NATIVE, (resultSet.getInt("Native")));
+                totPop+=(resultSet.getInt("Native"));
+                precinctobj.addDemographic(DEMOGRAPHIC.OTHER, (resultSet.getInt("Other")));
+                totPop+=(resultSet.getInt("Other"));
+                precinctobj.addDemographic(DEMOGRAPHIC.PACISLAND,(resultSet.getInt("Pacific")));
+                totPop+=(resultSet.getInt("Pacific"));
                 precinctobj.setPopulation(totPop);
+                precinctobj.cnty=resultSet.getInt("cntykey");
             }
 
 

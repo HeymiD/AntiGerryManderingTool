@@ -76,9 +76,9 @@ public class Votes {
 
     public PARTYNAME getWinningParty(){
         PARTYNAME winningParty = null;
-        int winningVotes = 0;
+        int winningVotes = Integer.MIN_VALUE;
         for(PARTYNAME party : PARTYNAME.values()){
-            if(votes.get(party) > winningVotes){
+            if(votes.get(party) >= winningVotes){
                 winningVotes = votes.get(party);
                 winningParty = party;
             }

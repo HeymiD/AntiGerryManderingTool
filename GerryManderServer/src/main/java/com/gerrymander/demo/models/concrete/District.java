@@ -1,9 +1,6 @@
 package com.gerrymander.demo.models.concrete;
 
-import com.gerrymander.demo.DEMOGRAPHIC;
-import com.gerrymander.demo.ELECTIONTYPE;
-import com.gerrymander.demo.Election;
-import com.gerrymander.demo.Votes;
+import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.DistrictInterface;
 import com.gerrymander.demo.models.concrete.State;
 import org.locationtech.jts.algorithm.MinimumBoundingCircle;
@@ -21,48 +18,49 @@ public class District implements DistrictInterface<Precinct>{
 //    @Id
 //    @Column(name="id",nullable = false)
     private String ID;
-//    @Transient
+//
     private HashMap<DEMOGRAPHIC,Double> demographics;
-//    @Transient
+//
 //    private int totPop;
-//    @Transient
+//
 //    public Map<ELECTIONTYPE,Votes> electionData;
-    @Transient
+
     private State state;
-    @Transient
+
     private static final int MAXX = 0;
-    @Transient
+
     private static final int MAXY = 1;
-    @Transient
+
     private static final int MINX = 2;
-    @Transient
+
     private static final int MINY = 3;
-    @Transient
+
     public int population;
-    @Transient
+
     private int gop_vote;
-    @Transient
+
     private int dem_vote;
-    @Transient
+
     public int internalEdges = 0;
-    @Transient
+
     public int externalEdges = 0;
-    @Transient
+
     private HashMap<String, Precinct> precincts;
-    @Transient
+
     private Set<Precinct> borderPrecincts;
-    @Transient
+
     private MultiPolygon multiPolygon;
-    @Transient
+
     private Geometry boundingCircle;
-    @Transient
+
     private Geometry convexHull;
-    @Transient
+
     private boolean boundingCircleUpdated=false;
-    @Transient
+
     private boolean multiPolygonUpdated=false;
-    @Transient
+
     private boolean convexHullUpdated=false;
+
 
     /*public ConcreteDistrict(String ID) {
             this(ID, null);
@@ -100,6 +98,10 @@ public class District implements DistrictInterface<Precinct>{
     public int getPopulation() {
         return population;
     }
+    public void setPopulation(int pop) {
+        population=pop;
+    }
+
 
     public int getGOPVote() {
         return gop_vote;
@@ -291,5 +293,18 @@ public class District implements DistrictInterface<Precinct>{
         boundingCircle = new MinimumBoundingCircle(getMulti()).getCircle();
         this.boundingCircleUpdated = true;
         return boundingCircle;
+    }
+
+    public Map<Precinct,District> findBorderPrecincts(){
+        Map<Precinct,District> borderPrecincts = new HashMap<Precinct,District>();
+        for (String pctkey:precincts.keySet()){
+            for(String neighborID: precincts.get(pctkey).getNeighborIDs()){
+                if(precincts.get(neighborID)==null){
+                    borderPrecincts.put(precincts.get(pctkey),
+                            state.findCluster(state.getPrecinct(neighborID).newDistrictID));
+                }
+            }
+        }
+        return borderPrecincts;
     }
 }

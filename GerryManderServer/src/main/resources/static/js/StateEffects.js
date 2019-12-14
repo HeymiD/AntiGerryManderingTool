@@ -305,6 +305,28 @@ $.ajax({
 	})
 }
 
+function getPhaseOneData(elecType,votingThreshold,blockThreshold,update,targetNumDistricts){
+$.ajax({
+		url:"http://localhost:8080/phase1",
+		data: {
+			votingThreshold: votingThreshold,
+			blockThreshold: blockThreshold,
+			electionType: elecType,
+			update: update,
+			targetNumDistricts: targetNumDistricts
+		},
+		success: function(response){
+		console.log(response)
+//		phase0Data = JSON.parse(response)
+
+		},
+		error:function(err){
+		console.log(err)
+		console.log("ERROR")
+		}
+	})
+}
+
 //==================== State Zone ====================
 
 function stateColor(d){

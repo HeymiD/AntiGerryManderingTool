@@ -10,9 +10,10 @@ public class Cluster extends District{
 	
 	public Set<Edge> edges;
 	public Set<Precinct> precinctsCluster;
-	private Map<DEMOGRAPHIC, Integer> clusterDemographics;
-	private Map<ELECTIONTYPE, Votes> elections;
+	public Map<DEMOGRAPHIC, Integer> clusterDemographics;
+	public Map<ELECTIONTYPE, Votes> elections;
 	private boolean isMajorityMinority;
+
 
 //	private int population;
 //	public String ID;
@@ -25,8 +26,12 @@ public class Cluster extends District{
 		edges = new HashSet<Edge>();
 		clusterDemographics = new HashMap<DEMOGRAPHIC,Integer>();
 		elections = new HashMap<ELECTIONTYPE,Votes>();
+
 	}
 	public Map<DEMOGRAPHIC, Integer> getClusterDemographics(){ return clusterDemographics;}
+	public void setClusterDemographics(Map<DEMOGRAPHIC, Integer> clusterDemographics) {
+		this.clusterDemographics = clusterDemographics;
+	}
 	public Map<ELECTIONTYPE, Votes> getElections(){return elections;}
 //	public int getPopulation(){return population;}
 //	public void setPopulation(int population){this.population = population;}
@@ -37,7 +42,8 @@ public class Cluster extends District{
 		Integer maxDemographicSize = 0;
 		DEMOGRAPHIC largestDemographic = null;
 		for(DEMOGRAPHIC demographic : DEMOGRAPHIC.values()){
-			if(clusterDemographics.get(demographic) > maxDemographicSize){
+//			System.out.println(demographic.toString()+": "+clusterDemographics.get(demographic));
+			if(clusterDemographics.get(demographic) >= maxDemographicSize){
 				maxDemographicSize = clusterDemographics.get(demographic);
 				largestDemographic = demographic;
 			}
@@ -46,26 +52,34 @@ public class Cluster extends District{
 	}
 
 	public double calculateDemographicSize(DEMOGRAPHIC largestDemographic, int population){
-		Integer demographicSize = clusterDemographics.get(largestDemographic);
+		if(largestDemographic==null){
+			System.out.println("LARGEST DEM NULL");
+		}
+		int demographicSize = clusterDemographics.get(largestDemographic);
 		return Double.valueOf(demographicSize)/population;
 	}
 
-	public boolean checkMajorityMinority(Double blockThreshold, Double votingThreshold,
+	public boolean checkMajorityMinority(double blockThreshold, double votingThreshold,
 								   ELECTIONTYPE election){
+
 		DEMOGRAPHIC largestDemographic = this.getLargestDemographic();
 		double demographicSize = this.calculateDemographicSize(largestDemographic, getPopulation());
+
 		if(demographicSize < blockThreshold){
 			return false;
 		}
 		else{
 			Votes selectedElection = elections.get(election);
 			PARTYNAME winningParty = selectedElection.getWinningParty();
+
 			if(winningParty==null){return false;}
-			Double winningPartyRatio = selectedElection.calculateWinningPartyRatio(winningParty);
+			double winningPartyRatio = selectedElection.calculateWinningPartyRatio(winningParty);
+
 			if(winningPartyRatio < votingThreshold){
 				return false;
 			}
 			else {
+
 				return true;
 			}
 		}
@@ -85,6 +99,19 @@ public class Cluster extends District{
         }
         return false;
     }
+
+//    public void addEdge(Edge newEdge){
+//		for(Edge e:edges){
+//			if(!e.src.getID().equals(newEdge.src.getID())){
+//				edges.add(newEdge);
+//				return;
+//			}
+//			if(!e.dest.getID().equals(newEdge.dest.getID())){
+//				edges.add(newEdge);
+//				return;
+//			}
+//		}
+//	}
 
 //    @Override
 //	public boolean equals(Object c) {

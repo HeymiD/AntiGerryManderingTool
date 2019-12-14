@@ -234,7 +234,9 @@ algorithms.change(function(){
 });
 function runAlgorithm(){
     console.log("Phase 0 Results: ")
-    getPhaseZeroData(electionType.val()+electionYear.val(),0.75,0.8);
+//    getPhaseZeroData(electionType.val()+electionYear.val(),0.75,0.8);
+    getPhaseOneData(electionType.val()+electionYear.val(),0.75,0.8,false,36);
     console.log(phase0Data)
 }
 //runAlgoBtn.on("click",runAlgorithm());
+//24914271

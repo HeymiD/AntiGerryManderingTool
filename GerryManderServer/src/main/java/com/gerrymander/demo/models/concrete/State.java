@@ -3,17 +3,9 @@ package com.gerrymander.demo.models.concrete;
 
 import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.StateInterface;
-import com.gerrymander.demo.models.DAO.DistrictDAO;
 //import com.gerrymander.demo.models.DAO.DistrictDAOInterface;
 //import com.gerrymander.demo.models.Service.DistrictService;
-import com.gerrymander.demo.models.DAO.PrecinctDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.security.PublicKey;
-import java.sql.SQLException;
 import java.util.*;
 
 public class State
@@ -23,16 +15,18 @@ public class State
 //	@OneToMany
 //	@MapKey(name="state")
 	private Map<String, Precinct> precincts;
-	@Transient
+//	@Transient
 	public Map<String,District> oldDistricts;
-	public Set<Cluster> clusters;
-	public Set<Cluster> majMinClusters;
+	public ArrayList<Cluster> clusters;
+	public ArrayList<Cluster> majMinClusters;
 	public Result majMinPrecinctStats;
 	public double userVoteThreshold;
 	public double userDemographicThreshold;
-	public ELECTIONTYPE userSelectedElection;
+	public ELECTIONTYPE userSelectedElection=ELECTIONTYPE.Presidential2016;
 //	public boolean clusterListModified;
 	public int population;
+	public Set<Cluster> combinedClusters;
+	public Set<Cluster> visited;
 
 	public State(String name, Set<Precinct> inPrecincts) {
 		this.name = name;
@@ -63,8 +57,10 @@ public class State
 		this.precincts = new HashMap<String, Precinct>();
 //		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
 		oldDistricts = new HashMap<String, District>();
-		clusters = new HashSet<Cluster>();
+		clusters = new ArrayList<Cluster>();
 		this.population=0;
+		majMinClusters=new ArrayList<Cluster>();
+		combinedClusters = new HashSet<Cluster>();
 	}
 
 	public void putDistrict(District d){districts.put(d.getID(),d);}
@@ -105,154 +101,317 @@ public class State
 		}
 		return majMinPrecinctStats;
 	}
-	public boolean makeMajMinClusters(){
+	public boolean makeMajMinClusters() {
 
-		boolean clusterListModified = false;
-		for (Cluster c : clusters){
-			Set<Cluster> neighbors = new HashSet<Cluster>();
-			for (Edge edge: c.edges){
-				neighbors.add(edge.getNeighbor(c));
-			}
-			for (Cluster neighbor: neighbors){
-				boolean undo = false;
-				Cluster combined = combineClusters(c,neighbor);
-				int oldNumMajMinCluster = majMinClusters.size();
-				if (combined.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
-					if(!majMinClusters.contains(combined)){
-						majMinClusters.add(combined);
-					}
-				}
-				if(majMinClusters.size()<oldNumMajMinCluster){
-					undo_combineCluster(combined,c,neighbor);
-					undo=true;
-				}
-				if(undo==false){
-					clusterListModified=true;
+        boolean clusterListModified = false;
+        Iterator<Cluster> iterator = clusters.iterator();
+        while (iterator.hasNext()) {
 
-				}
-			}
-		}
-		return clusterListModified;
-	}
+            Cluster currCluster = iterator.next();
+            for (Edge edge : currCluster.edges) {
+                Cluster neighborc = edge.getNeighbor(currCluster);
+                Cluster neighbor = findCluster(neighborc.getID());
+//                if(neighbor==null){
+//                    continue;
+//                }
+                if (testCombineClusters(currCluster, neighbor) != null) {
+                    clusterListModified = true;
+                    combineClusters(currCluster, neighbor);
+                    iterator.remove();
+                    break;
+                }
 
-	public Cluster combineClusters(Cluster c1, Cluster c2){
+            }
+        }
+        return clusterListModified;
+    }
 
-		clusters.remove(c1);
-		districts.remove(c1.getID());
-		if (majMinClusters.contains(c1)){
-			majMinClusters.remove(c1);
-		}
-		Cluster combinedCluster = c1;
-		clusters.remove(c2);
-		districts.remove(c2.getID());
-		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
-			int combined = combinedCluster.getClusterDemographics().get(demograhpic) + c2.getClusterDemographics().get(demograhpic);
-			combinedCluster.getClusterDemographics().put(demograhpic,combined);
-		}
-		((District)combinedCluster).population = ((District)combinedCluster).population+((District)c2).population;
-		for(PARTYNAME partyname :PARTYNAME.values()){
-			int combined = combinedCluster.getElections().get(userSelectedElection).getVotes().get(partyname) +
-					c2.getElections().get(userSelectedElection).getVotes().get(partyname);
-			combinedCluster.getElections().get(userSelectedElection).getVotes().put(partyname, combined);
-		}
-		if (majMinClusters.contains(c2)){
-			majMinClusters.remove(c2);
-		}
-		((District)combinedCluster).internalEdges = ((District)c1).internalEdges+((District)c2).internalEdges+1;
-		Set<Edge[]> commonNeighbors = findCommonNeighbors(combinedCluster,c2);
-		Set<Edge> averageEdges = new HashSet<Edge>();
-		for (Edge[] edge_pair:commonNeighbors){
-			try{
-				averageEdges.add(makeAverageEdge(edge_pair[0],edge_pair[1]));
-				for(Edge e:edge_pair){
-					if(combinedCluster.edges.contains(e)){
-						combinedCluster.edges.remove(e);
-					}
-				}
-			}
-			catch (NullPointerException e){
+    //Neighbor always eats current so current gets removed
+	public void combineClusters(Cluster current, Cluster neighbor) {
 
-			}
-		}
-		((District)combinedCluster).externalEdges = combinedCluster.edges.size()-((District)combinedCluster).internalEdges;
-		for (Edge e:averageEdges){
-			combinedCluster.edges.add(e);
-		}
-		clusters.add(combinedCluster);
-		districts.put(combinedCluster.getID(),combinedCluster);
-		return combinedCluster;
-	}
-	public void undo_combineCluster(Cluster combined, Cluster c1, Cluster c2){
-		if (majMinClusters.contains(combined)){
-			majMinClusters.remove(combined);
-		}
-		clusters.remove(combined);
-		districts.remove(combined.getID());
-//		for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
-//			int combinedDem = combined.getClusterDemographics().get(demograhpic) - c2.getClusterDemographics().get(demograhpic);
-//			c1.getClusterDemographics().put(demograhpic,combinedDem);
-//		}
-//		for(PARTYNAME partyname :PARTYNAME.values()){
-//			int combinedElection = combined.getElections().get(userSelectedElection).getVotes().get(partyname) -
-//					c2.getElections().get(userSelectedElection).getVotes().get(partyname);
-//			c1.getElections().get(userSelectedElection).getVotes().put(partyname, combinedElection);
-//		}
-		if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
-			majMinClusters.add(c1);
-		}
-		clusters.add(c1);
-		districts.put(c1.getID(),c1);
-		if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
-			majMinClusters.add(c2);
-		}
-		clusters.add(c2);
-		districts.put(c2.getID(),c2);
-		return;
-	}
-	public Set<Edge[]> findCommonNeighbors(Cluster c1, Cluster c2){
-		Set<Edge[]> commonNeighbors = new HashSet<Edge[]>();
-		for (Edge edge:c1.edges){
-			for (Edge edge2: c2.edges){
-				if(edge.getNeighbor(c1).getID()==edge2.getNeighbor(c2).getID()){
-					Edge[] commonEdges = new Edge[2];
-					commonEdges[0]=edge;
-					commonEdges[1]=edge2;
-					commonNeighbors.add(commonEdges);
-				}
-			}
-		}
-		for(Edge e:c2.edges){
-			c1.edges.add(e);
-		}
-		for(Edge e:c1.edges){
-			e.clusters.remove(e.src);
-			e.clusters.add(c1);
-			e.src=c1;
-		}
-		for(Edge e:c1.edges){
-			Cluster neighbor = e.getNeighbor(c1);
-			for(Edge edge:neighbor.edges){
-				if(edge.dest.getID()==c1.getID()){
-					edge.clusters.remove(edge.dest);
-					edge.dest=c1;
-					edge.clusters.add(c1);
-				}
-			}
-		}
-		return commonNeighbors;
-	}
+        System.out.println("Combining "+current.getID()+" and "+neighbor.getID());
+        neighbor.precinctsCluster.addAll(current.precinctsCluster);
+        neighbor.precinctsCluster.forEach(p->{p.newDistrictID=neighbor.getID();});
+//        System.out.println("Num of Precincts: "+neighbor.precinctsCluster.size());
+        System.out.println("OLD POP: "+neighbor.population);
+        neighbor.setPopulation(neighbor.getPopulation()+current.getPopulation());
+        System.out.println("Pop: "+neighbor.population);
+        System.out.println("CurPop: "+current.population);
 
-	public Edge makeAverageEdge(Edge e1,Edge e2){
-		if ((e1.src.getID()!=e2.src.getID()) ||(e1.dest.getID()!=e2.dest.getID())){
-			System.out.print("They are not common edges.");
-			return null;
-		}
-		Edge averageEdge = new Edge(e1.src,e1.dest);
-		averageEdge.weight=(e1.weight+e2.weight)/2;
-		return averageEdge;
-	}
+        for (DEMOGRAPHIC demograhpic : DEMOGRAPHIC.values()) {
+            int combined = current.getClusterDemographics().get(demograhpic) + neighbor.getClusterDemographics().get(demograhpic);
+            neighbor.getClusterDemographics().put(demograhpic, combined);
+        }
+        for (PARTYNAME partyname : PARTYNAME.values()) {
+            int combined = neighbor.getElections().get(userSelectedElection).getVotes().get(partyname) +
+                    current.getElections().get(userSelectedElection).getVotes().get(partyname);
+            neighbor.getElections().get(userSelectedElection).getVotes().put(partyname, combined);
+        }
+        neighbor.setGop_vote(current.getGOPVote() + neighbor.getGOPVote());
+        neighbor.setDem_vote(neighbor.getDEMVote() + current.getDEMVote());
+        int internalEdges = 0;
+        int externalEdges = 0;
+        for (Precinct p : neighbor.precinctsCluster) {
+            for (String neighborID : p.getNeighborIDs()) {
+                if (neighbor.precinctsCluster.stream().anyMatch(precinct -> {
+                    return precinct.getID().equals(neighborID);
+                })) {
+                    internalEdges++;
+                }
+                else{externalEdges++;}
+            }
+        }
+        neighbor.internalEdges = internalEdges;
+        neighbor.externalEdges = externalEdges;
+        for(Edge e:neighbor.edges){
+            if(e.neighbor1.getID().equals(e.neighbor2.getID())){
+                System.out.println("NeighborPreExisting: SELF LOOP");
+            }
+        }
+        for (Edge edge : current.edges) {
+            edge.updateNeighbor(current, neighbor);
+            if (!edge.neighbor1.getID().equals(edge.neighbor2.getID())) {
+                neighbor.edges.add(edge);
+//                System.out.println("Edge\n n1: "+edge.neighbor1.getID()
+//                        +" n2: "+edge.neighbor2.getID());
+//                for(Edge e:neighbor.edges){
+//                    if(e.neighbor1.getID().equals(e.neighbor2.getID())){
+//
+//                        System.out.println("SIKIMA");
+//                        System.exit(0);
+//                    }
+//                }
+            }
+        }
+        Iterator<Edge> iterator = neighbor.edges.iterator();
+        while(iterator.hasNext()){
+            Edge e = iterator.next();
+            if(e.neighbor1.getID().equals(e.neighbor2.getID())){
+                System.out.println("YIKES!");
+                iterator.remove();
+            }
+        }
 
 
+//        for (Edge edge : neighbor.edges) {
+//            System.out.println("Current Id: "+current.getID());
+//            System.out.println("Edge: ");
+//            System.out.println("Neighbor1: "+edge.neighbor1.getID()+" POP: "+edge.neighbor1.getPopulation());
+//            System.out.println("Neighbor2: "+edge.neighbor2.getID()+" POP: "+edge.neighbor2.getPopulation());
+//        }
 
+    }
 
+	public Cluster testCombineClusters(Cluster c1, Cluster c2){
+
+        Cluster combinedCluster = new Cluster(c1.getID());
+        combinedCluster.clusterDemographics.putAll(c1.getClusterDemographics());
+		combinedCluster.elections.putAll(c1.elections);
+		combinedCluster.setDem_vote(c1.getDEMVote());
+		combinedCluster.setGop_vote(c1.getGOPVote());
+		combinedCluster.population=c1.getPopulation()+c2.getPopulation();
+		combinedCluster.externalEdges =c1.externalEdges+c2.externalEdges-1;
+
+        for(DEMOGRAPHIC demograhpic: DEMOGRAPHIC.values()){
+            int combined = combinedCluster.getClusterDemographics().get(demograhpic) + c2.getClusterDemographics().get(demograhpic);
+            combinedCluster.getClusterDemographics().put(demograhpic,combined);
+        }
+        for(PARTYNAME partyname :PARTYNAME.values()){
+            int combined = combinedCluster.getElections().get(userSelectedElection).getVotes().get(partyname) +
+                    c2.getElections().get(userSelectedElection).getVotes().get(partyname);
+            combinedCluster.getElections().get(userSelectedElection).getVotes().put(partyname, combined);
+        }
+        combinedCluster.setGop_vote(c1.getGOPVote()+c2.getGOPVote());
+        combinedCluster.setDem_vote(c1.getDEMVote()+c2.getDEMVote());
+        if(combinedCluster.externalEdges>50){
+            return null;
+        }
+        boolean majmin = false;
+        int newSizeMajMinClusters = 0;
+        if(combinedCluster.population>800000){
+            return null;
+        }
+        if(combinedCluster.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+            majmin=true;
+            newSizeMajMinClusters++;
+        }
+        if(majmin==false){
+            return null;
+        }
+        if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+            newSizeMajMinClusters--;
+        }
+        if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+            newSizeMajMinClusters--;
+        }
+        if(newSizeMajMinClusters>0){
+            System.out.println("Non Majority minorities combining:");
+            System.out.println("C1: "+c1.getID());
+            System.out.println("C2: "+c2.getID());
+            return combinedCluster;
+        }
+        if(newSizeMajMinClusters==0){
+            return combinedCluster;
+        }
+        else{
+
+            return null;
+        }
+    }
+
+    public Cluster findCluster(String ID){
+        for(Cluster c:clusters){
+            if(c.getID().equals(ID)){
+                return c;
+            }
+        }
+        System.out.println("Neighbor NOT FOUND ID was "+ID);
+        return null;
+    }
 }
+
+//	public void undo_combineCluster(Cluster combined, Cluster c1, Cluster c2){
+//	    combinedClusters.remove(combined);
+//		if (majMinClusters.contains(combined)){
+//			majMinClusters.remove(combined);
+//		}
+//        clusters.remove(clusters.indexOf(combined));
+//
+//
+//		if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+//			majMinClusters.add(c1);
+//		}
+//		clusters.add(c1);
+//		if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
+//			majMinClusters.add(c2);
+//		}
+//		clusters.add(c2);
+//		return;
+//	}
+
+
+//        ((District)combinedCluster).externalEdges = combinedCluster.edges.size()-((District)combinedCluster).internalEdges;
+//        ((District)combinedCluster).internalEdges = ((District)c1).internalEdges+((District)c2).internalEdges+1;
+//		Cluster combinedCluster = new Cluster(c1.getID()+"|"+c2.getID()+"|");
+//		combinedCluster.clusterDemographics.putAll(c1.getClusterDemographics());
+//		combinedCluster.elections.putAll(c1.elections);
+//		combinedCluster.setDem_vote(c1.getDEMVote());
+//		combinedCluster.setGop_vote(c1.getGOPVote());
+//		combinedCluster.edges.addAll(c1.edges);
+//        for(Edge e:c1.edges){
+//            Edge edge = new Edge(combinedCluster,e.dest);
+//            combinedCluster.addEdge(edge);
+//        }
+////        combinedCluster.edges.addAll(c2.edges);
+//        for(Edge e:c2.edges){
+//            Edge edge = new Edge(combinedCluster,e.dest);
+//            combinedCluster.addEdge(edge);
+//        }
+//        for(Edge e:combinedCluster.edges){
+////            for(Edge edge:e.dest.edges){
+////                edge.clusters.remove(edge.dest);
+////                edge.dest=combinedCluster;
+////                edge.clusters.add(edge.dest);
+////            }
+//            try{
+//                for(Edge edge:findCluster(e.dest.getID()).edges){
+//                edge.clusters.remove(edge.dest);
+//                edge.dest=combinedCluster;
+//                edge.clusters.add(edge.dest);
+//                }
+//            }
+//            catch(NullPointerException exception){}
+//        }
+
+//        combinedCluster.precinctsCluster.addAll(c1.precinctsCluster);
+//        combinedCluster.precinctsCluster.addAll(c2.precinctsCluster);
+//        clusters.set(clusters.indexOf(c1),null);
+//        clusters.set(clusters.indexOf(c2),null);
+//        clusters.remove(clusters.indexOf(c1));
+//        clusters.remove(clusters.indexOf(c2));
+
+
+//		Set<Edge[]> commonNeighbors = findCommonNeighbors(combinedCluster,c2);
+//		Set<Edge> averageEdges = new HashSet<Edge>();
+//		for (Edge[] edge_pair:commonNeighbors){
+//			try{
+//				averageEdges.add(makeAverageEdge(edge_pair[0],edge_pair[1]));
+//				for(Edge e:edge_pair){
+//					if(combinedCluster.edges.contains(e)){
+//						combinedCluster.edges.remove(e);
+//					}
+//				}
+//			}
+//			catch (NullPointerException e){
+//
+//			}
+//		}
+
+//		for (Edge e:averageEdges){
+//			combinedCluster.edges.add(e);
+//		}
+//		clusters.add(combinedCluster);
+//		combinedClusters.add(combinedCluster);
+//		districts.put(combinedCluster.getID(),combinedCluster);
+//		return combinedCluster;
+//	}
+
+//	public Set<Edge[]> findCommonNeighbors(Cluster c1, Cluster c2){
+//		Set<Edge[]> commonNeighbors = new HashSet<Edge[]>();
+//		for (Edge edge:c1.edges){
+//			for (Edge edge2: c2.edges){
+//				if(edge.dest.equals(edge2.dest)){
+//					Edge[] commonEdges = new Edge[2];
+//					commonEdges[0]=edge;
+//					commonEdges[1]=edge2;
+//					commonNeighbors.add(commonEdges);
+//				}
+//			}
+//		}
+//
+//		return commonNeighbors;
+//	}
+
+//	public Edge makeAverageEdge(Edge e1,Edge e2){
+//		if ((e1.src.getID()!=e2.src.getID()) ||(e1.dest.getID()!=e2.dest.getID())){
+//			System.out.print("They are not common edges.");
+//			return null;
+//		}
+//		Edge averageEdge = new Edge(e1.src,e1.dest);
+//		averageEdge.weight=(e1.weight+e2.weight)/2;
+//		return averageEdge;
+//	}
+
+
+//		for (int i=0;i<clusters.size();i++){
+//		    Cluster c = clusters.get(i);
+//		    if(c==null){
+//		        continue;
+//            }
+//		    if(combinedClusters.contains(c)){
+//		        continue;
+//            }
+//			Set<Cluster> neighbors = new HashSet<Cluster>();
+//			for (Edge edge: c.edges){
+//			    System.out.println("Neigbor: "+edge.getNeighbor(c).getID());
+//			    if(!combinedClusters.contains(edge.getNeighbor(c)) && findCluster(edge.getNeighbor(c).getID())!=null){
+//                    neighbors.add(edge.getNeighbor(c));
+//                }
+//			}
+//            System.out.println("Current ID: "+c.getID());
+//			System.out.println("Combined Clusters: "+combinedClusters.size());
+//			System.out.println("Num of neighbors: "+neighbors.size());
+//			for (Cluster neighbor: neighbors){
+//			    if(neighbor==null){
+//			        System.out.println("Neighbor is null!");
+//                }
+//				if (testCombineClusters(c,neighbor)!=null){
+//				    Cluster combined = combineClusters(c,neighbor);
+////				    majMinClusters.add(combined);
+//				    clusterListModified=true;
+//				    break;
+//				}
+//			}
+//		}
+
+//	}

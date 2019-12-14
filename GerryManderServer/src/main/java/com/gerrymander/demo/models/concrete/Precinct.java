@@ -6,40 +6,43 @@ import org.locationtech.jts.geom.Geometry;
 
 import javax.persistence.*;
 import java.util.*;
-@Entity
-@Table(name="Precints_GEO")
+//@Entity
+//@Table(name="Precints_GEO")
 public class Precinct implements PrecinctInterface {
-    @Id
-    @Column(name="PCTKEY")
+//    @Id
+//    @Column(name="PCTKEY")
     private final String ID;
-    @Transient
+//    @Transient
     private final Geometry geometry;
-    @Transient
+//    @Transient
     private String geometryJSON;
-    @Transient
+//    @Transient
     private String originalDistrictID;
-    @Transient
+    public String newDistrictID;
+//    @Transient
     private int population;
-    @Transient
+//    @Transient
     private final int gop_vote;
-    @Transient
+//    @Transient
     private final int dem_vote;
-    @Transient
+//    @Transient
     private boolean isMajorityMinority;
-    @Transient
+//    @Transient
     private Map<DEMOGRAPHIC, Integer> precinctDemographics;
-    @Transient
+//    @Transient
     private Set<DemographicGroup> demographicGroups;
-    @Transient
+//    @Transient
     private Set<Votes> votes;
-    @Transient
+//    @Transient
     private Map<ELECTIONTYPE, Votes> elections;
-    @Transient
-    private final Set<String> neighborIDs;
-    @Transient
+//    @Transient
+    private Set<String> neighborIDs;
+//    @Transient
     private Map<PARTYNAME, Integer> votesPerParty;
-    @Transient
+//    @Transient
     public ELECTIONTYPE userSelectedElectionType=ELECTIONTYPE.Presidential2016;
+//    @Transient
+    public int cnty;
 
 
 
@@ -76,7 +79,7 @@ public class Precinct implements PrecinctInterface {
         this.population=0;
         this.gop_vote=0;
         this.dem_vote=0;
-        neighborIDs=null;
+        neighborIDs=new HashSet<String>();
         elections = new HashMap<ELECTIONTYPE,Votes>();
 //        for (DemographicGroup group:demographicGroups){
 //            precinctDemographics.put(group.getGroupDemographic(),group.getPopulation());
@@ -96,6 +99,9 @@ public class Precinct implements PrecinctInterface {
         return precinctDemographics;
     }
     public void setOriginalDistrictID(String districtID){originalDistrictID=districtID;}
+    public void addNeighbor(String ID){
+        neighborIDs.add(ID);
+    }
 
     @Override
     public String getID() {

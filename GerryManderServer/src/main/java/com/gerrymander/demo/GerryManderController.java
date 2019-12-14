@@ -17,6 +17,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.sound.midi.Soundbank;
 //import org.springframework.web.servlet.ModelAndView;
 
 @RestController
@@ -35,12 +37,17 @@ public class GerryManderController {
 	    if(state==null){
             state = new State(stateName);
             PrecinctDAO.initAllPrecincts(state);
-            ClusterDAO.initNeighbors(state);
+//            ClusterDAO.initNeighbors(state);
 //            PrecinctDAO.getAllPrecinctGeoJSON(state);
             for(Precinct p:state.getPrecincts()){
                 precinctsToSend.push(p);
                 state.population+=p.getPopulation();
             }
+            System.out.println("Init pop: "+state.population);
+            algorithm = new Algorithm(state);
+            algorithm.initClusters();
+            System.out.println("Clusters Initialized.");
+            ClusterDAO.initNeighbors(state);
 
 //            for(int i=1;i<37;i++){
 //                precinctQueue.put("U.S. Rep "+i,new Stack<Precinct>());
@@ -60,7 +67,6 @@ public class GerryManderController {
 //            for(Precinct p :state.getPrecincts()){
 //                precinctsToSend.push(p);
 //            }
-            algorithm = new Algorithm(state);
         }
 //        try{
 //            return state.oldDistricts.get(districtId).getGeoData();
@@ -173,6 +179,31 @@ public class GerryManderController {
 	    Result resultPhaseZero = algorithm.phaseZero(blockThreshold,votingThreshold,
                 ELECTIONTYPE.valueOf(electionType));
         return resultPhaseZero.toString();
+
+    }
+
+    @RequestMapping("/phase1")
+    public String sendResultPhaseOne(@RequestParam("votingThreshold") double votingThreshold,
+                                      @RequestParam("blockThreshold") double blockThreshold,
+                                      @RequestParam("electionType") String electionType,
+                                     @RequestParam("targetNumDistricts") int targetNumDistricts,
+                                     @RequestParam("update") boolean update){
+        state.userDemographicThreshold = blockThreshold;
+        state.userVoteThreshold = votingThreshold;
+        state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
+        algorithm.targetNumDist = targetNumDistricts;
+        algorithm.popThreshMax=0.8;
+        algorithm.popThreshMin=0.5;
+        if(state.majMinClusters.isEmpty()){
+            for(Cluster c:state.clusters){
+                if(c.checkMajorityMinority(blockThreshold,votingThreshold,ELECTIONTYPE.valueOf(electionType))){
+                    state.majMinClusters.add(c);
+                }
+            }
+            System.out.println("MajMin Clusters Size: "+state.majMinClusters.size());
+        }
+        algorithm.phaseOne(update);
+        return "";
 
     }
 
