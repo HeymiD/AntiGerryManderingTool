@@ -52,10 +52,20 @@ public class JSONMaker {
 
     public static String phase1Data(List<Cluster> clusters){
         String data = "{";
+        int clusterCounter = 0;
         for(Cluster cluster:clusters){
+            int precinctCounter = 0;
+            String disId = cluster.getState().getPrecinct(cluster.getID()).getOriginalDistrictID();
             for(Precinct p:cluster.precinctsCluster){
-                data+="\"PCTKEY\": "+"\""+p.getID()+"\""+" \"COLOR\": "+"\""+p.newDistrictID+"\"";
+                if(precinctCounter<cluster.precinctsCluster.size()-1 && clusterCounter<clusters.size()-1){
+                    data+="\""+p.getID()+"\": "+disId+"\""+", ";
+                }
+                else{
+                    data+="\""+p.getID()+"\": "+disId+"\"";
+                }
+                precinctCounter++;
             }
+            clusterCounter++;
         }
         data+="}";
         return data;
