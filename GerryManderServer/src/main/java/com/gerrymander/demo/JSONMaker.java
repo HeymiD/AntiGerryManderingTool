@@ -71,6 +71,7 @@ public class JSONMaker {
             else{
                 jsonDict+=p.toString();
             }
+            i++;
         }
         jsonDict+="}";
         return jsonDict;
@@ -86,6 +87,7 @@ public class JSONMaker {
             else{
                 jsonDict+=p.electData(electiontype);
             }
+            i++;
         }
         jsonDict+="}";
         return jsonDict;

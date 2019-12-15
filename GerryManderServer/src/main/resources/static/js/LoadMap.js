@@ -1,15 +1,3 @@
-var outerMenuBtn = $('#outer-menu-btn');
-var innerMenuBtn = $('#inner-menu-btn');
-var mapContent = $('#selectMapContent');
-var body = $('body');
-var nav = $('nav');
-var bounds = [[20, -150],[55, -40]];
-var geojson;
-var texas;
-var texasDistrictsLayer;
-//var texasPrecinctsLayer;
-
-
 var map = L.map('map', {
 		center: [37.8, -96],
 		zoom: 5,
@@ -39,16 +27,11 @@ texas = L.geoJson(txStateData, {
 	onEachFeature: stateEffects
 }).addTo(map);
 
+// console.log(texas._layers[104]);
 texasDistrictsLayer =  L.geoJson(texas_districts, {
                   	style: districtStyle,
                   	onEachFeature: districtEffects
                   });
-
-
-//texasPrecinctsLayer = L.geoJson(texas_precintcs, {
-//                                        	style: stateStyle,
-//                                        	onEachFeature: stateEffects
-//                                        });
 
 recenterMap();
 outerMenuBtn.hide();

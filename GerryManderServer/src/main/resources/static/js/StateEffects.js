@@ -1,20 +1,3 @@
-var usCenter = [37.8, -96];
-var precinctKeys;
-var phase0Data;
-var stateInit = 0;
-var currState;
-var texas_precincts;
-//var precinctDict = {}
-var distPrecinct = {}
-var districtx = {}
-var districtxData = {}
-var distLayer = L.layerGroup();
-var precLayer = L.layerGroup();
-var disColor = ['#3078dd','#47c871','#72b189','#0de85a','#6d73c4','#57ab0f','#3078dd','#5186af','#3fa20b','#a490a0',
-                '#71aabe','#1940fe','#5bc4a3','#9a4d46','#866dc6','#80f4d0','#b0c7d7','#137a9d','#4d6d3a','#388f7a',
-                '#bfb119','#1e5c1e','#3d9ed7','#518d92','#420f26','#b81163','#973a02','#413db1','#00718e','#08e548',
-                '#191760','#c82d7d','#cdde56','#88670d','#612d87','#371b95','#eb95e9']
-
 function dicSize(x){
     var  len = 0;
     for (var item in x){
@@ -23,36 +6,21 @@ function dicSize(x){
     return len;
 }
 
+function recenterMap(){ map.setView(usCenter,5); }
+
 function fetchDistrict(e){
-//    if(dicSize(districtx) == 0){
         $.ajax({
             url:"http://localhost:8080/state",
             data:{
                 state: e.feature.properties.name
-//                districtId:1
             },
             success: function(response){
-
                     precinctKeys = JSON.parse(response)
                     console.log(precinctKeys)
-                    stateInit=1;
+                    stateInit = 1;
+                    districtData.show();
                     $('#precinctContent').prop('disabled', false);
-
-
-
-//                var districtFirst=JSON.parse(response);
-//                var districtLayer = L.geoJson(districtFirst, {
-//                    style: districtStyle,
-//                    onEachFeature: districtEffects
-//                })
-//                districtx[1]=districtLayer
-//                districtLayer.addTo(distLayer);
-//                var districtId=2
-//                while(districtId<37){
-//                    getDistrict(e,districtId);
-//                    districtId=districtId+1;
-//                }
-
+                    electionDic['Presidential2016'] = getPrecinctData(electionSetting);
             },
             error:function(err){
                 console.log(err, "ERROR");
@@ -77,19 +45,7 @@ function getDistrict(e,districtId){
 			    			onEachFeature: districtEffects
 			    		});
 			    districtLayer.addTo(distLayer);
-//			    map.addLayer(districtLayer);
 			    districtx[districtId] = districtLayer;
-//                if(distLayer.getLayers().length == 36 ){
-//                    $('#precinctContent').prop('disabled', false);
-//                }
-//			if(districtId==36){
-//			districtID=1
-//                while(districtID<37){
-////                    console.log("District: "+districtID)
-//                    getPrecincts(e,districtID);
-//                    districtID=districtID+1;
-//                }
-//			}
 		},
 		error:function(err){
 		console.log(err)
@@ -98,34 +54,6 @@ function getDistrict(e,districtId){
 	})
 }
 
-//function getPrecincts(e,districtId){
-//	$.ajax({
-//		url:"http://localhost:8080/precincts",
-//		data: {
-//			state: e.feature.properties.name,
-//			districtId: districtId
-////			electType: electType
-//		},
-//		success: function(response){
-//  			 console.log(response);
-//             var precinct = JSON.parse(response);
-//             var precinctLayer = L.geoJson(precinct, {
-//                             style: precinctStyle,
-//                             onEachFeature: precinctEffects
-//                         });
-//                map.addLayer(precinctLayer);
-//                  precinctLayer.addTo(precLayer);
-////                  precinctDict[districtId]=precinctLayer;
-//                  distPrecinct[districtId] = precinctLayer;
-//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
-//
-//		},
-//		error:function(err){
-//		console.log(err)
-//		console.log("ERROR")
-//		}
-//	})
-//}
 
 function getPrecincts(e,districtId){
 	$.ajax({
@@ -156,49 +84,6 @@ function getPrecincts(e,districtId){
 	})
 }
 
-//function getPrecincts(e){
-//	$.ajax({
-//		url:"http://localhost:8080/precincts",
-//		data: {
-//			state: e.feature.properties.name
-//		},
-//		success: function(response){
-//
-//  			 console.log(response);
-//             var precinct = JSON.parse(response);
-//             var precinctLayer = L.geoJson(precinct, {
-//                             style: precinctStyle,
-//                             onEachFeature: precinctEffects
-//                         });
-//                map.addLayer(precinctLayer);
-//                  precinctLayer.addTo(precLayer);
-////                  precinctDict[districtId]=precinctLayer;
-////                  distPrecinct[districtId] = precinctLayer;
-//  //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
-//
-//		},
-//		error:function(err){
-//		console.log(err)
-//		console.log("ERROR")
-//		},
-//
-//	})
-//}
-
-//function getPrecincts(e){
-//var districtId=1
-//while(districtId<37){
-//    var done=0
-//    distPrecinct[districtId]=[]
-//    getPrecinctsByDistrict(e,"Begin U.S. Rep "+districtId,done,distPrecinct[districtId])
-//    while(done==0){
-//            getPrecinctsByDistrict(e,districtId,done,distPrecinct[districtId])
-//        }
-//        districtId=districtId+1
-//    }
-//
-//}
-//
 function getPrecinctsByDistrictInit(e,districtId){
 	$.ajax({
 		url:"http://localhost:8080/precinctsInit",
@@ -243,12 +128,6 @@ function getPrecinctsByDistrict(e,districtId){
                         map.addLayer(precinctLayer);
                         precLayer.addLayer(precinctLayer)
                         return
-        //                  precinctLayer.addTo(precLayer);
-        //                  precinctDict[precinctId]=precinctLayer;
-
-        //                  distPrecinct[districtId] = precinctLayer;
-          //            console.log('distID', districtId, 'curr stuff = ', distPrecinct);
-
         		},
         		error:function(err){
         		console.log(err)
@@ -263,20 +142,39 @@ function getPrecinctsByDistrict(e,districtId){
 }
 
 
-function recenterMap(){ map.setView(usCenter,5); }
 
 function getDistrictData(districtId,elecType){
+ $.ajax({
+ 		url:"http://localhost:8080/districtData",
+ 		data: {
+ 			districtId: districtId,
+ 			elecType: elecType
+ 		},
+ 		success: function(response){
+ 		console.log(response)
+ 		var data = JSON.parse(response)
+ 		districtxData[data.DistrictID]=data
+ 		districtData.update(data)
+
+ 		},
+ 		error:function(err){
+ 		console.log(err)
+ 		console.log("ERROR")
+ 		}
+ 	})
+ }
+
+function getPrecinctData(elecType){
 $.ajax({
-		url:"http://localhost:8080/districtData",
+		url:"http://localhost:8080/precincts",
 		data: {
-			districtId: districtId,
-			elecType: elecType
+            electionType : elecType
 		},
 		success: function(response){
 		console.log(response)
 		var data = JSON.parse(response)
-		districtxData[data.DistrictID]=data
-		districtData.update(data)
+        electionDic[elecType] = data
+//		precinctData.update(data)
 
 		},
 		error:function(err){
@@ -286,6 +184,10 @@ $.ajax({
 	})
 }
 
+phase0btn.on('click', function(){
+    console.log(votingThresh + " sadsa" + blocThresh);
+  getPhaseZeroData(electionSetting, votingThresh/100, blocThresh/100 );
+})
 function getPhaseZeroData(elecType,votingThreshold,blockThreshold){
 $.ajax({
 		url:"http://localhost:8080/phase0",
@@ -297,29 +199,7 @@ $.ajax({
 		success: function(response){
 		console.log(response)
 		phase0Data = JSON.parse(response)
-
-		},
-		error:function(err){
-		console.log(err)
-		console.log("ERROR")
-		}
-	})
-}
-
-function getPhaseOneData(elecType,votingThreshold,blockThreshold,update,targetNumDistricts,demString){
-$.ajax({
-		url:"http://localhost:8080/phase1",
-		data: {
-			votingThreshold: votingThreshold,
-			blockThreshold: blockThreshold,
-			electionType: elecType,
-			update: update,
-			targetNumDistricts: targetNumDistricts,
-			demString: demString
-		},
-		success: function(response){
-		console.log(response)
-//		phase0Data = JSON.parse(response)
+        updatePhase0(phase0Data);
 
 		},
 		error:function(err){
@@ -330,7 +210,6 @@ $.ajax({
 }
 
 //==================== State Zone ====================
-
 function stateColor(d){
 	return d > 3 ? '#ffb0a0' : d > 12  ? '#a0d4ff' : '#d7ffa0';
 }
@@ -360,6 +239,10 @@ function onStateHover(e) {
         layer.bringToFront();
     }
     stateData.update(layer.feature.properties);
+    // if(stateInit != 1){
+    //   fetchDistrict(e.target);
+    // }
+
 }
 
 function stateMouseOut(e) {
@@ -369,13 +252,12 @@ function stateMouseOut(e) {
 
 function zoomOnState(e) {
 
-    console.log(e);
+    // console.log(e);
     currState = e.target;
-    map.removeLayer(texas)
-    map.addLayer(texasDistrictsLayer)
-
     fetchDistrict(e.target);
 
+    map.removeLayer(texas)
+    map.addLayer(texasDistrictsLayer)
 //    map.removeLayer(geojson);
 //    map.addLayer(distLayer);
 //    map.addLayer(precLayer);
@@ -391,7 +273,8 @@ function zoomOnState(e) {
 	if(body.attr('class') == 'active-nav'){ outerMenuBtn.hide(); }
 	else{ outerMenuBtn.show(); }
 	stateData.hide();
-//	districtData.show();
+
+  if(stateInit){ districtData.show(); }
 }
 
 function stateEffects(feature, layer) {
@@ -417,24 +300,25 @@ function districtStyle(feature){ //need to change the way we set colors based on
 }
 
 function onDistrictHover(e) {
-    var layer = e.target;
-    // console.log(e);
-    layer.setStyle({
-        weight: 5,
-        color: '#ffe135',
-        dashArray: '',
-        fillOpacity: 0.7
-    });
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-    layer.bringToFront();
-    }
 //    distLayer.getLayers().length==36
-    if(stateInit==1 && electionType.val() != 'Election Type' && electionYear.val() != 'Election Year'){
+var layer = e.target;
+// console.log(e);
+layer.setStyle({
+    weight: 5,
+    color: '#ffe135',
+    dashArray: '',
+    fillOpacity: 0.7
+});
+if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+layer.bringToFront();
+}
+    if(stateInit==1){
         console.log("Getting district data")
         var districtId = "U.S. Rep "+layer.feature.properties.fid
         if(!(districtId in districtxData)){
     //        console.log('electionType.val()+electionYear.val() = '+ electionType.val() + electionYear.val())
-            getDistrictData(districtId, electionType.val()+electionYear.val());}
+              console.log('in districtID' + districtId);
+            getDistrictData(districtId, electionSetting);}
         else{
             districtData.update(districtxData[districtId])
         }
@@ -473,14 +357,111 @@ function precinctColor(r, d, g, l){
 	return r == power ? '#E9141D' : d == power ? '#0015BC' : g == power  ? '#00ff00 ' : '#FED105';
 }
 
+
+function precinctDemoColor(demographic, currPrec){
+    var demval;
+//    console.log(demographic)
+    switch(demographic){
+        case 'White':
+          demval = currPrec.White / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+          break;
+        case 'Black':
+          demval = currPrec.Black / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+          break;
+        case 'Hispanic':
+          demval = currPrec.Hispanic / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+          break;
+        case 'Native':
+          demval = currPrec.Native / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+
+          break;
+        case 'Hispanic':
+          demval = currPrec.Hispanic / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+
+          break;
+        case 'Pacific':
+          demval = currPrec.Pacific / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+
+          break;
+        case 'Asian':
+          demval = currPrec.Asian / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+
+          break;
+        case 'Other':
+          demval = currPrec.Other / currPrec.Population;
+          return demval > 0.75  ? '#BD0026' :
+                 demval > 0.5  ? '#E31A1C' :
+                 demval > 0.4  ? '#FC4E2A' :
+                 demval > 0.3   ? '#FD8D3C' :
+                 demval > 0.2   ? '#FEB24C' :
+                 demval > 0.1   ? '#FED976' :
+                                  '#FFEDA0';
+
+          break;
+
+    }
+}
 function precinctStyle(feature){
+    var precKey = feature.properties.PCTKEY;
+    var currPrec = precinctKeys[precKey];
+
     return {
         weight: 2,
         opacity: 1,
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.7,
-        fillColor: precinctColor(feature.properties.Republican, feature.properties.Democrat, feature.properties.Green, feature.properties.Libertarian)
+        fillColor: precinctDemoColor(selectedDemo, currPrec)
+        // fillColor: precinctColor(feature.properties.Republican, feature.properties.Democrat, feature.properties.Green, feature.properties.Libertarian)
     };
 }
 
@@ -496,7 +477,10 @@ function onPrecinctHover(e) {
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
   	layer.bringToFront();
   }
-  precinctData.update(layer.feature.properties);
+  var precKey = layer.feature.properties.PCTKEY;
+  var currPrec = precinctKeys[precKey];
+  var elecPrec = electionDic[electionSetting][precKey]
+  precinctData.update(currPrec, elecPrec, precKey);
 }
 
 function precinctMouseOut(e) {
@@ -519,3 +503,34 @@ function precinctEffects(feature, layer) {
 		click: zoomOnPrecinct
 	});
 }
+
+
+demoOpts.on('change',function(){
+  selectedDemo = $("input[name='demoType']:checked").val();
+  precLayer.eachLayer(function(layer){
+        layer.eachLayer(function(layer2){
+            var precKey = layer2.feature.properties.PCTKEY;
+            var currPrec = precinctKeys[precKey];
+//            console.log('precKey '+precKey+' currPrec '+ currPrec);
+            console.log(layer2);
+            layer2.setStyle({
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7,
+                fillColor: precinctDemoColor(selectedDemo, currPrec)
+            });
+        });
+  });
+//  alert('hkkgd');
+})
+
+
+electOpts.on('change',function(){
+    alert('afdas' + electionSetting);
+    electionSetting = $("input[name='ElectionData']:checked").val();
+    if(dicSize(electionDic[electionSetting]) == 0){
+        getPrecinctData(electionSetting);
+    }
+});

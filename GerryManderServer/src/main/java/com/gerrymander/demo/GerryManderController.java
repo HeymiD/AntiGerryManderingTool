@@ -87,8 +87,7 @@ public class GerryManderController {
 	}
 //@RequestParam("districtId") String districtId
     @RequestMapping("/precincts")
-    public String getPrecincts(@RequestParam("state") String stateName,
-                               @RequestParam("electionType") String elecType) {
+    public String getPrecincts(@RequestParam("electionType") String elecType) {
 	    ELECTIONTYPE e = ELECTIONTYPE.valueOf(elecType);
         return JSONMaker.makeJSONDict(state.getPrecincts(),e);
 	}

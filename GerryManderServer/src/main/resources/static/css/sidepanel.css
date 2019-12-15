@@ -18,7 +18,6 @@ nav ul {
 nav ul li{
   text-align: center;
   color: #fff;
-  padding: 10px 0;
 }
 
 #electSelect {
@@ -32,17 +31,21 @@ nav ul li{
   width: 29%;
 }
 
+.phaseSelect{
+  display: flex;
+  align-items: center;
+}
 
-#phaseSelect {
+/* #phaseSelect {
   text-align: center;
   margin-left: auto;
   margin-right: auto;
   padding: 10px 0;
-}
+} */
 
 #minoritySelect{
   float: left;
-  margin-left: 20%;
+  /* margin-left: 20%; */
   text-align: left;
   width: 100%;
 }
@@ -144,4 +147,69 @@ nav ul li a blockquote{
 .nav-button:active .content {
     bottom: 0;
     box-shadow: 0 0 0 #06c;
+}
+
+
+
+
+/*----- Tabs -----*/
+.tabs {
+	width:100%;
+	display:inline-block;
+}
+
+.tab{
+    height: 100%;
+}
+/*----- Tab Links -----*/
+/* Clearfix */
+	.tab-links:after {
+	display:block;
+	clear:both;
+	content:'';
+}
+
+.tab-links li {
+	margin:0px 5px;
+	float:left;
+	list-style:none;
+}
+
+.tab-links a {
+	padding:9px 15px;
+	display:inline-block;
+	border-radius:3px 3px 0px 0px;
+	background:#7FB5DA;
+	font-size:16px;
+	font-weight:600;
+	color:#4c4c4c;
+	transition:all linear 0.15s;
+}
+
+.tab-links a:hover {
+	background:#a7cce5;
+	text-decoration:none;
+}
+
+li.active a, li.active a:hover {
+	background:#fff;
+	color:#4c4c4c;
+}
+
+/*----- Content of Tabs -----*/
+.tab-content {
+	padding:15px;
+	border-radius:3px;
+	box-shadow:-1px 1px 1px rgba(0,0,0,0.15);
+	background:#fff;
+}
+
+.tab {
+	display:none;
+  overflow: auto;
+}
+
+.tab.active {
+	display:block;
+  overflow: auto;
 }

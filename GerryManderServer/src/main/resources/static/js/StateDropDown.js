@@ -46,11 +46,13 @@ select.addTo(map);
 select.on('change', function(e){
     console.log(e);
 	try{
-		var state = L.geoJson(e.feature);
+		var state = L.geoJson(e.feature)
 	    map.fitBounds(state.getBounds());
 	    fetchDistrict(e);
-	    map.removeLayer(texas)
-        map.addLayer(distLayer);
+			if(map.hasLayer(texas)){
+	    	map.removeLayer(texas)
+			}
+        map.addLayer(texasDistrictsLayer);
 //		map.on('drag', function() {
 //			map.panInsideBounds(state.getBounds(), { animate: false });
 //		});
@@ -72,11 +74,12 @@ select.on('change', function(e){
 	}
 	catch(error){
 		recenterMap();
+		stateData.update();
 		if(map.hasLayer(precLayer)){
             map.removeLayer(precLayer);
         }
-        if(map.hasLayer(distLayer)){
-            map.removeLayer(distLayer);
+        if(map.hasLayer(texasDistrictsLayer)){
+            map.removeLayer(texasDistrictsLayer);
         }
         if( $('#precinctContent').hasClass('active')){
             $('#districtContent').toggleClass('active');

@@ -22,16 +22,6 @@
 	<script type="text/javascript" src="./js/geojson/texas_districts.js"></script>
 	<script type="text/javascript" src="./js/loadJSFile.js"></script>
 
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart1.js"></script>-->
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart2.js"></script>-->
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart3.js"></script>-->
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart4.js"></script>-->
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart5.js"></script>-->
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart6.js"></script>-->
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart7.js"></script>-->
-	<!--<script type="text/javascript" src="./js/geojson/PrecinctsPart8.js"></script>-->
-
-
 </head>
 
 <body>
@@ -42,26 +32,59 @@
 				<div class="menu-btn-block bottom active"></div>
 		</a>
 
-		<ul>
-				<li>
-					<a href="#" id="prereqBtn" class="nav-button" onClick="bqToggle(this.id)"><span class="content">PreRequisites</span></a>
-					<blockquote id='prereq-block' class="blockquotes">
-						<div id="electSelect">
-							<select id="electionType"></select>
-							<select id="yearType"></select>
-						</div>
+		<div class="tabs">
+			<ul class="tab-links">
+				<li class="active"><a href="#setting">Settings</a></li>
+				<li><a href="#Phase0">Phase 0</a></li>
+				<li><a href="#Phase1-2">Phase 1|2</a></li>
+				<!-- <li><a href="#Phase0-Data">Data</a></li> -->
+			</ul>
 
-					</blockquote>
-				</li>
-				<li>
-					<a href="#" id="abuttonBtn" class="nav-button" onClick="bqToggle(this.id)"><span class="content">Algorithms</span></a>
-					<blockquote id='abutton-block' class="blockquotes">
-						<div id="phaseSelect">
-							<select id="phaseType"></select>
-							<select id="algorithmType"></select>
+			<div class="tab-content">
+				<div id="setting" class="tab active">
+					<h4> Select a source of Data </h4>
+					<input type="radio" name="ElectionData" value="Presidential2016" checked> Presidential 2016<br>
+					<input type="radio" name="ElectionData" value="congressional2016"> Congressional 2016<br>
+					<input type="radio" name="ElectionData" value="congressional2018"> Congressional 2018<br>
+					<br/><br/>
+					<h4> Select a Demographic </h4>
+					<input type="radio" name="demoType" value="White" checked> White <br>
+					<input type="radio" name="demoType" value="Black"> African-American<br>
+					<input type="radio" name="demoType" value="Hispanic"> Hispanic<br>
+					<input type="radio" name="demoType" value="Native"> Native<br>
+					<input type="radio" name="demoType" value="Hispanic"> Hispanic<br>
+					<input type="radio" name="demoType" value="Pacific"> Pacific<br>
+					<input type="radio" name="demoType" value="Asian"> Asian<br>
+					<input type="radio" name="demoType" value="Other"> Other<br>
+
+				</div>
+
+				<div id="Phase0" class="tab">
+					<p>Tab #2 content goes here!</p>
+					<div class="slidecontainer">
+						<div id="phase0slider1" class="phase0-slider" name="rangeInput"></div>
+						<div class="min-max-text">
+							Voting Threshold:<input type="number" min="50" max="100" oninput="validity.valid" id="votingThreshold" class="range-field" onChange="text2slider2(this.id)"/>
 						</div>
-						<br/>
-						<div id="minorities">
+						<div id="phase0slider2" class="phase0-slider" name="rangeInput"></div>
+						<div class="min-max-text">
+							Bloc Threshold:<input type="number" min="50" max="100" oninput="validity.valid" id="blocThreshold" class="range-field" onChange="text2slider2(this.id)"/>
+						</div>
+						<button id="runPhase0">Run</button>
+					</div>
+					<!-- <button id="runPhase0" onClick="updatePhase0()">Run</button> -->
+
+					<br/><br/>
+					<div id="Phase0-Data"> </div>
+				</div>
+
+				<div id="Phase1-2" class="tab">
+					<p>Tab #3 content goes here!</p>
+					<div class="phaseSelect">
+						<input type="radio" name="PhaseType" value="Phase 1" checked> Phase 1<br>
+						<input type="radio" name="PhaseType" value="Phase 2"> Phase 2<br>
+					</div>
+					<div id="minorities">
 							<h4>Select Desired Minority Group(s):</h4><br/>
 							<div id="minoritySelect">
 								<input class="minority-cb" type="checkbox" value="White"><label>White</label><br>
@@ -71,13 +94,8 @@
 							</div>
 						</div>
 
-						<br/>
-						<button id="runAlgo" onClick="runAlgorithm()">Run</button>
-					</blockquote>
-				</li>
-				<li>
-					<a href="#" id="objectiveBtn" class="nav-button" onClick="bqToggle(this.id)"><span class="content">Objectives</span></a>
-						<blockquote id="objectives-block" class="blockquotes">
+						<br/><br/>
+					<div class='allsliders' style='text-align:center'>
 							Population
 							<div id="population-slider" class="slider-range" name="rangeInput"></div>
 							<div class="min-max-text">
@@ -108,12 +126,16 @@
 								Min:<input type="number" min=50 max="100" oninput="validity.valid || (value='0');" id="min-minority-population" class="range-field" onChange="text2slider(this.id)"/>
 								Max:<input type="number" min=50 max="100" oninput="validity.valid || (value='100');" id="max-minority-population" class="range-field" onChange="text2slider(this.id)"/>
 							</div>
-						</blockquote>
-				</li>
+						</div>
 
+							<button id="runAlgo" onClick="runAlgorithm()">Run</button>
+				</div>
 
-
-		</ul>
+				<!-- <div id="Phase0-Data" class="tab">
+					<p>Tab #4 content goes here!</p>
+				</div> -->
+			</div>
+		</div>
 	</nav>
 	<div id='pageContainer'>
 		<div id='map'>
@@ -127,6 +149,7 @@
 			  <button id="precinctContent" class="mapContentbtn" onclick="selMapContent(this.id)" disabled>Precinct</button>
 			</div>
 		</div>
+		<script type="text/javascript" src="./js/Glovars.js"></script>
 		<script type="text/javascript" src="./js/SidePanel.js"></script>
 		<script type="text/javascript" src="./js/StateEffects.js"></script>
 		<script type="text/javascript" src="./js/LoadMap.js"></script>

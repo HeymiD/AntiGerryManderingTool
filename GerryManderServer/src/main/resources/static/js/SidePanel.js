@@ -1,58 +1,12 @@
-var elecType = ['Election Type','Presidential', 'Congressional'];    //get from backend later on
-var yearType = ['Election Year','2016', '2018'];
-var phases = ['Select a Phase', 'Phase 0', 'Phase 1', 'Phase 2'];
-var algorithms = ['Select Algorithm', 'Algorithm 1', 'Algorithm 2', 'Algorithm 3'];
-var selectedMinority = 0;
-// var demographics = ['White','Black','Asain','Hispanic'];
-var phaseSelector = $('#phaseType');
-var algorithmSelector = $('#algorithmType');
-var electionType = $('#electionType');
-var electionYear = $('#yearType');
-var runAlgoBtn = $('#runAlgo');
-runAlgoBtn.hide();
-$('#objectiveBtn').hide();
-$('#abuttonBtn').hide();
-$('#minorities').hide();
 
-for(var i=0; i<elecType.length; i++){
-  var option = document.createElement('option');
-  option.setAttribute('value', elecType[i]);
-  option.text = elecType[i];
-  document.getElementById('electionType').appendChild(option);
-}
-for(var i=0; i<yearType.length; i++){
-  var option = document.createElement('option');
-  option.setAttribute('value', yearType[i]);
-  option.text = yearType[i];
-  document.getElementById('yearType').appendChild(option);
-}
+/* Effects of Tabs */
+$(".tabs .tab-links a").on('click', function(e) {
+  var selectedTab = $(this).attr('href');
+  $(selectedTab).show().siblings().hide();
+  $(this).parent('li').addClass('active').siblings().removeClass('active');
+});
 
-for(var i=0; i<phases.length; i++){
-  var option = document.createElement('option');
-  option.setAttribute('value', phases[i]);
-  option.text = phases[i];
-  document.getElementById('phaseType').appendChild(option);
-}
-
-for(var i=0; i<algorithms.length; i++){
-  var option = document.createElement('option');
-  option.setAttribute('value', algorithms[i]);
-  option.text = algorithms[i];
-  document.getElementById('algorithmType').appendChild(option);
-}
-// for(var i=0; i<demographics.length; i++){
-//   var checkbox = document.createElement('input');
-//   checkbox.type = 'checkbox';
-//   checkbox.value = demographics[i];
-//   checkbox.id = demographics[i]+'-cb';
-//   var label = document.createElement('label');
-//   label.htmlFor = checkbox.id;
-//   label.appendChild(document.createTextNode(demographics[i]));
-//   document.getElementById('minoritySelect').appendChild(checkbox);
-//   document.getElementById('minoritySelect').appendChild(label);
-// }
-
-var maxSelCheckbox = 2;
+/* Allow only MAX 2 Minorities to be selected */
 $(".minority-cb").on('change', function(e){
   selectedMinority = $(".minority-cb").siblings(':checked').length;
   if(selectedMinority > maxSelCheckbox){
@@ -60,6 +14,7 @@ $(".minority-cb").on('change', function(e){
   }
 });
 
+/* Switches between Hamburger Button */
 function hambrgrToggle(id) {
   // console.log(id);
   let menuBtnBlock;
@@ -70,12 +25,39 @@ function hambrgrToggle(id) {
     outerMenuBtn.show();
   }
   body.toggleClass('active-nav');
-  $('#prereq-block').css('display', 'None')
-  $('#abutton-block').css('display', 'None')
-  $('#objectives-block').css('display', 'None')
+  // $('#prereq-block').css('display', 'None')
+  // $('#abutton-block').css('display', 'None')
+  // $('#objectives-block').css('display', 'None')
 
 }
 
+$(function(){
+  $(".phase0-slider").slider({
+    range: false,
+    orientation: "horizontal",
+    min: 50,
+    max: 100,
+    values:[50],
+    step: 1,
+    slide:
+      function(event,ui){
+        if(this.id == 'phase0slider1'){
+          $("#votingThreshold").val(ui.values[0]);
+          votingThresh = ui.values[0];
+        }
+        else if(this.id == 'phase0slider2'){
+          $("#blocThreshold").val(ui.values[0]);
+          blocThresh = ui.values[0];
+        }
+      }
+  });
+  $("#votingThreshold").val($(".phase0-slider").slider("values", 0));
+  $("#blocThreshold").val($(".phase0-slider").slider("values", 0));
+});
+
+
+
+/* Initializing Sliders */
 $(function () {
   $(".slider-range").slider({
   range: true,
@@ -124,6 +106,36 @@ $(function () {
 
 });
 
+function text2slider2(id){
+    var currSlider;
+    var currVal,val;
+    console.log(id);
+    switch(id){
+      case 'votingThreshold':
+        currSlider = $('#phase0slider1');
+        val = $('#votingThreshold');
+        votingThresh = id;
+        break;
+      case 'blocThreshold':
+        currSlider = $('#phase0slider2');
+        blocThresh = id;
+        val = $('#blocThreshold');
+        break;
+    }
+    currVal = parseInt(val.val());
+
+    if(currVal <= 50 || currVal > 100){
+      currVal = 50;
+      val.val(currVal);
+    }
+    console.log(currSlider);
+    currSlider.slider({
+      values: [currVal]
+    });
+
+
+}
+/* Setting slider values */
 function text2slider(id){
   // console.log('inside sliderChanger');
   var currSlider = id.substring(id.indexOf('-')+1,id.length);
@@ -167,76 +179,16 @@ function text2slider(id){
   });
 }
 
-function bqToggle(btn){
-  var blockquote;
-  switch(btn){
-    case 'prereqBtn':
-      blockquote = $('#prereq-block');
-      break;
-    case 'abuttonBtn':
-      blockquote = $('#abutton-block');
-      break;
-    case 'objectiveBtn':
-      blockquote = $('#objectives-block');
-      break;
-  }
-  blockquote.slideToggle(1000);
-}
-
-var prerequisites = $('#prereq-block');
-prerequisites.change(function(){
-  // console.log('sup im changing');
-  // console.log(selectedMinority);
-//  && phaseSelector.val() != 'Select a Phase'
-  if(electionType.val() != 'Election Type' && electionYear.val() != 'Election Year') {
-//    $('#objectiveBtn').show();
-    $('#abuttonBtn').show();
-    districtData.show();
-  }
-  else{
-    $('#abuttonBtn').hide();
-    $('#abutton-block').css('display', 'None');
-    $('#phaseType :nth-child(0)').prop('selected', true);
-    $('#objectives-block').css('display','None');
-    $('#objectiveBtn').hide();
-    districtData.hide();
-  }
+$("input[type='radio']").click(function(){
+  electionSetting = $("input[name='ElectionData']:checked").val();
+  electionYear = electionSetting.split(" ")[0];
+  elecType = electionSetting.split(" ")[1];
+  // console.log(electionType + electionSetting + electionYear);
 });
 
-var algorithms = $('#abutton-block');
-algorithms.change(function(){
-    console.log(selectedMinority);
-    if(phaseSelector.val() == 'Select a Phase' || algorithmSelector.val() == 'Select Algorithm'){
-        $('#objectives-block').css('display','None');
-        $('#objectiveBtn').hide();
-        $('#minorities').hide();
-        runAlgoBtn.hide();
-    }
-    else{
-//        if(selectedMinority > 0){
-//            runAlgoBtn.show();
-//        }
-//        else{
-//            runAlgoBtn.hide();
-//        }
-        runAlgoBtn.show();
-        if(phaseSelector.val() != 'Phase 0'){
-            $('#objectiveBtn').show();
-            $('#minorities').show();
-        }
-        else{
-            $('#minorities').hide();
-            $('#objectives-block').css('display','None');
-            $('#objectiveBtn').hide();
-        }
-    }
-
-});
-function runAlgorithm(){
-    console.log("Phase 0 Results: ")
+function updatePhase1(){
+    console.log("Phase 1 Results: ")
 //    getPhaseZeroData(electionType.val()+electionYear.val(),0.75,0.8);
-    getPhaseOneData(electionType.val()+electionYear.val(),0.75,0.6,false,36,"ASIAN,PACISLAND");
+    getPhaseOneData(electionSetting,0.75,0.6,false,36,"ASIAN,PACISLAND");
     console.log(phase0Data)
 }
-//runAlgoBtn.on("click",runAlgorithm());
-//24914271

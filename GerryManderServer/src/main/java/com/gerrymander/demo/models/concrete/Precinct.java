@@ -212,7 +212,8 @@ public class Precinct implements PrecinctInterface {
                 + "\"Native\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.NATIVE)).toString()+ "\""+", "
                 + "\"Pacific\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.PACISLAND)).toString()+ "\""+", "
                 + "\"Asian\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.ASIAN)).toString()+ "\""+", "
-                + "\"Other\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.OTHER)).toString()+ "\""+", "
+                + "\"Other\": " + "\""+(precinctDemographics.get(DEMOGRAPHIC.OTHER)).toString()+ "\"" + ", "
+                + "\"Population\": " + "\"" + population + "\""
                 +" }";
     }
 

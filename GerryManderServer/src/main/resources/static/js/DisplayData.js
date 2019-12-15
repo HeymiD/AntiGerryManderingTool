@@ -60,14 +60,14 @@ var precinctData = L.control();
 		this.update();
 		return this._div;
 	};
-	precinctData.update = function (props) {
+	precinctData.update = function (props,elect,precKey) {
 	  this._div.innerHTML = '<h4>Precinct Data</h4>' +  (props ?
-	  	'<b>PrecinctID: </b>' + props.PrecinctID +
+	  	'<b>PrecinctID: </b>' + precKey +
 	  	'<b><br />DistrictID: </b>' + props.DistrictID +
-	  	'<b><br />Republican Votes: </b>' + props.Republican +
-	  	'<b><br />Democrat Votes: </b>' + props.Democrat +
-	  	'<b><br />Green Votes: </b>' + props.Green +
-	  	'<b><br />Libertarian Votes: </b>' + props.Libertarian +
+	  	'<b><br />Republican Votes: </b>' + elect.Republican +
+	  	'<b><br />Democrat Votes: </b>' + elect.Democrat +
+	  	'<b><br />Green Votes: </b>' + elect.Green +
+	  	'<b><br />Libertarian Votes: </b>' + elect.Libertarian +
 	  	'<b><br />White Population: </b>' + props.White +
 	  	'<b><br />Black Population: </b>' + props.Black +
 	  	'<b><br />Hispanic Population: </b>' + props.Hispanic +
@@ -93,17 +93,19 @@ function selMapContent(content){
 
 	switch(content){
 		case 'districtContent':
-            thisContent = $('#districtContent');
-            otherContent = $('#precinctContent');
-    //		if(map.hasLayer(precLayer)){
-    //        	map.removeLayer(precLayer);
-    //        }
-            if(map.hasLayer(texas)){
-                map.removeLayer(texas);
-            }
-    //        if(!map.hasLayer(distLayer)){
-    //        	map.addLayer(distLayer);
-    //        }
+      thisContent = $('#districtContent');
+      otherContent = $('#precinctContent');
+//		if(map.hasLayer(precLayer)){
+//        	map.removeLayer(precLayer);
+//        }
+      if(map.hasLayer(texas)){ map.removeLayer(texas); }
+			if(map.hasLayer(precLayer)){
+				map.removeLayer(precLayer);
+				precLayer = L.layerGroup();
+			}
+//        if(!map.hasLayer(distLayer)){
+//        	map.addLayer(distLayer);
+//        }
 //            for (var districtId in districtx){
 //                var district = districtx[districtId];
 //                var precinct = precinctData[districtId];
@@ -111,22 +113,14 @@ function selMapContent(content){
 //                    map.removeLayer(precLayer);
 //                    }
 
-                if(!map.hasLayer(texasDistrictsLayer)){
-                    map.addLayer(texasDistrictsLayer);
-                }
+      if(!map.hasLayer(texasDistrictsLayer)){ map.addLayer(texasDistrictsLayer); }
 //            }
-
-            if(electionYear.val() == 'Election Year' && electionType.val() == 'Election Type'){
-                districtData.hide();
-            }
-            else{
-                districtData.show();
-            }
-            precinctData.hide();
-            if(!thisContent.hasClass('active')){
-                thisContent.toggleClass('active');
-                otherContent.toggleClass('active');
-            }
+			districtData.show();
+      precinctData.hide();
+      if(!thisContent.hasClass('active')){
+          thisContent.toggleClass('active');
+          otherContent.toggleClass('active');
+      }
 			break;
 		case 'precinctContent':
 			thisContent = $('#precinctContent');
@@ -134,11 +128,6 @@ function selMapContent(content){
 			if(map.hasLayer(texas)){
                 map.removeLayer(texas);
             }
-            if(electionYear.val() == 'Election Year' || electionType.val() == 'Election Type'){
-                alert('Please Select an Election Type and Year in the Menu');
-
-            }
-            else{
 //                for (var districtId in districtx){
 //                    var district = districtx[districtId];
 //                    var precinct = precinctData[districtId];
@@ -152,14 +141,15 @@ function selMapContent(content){
 //                }
                 districtData.hide();
                 precinctData.show();
-                if(precLayer.getLayers().length == 0 && electionYear.val() != 'Election Year' && electionType.val() != 'Election Type'){
+                if(precLayer.getLayers().length == 0){
                     console.log("Getting Precincts...")
-                    loadjscssfile("./js/geojson/PrecinctsPart1.js", "js",function (){
+
+										loadjscssfile("./js/geojson/PrecinctsPart1.js", "js",function (){
                                                                                  console.log(precincts1)
                                                                                  var precinctBoundary = L.geoJson(precincts1, {
                                                                                  	style: precinctStyle,
                                                                                  	onEachFeature: precinctEffects
-                                                                                 }).addTo(map)
+                                                                                 })
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart2.js", "js",function (){
@@ -167,7 +157,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts2, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart3.js", "js",function (){
@@ -175,7 +165,7 @@ function selMapContent(content){
                                                                                  var precinctBoundary = L.geoJson(precincts3, {
                                                                                  	style: precinctStyle,
                                                                                  	onEachFeature: precinctEffects
-                                                                                 }).addTo(map)
+                                                                                 })
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart4.js", "js",function (){
@@ -183,7 +173,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts4, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart5.js", "js",function (){
@@ -191,7 +181,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts5, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart6.js", "js",function (){
@@ -199,7 +189,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts6, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart7.js", "js",function (){
@@ -207,7 +197,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts7, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart8.js", "js",function (){
@@ -215,7 +205,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts8, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart9.js", "js",function (){
@@ -223,7 +213,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts9, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart10.js", "js",function (){
@@ -231,7 +221,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts10, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart11.js", "js",function (){
@@ -239,7 +229,7 @@ function selMapContent(content){
                                                                                  var precinctBoundary = L.geoJson(precincts11, {
                                                                                     style: precinctStyle,
                                                                                     onEachFeature: precinctEffects
-                                                                                 }).addTo(map)
+                                                                                 })
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart12.js", "js",function (){
@@ -247,7 +237,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts12, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart13.js", "js",function (){
@@ -255,7 +245,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts13, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart14.js", "js",function (){
@@ -263,7 +253,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts14, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart15.js", "js",function (){
@@ -271,7 +261,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts15, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart16.js", "js",function (){
@@ -279,7 +269,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts16, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart17.js", "js",function (){
@@ -287,7 +277,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts17, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart18.js", "js",function (){
@@ -295,7 +285,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts18, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart19.js", "js",function (){
@@ -303,7 +293,7 @@ function selMapContent(content){
                                                                                  var precinctBoundary = L.geoJson(precincts19, {
                                                                                     style: precinctStyle,
                                                                                     onEachFeature: precinctEffects
-                                                                                 }).addTo(map)
+                                                                                 })
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart20.js", "js",function (){
@@ -311,7 +301,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts20, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart21.js", "js",function (){
@@ -319,7 +309,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts21, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart22.js", "js",function (){
@@ -327,7 +317,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts22, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart23.js", "js",function (){
@@ -335,7 +325,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts23, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart24.js", "js",function (){
@@ -343,7 +333,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts24, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart25.js", "js",function (){
@@ -351,7 +341,7 @@ function selMapContent(content){
                                                                                      var precinctBoundary = L.geoJson(precincts25, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
-                                                                                     }).addTo(map)
+                                                                                     })
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart26.js", "js",function (){
@@ -359,7 +349,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts26, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart27.js", "js",function (){
@@ -367,7 +357,7 @@ function selMapContent(content){
                                                                                  var precinctBoundary = L.geoJson(precincts27, {
                                                                                     style: precinctStyle,
                                                                                     onEachFeature: precinctEffects
-                                                                                 }).addTo(map)
+                                                                                 })
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart28.js", "js",function (){
@@ -375,7 +365,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts28, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart29.js", "js",function (){
@@ -391,7 +381,7 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts30, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart31.js", "js",function (){
@@ -407,39 +397,18 @@ function selMapContent(content){
                                                                              var precinctBoundary = L.geoJson(precincts32, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
-                                                                             }).addTo(map)
+                                                                             })
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
 
-//                    map.addLayer(precLayer)
-//                    getPrecincts(currState)
-//                    var districtID = 1
-//                    while(districtID<37){
-//                        console.log("getting Precincts now")
-//                        getPrecincts(currState,districtID);
-////                        getPrecinctsByDistrictInit(currState,districtID)
-//                        console.log("Got precinct for district id: " + districtID)
-//                        districtID=districtID+1;
-//                    }
 
-//                    var done=0;
-//                    while(done<8936){
-//                        console.log("getting Precincts now")
-//                        getPrecincts(currState)
-//                        done=done+40
-//                    }
-
-//                    for (pctkey in precinctKeys.PrecinctKeys) {
-//                        console.log("Precinct: "+pctkey);
-//                        getPrecincts(currState,precinctKeys.PrecinctKeys[pctkey])
-//                    }
 
                 }
                 if(!thisContent.hasClass('active')){
                     thisContent.toggleClass('active');
                     otherContent.toggleClass('active');
                 }
-            }
+
 			break;
 
 	}
@@ -447,34 +416,25 @@ function selMapContent(content){
 
 }
 
-var phaseData = L.control();
-	phaseData.options.position = 'bottomright';
-	phaseData.onAdd = function (map) {
-		this._div = L.DomUtil.create('div', 'selectedinfo');
-		this._div.id = 'phase0info';
-		this.update();
-		return this._div;
-	};
-	phaseData.update = function (props) {
-	  this._div.innerHTML = '<h4>Majority Minority Precincts</h4>' + '<b>Num of Precincts: </b>' + '<br/><b>Num of Maj-Min Precincts: </b>'
-		+ '<br/><b>% of {insert selected race here} voted as a bloc: </b>' + '<br/><b>% of {insert selected race here} voted as bloc: </b>' ;
-	};
-	phaseData.show = function(){
-		$('#phase0info').show();
-	}
-	phaseData.hide = function(){
-		$('#phase0info').hide();
-	}
-	phaseData.addTo(map);
-	phaseData.hide();
 
+function updatePhase0(props){
+    console.log('im in updatePhase0');
+	var phaseData = $('#Phase0-Data');
+	phaseData.html(
+	'<b># of Precincts: </b>' + props.numPrecincts
+	+ '<br/><b># Majority Minority: </b>' + props.numMajMinPrecincts
+	+ '<br/><br/><h3>Voting Blocs by Demographic</h3>'
+	+ '<b>Black: </b>' + props.Black
+	+ '%<br/><b>Hispanic: </b>' + props.Hispanic
+	+ '%<br/><b>Pacific: </b>' + props.Pacific
+	+ '%<br/><b>Asian: </b>' + props.Asian
+	+ '%<br/><b>Native: </b>' + props.Native
+	+ '%<br/><b>Other: </b>' + props.Other
+	+ '%<br/><br/><h3>Voting Blocs by Party</h3>'
+	+ '<br/><b>Democrat: </b>' + props.Democrat
+	+ '%<br/><b>Republican: </b>' + props.Republican
+	+ '%<br/><b>Green: </b>' + props.Green
+	+ '%<br/><b>Libertarian: </b>' + props.Libertarian + '%'
 
-
-$('#phaseType').change(function(){
-	if($('#phaseType').val() == 'Phase 0'){
-		phaseData.show();
-	}
-	else{
-		phaseData.hide();
-	}
-});
+);
+}
