@@ -230,7 +230,7 @@ function runAlgorithm(){
       }
       break;
     case 'Phase 2':
-        getPhaseTwoData(electionSetting,votingThresh,blocThresh, targetDisVal, demString);
+        getPhaseTwoData(electionSetting,votingThresh,blocThresh, targetDisVal, demString, true);
         break;
 
   }

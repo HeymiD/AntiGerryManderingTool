@@ -222,7 +222,7 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
 			blockThreshold: blockThreshold,
 			update: true,
 			targetNumDistricts : targetNumDistricts,
-			demString : demString,
+			demString : demString
 		},
 		success: function(response){
 //            alert(response === "done")
@@ -269,7 +269,7 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
 
 }
 
-function getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString){
+function getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString, begin){
 var result;
     $.ajax({
 		url:"http://localhost:8080/phase2",
@@ -280,6 +280,7 @@ var result;
 			blockThreshold: blockThreshold,
 			targetNumDistricts : targetNumDistricts,
 			demString : demString,
+			begin : begin
 		},
 		success: function(response){
 //            alert(response === "done")
@@ -305,7 +306,7 @@ var result;
                                        });
                                    });
                              });
-            getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString);
+            getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString, false);
 
 		},
 		error:function(err){
