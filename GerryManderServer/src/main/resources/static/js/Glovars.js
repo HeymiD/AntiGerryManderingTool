@@ -13,13 +13,16 @@ var outerMenuBtn = $('#outer-menu-btn');
 var innerMenuBtn = $('#inner-menu-btn');
 var mapContent = $('#selectMapContent');
 
+var iterateMe = $("#stepThrough");
 var electionSetting = $("input[name='ElectionData']:checked").val();
 var selectedDemo = $("input[name='demoType']:checked").val();
+var selectedPhase = $("input[name='PhaseType']:checked").val();
 var demoOpts = $("input[name='demoType']");
 var electOpts = $("input[name='ElectionData']");
 var electionYear = electionSetting.split(" ")[0];
 var electionType = electionSetting.split(" ")[1];
-
+var targetDis = $("#targetMM");
+var targetDisVal;
 var votingThresh = 50;
 var blocThresh = 50;
 
@@ -31,8 +34,10 @@ var bounds = [[20, -150],[55, -40]];
 
 
 var usCenter = [37.8, -96];
+var totWhite, totBlack, totHispanic, totPacific, totAsian, totNative, totOther, totPopulation;
 var precinctKeys;
 var phase0Data;
+var phase1Data;
 var stateInit = 0;
 var currState;
 var texas_precincts;

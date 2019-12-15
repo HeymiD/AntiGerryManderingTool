@@ -57,7 +57,8 @@ select.on('change', function(e){
 //			map.panInsideBounds(state.getBounds(), { animate: false });
 //		});
 
-		// stateData.update(e.feature.properties);
+		 stateData.update();
+		 stateData.show();
 		// console.log(stateData);
 		outerMenuBtn.show();
 		mapContent.show();
@@ -74,7 +75,8 @@ select.on('change', function(e){
 	}
 	catch(error){
 		recenterMap();
-		stateData.update();
+//		geojson.resetStyle(e.target);
+//		stateData.update();
 		if(map.hasLayer(precLayer)){
             map.removeLayer(precLayer);
         }
@@ -82,6 +84,7 @@ select.on('change', function(e){
             map.removeLayer(texasDistrictsLayer);
         }
         if( $('#precinctContent').hasClass('active')){
+						precinctData.hide();
             $('#districtContent').toggleClass('active');
             $('#precinctContent').toggleClass('active');
         }
@@ -90,7 +93,7 @@ select.on('change', function(e){
 		// stateData.update();
 		districtData.hide();
 		precinctData.hide();
-		stateData.show();
+		stateData.hide();
 		mapContent.hide();
 		outerMenuBtn.hide()
 		// console.log(body.attr('class'));

@@ -248,6 +248,9 @@ public class GerryManderController {
         for(Measure m:Measure.values()){
             algorithm.weights.put(m,0.2);
         }
+        if(state.clusters.size() <= targetNumDistricts){
+            return "done";
+        }
 //        if(state.majMinClusters.isEmpty()){
 //            for(Cluster c:state.clusters){
 //                if(c.checkMajorityMinority(blockThreshold,votingThreshold,ELECTIONTYPE.valueOf(electionType))){

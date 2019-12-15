@@ -186,9 +186,52 @@ $("input[type='radio']").click(function(){
   // console.log(electionType + electionSetting + electionYear);
 });
 
+$("input[name='PhaseType']").click(function(){
+  selectedPhase = $("input[name='PhaseType']:checked").val();
+})
+
 function updatePhase1(){
     console.log("Phase 1 Results: ")
 //    getPhaseZeroData(electionType.val()+electionYear.val(),0.75,0.8);
     getPhaseOneData(electionSetting,0.75,0.6,false,36,"ASIAN,PACISLAND");
     console.log(phase0Data)
+}
+
+function runAlgorithm(){
+  switch (selectedPhase) {
+    case 'Phase 1':
+//      precLayer.eachLayer(function(layer){
+//            layer.eachLayer(function(layer2){
+//                var precKey = layer2.feature.properties.PCTKEY;
+//                var currPrec = precinctKeys[precKey];
+//    //            console.log('precKey '+precKey+' currPrec '+ currPrec);
+//                console.log(layer2);
+//                layer2.setStyle({
+//                    weight: 2,
+//                    opacity: 1,
+//                    color: 'white',
+//                    dashArray: '3',
+//                    fillOpacity: 0.7,
+//                    fillColor: precNewDemoColor(currPrec.DistrictID)
+//                });
+//            });
+//      });
+      votingThresh = 0.75;
+      blocThresh = 0.6;
+      targetDisVal = 36;
+      demString = "ASIAN,PACISLAND";
+      if(iterateMe.prop('checked') == true){
+        getPhaseOneData(electionSetting,votingThresh,blocThresh, targetDisVal, demString, true);
+//        console.log(done);
+      }
+      else{
+          getPhaseOneData(electionSetting,votingThresh,blocThresh, targetDisVal, demString, false);
+
+      }
+      break;
+    case 'Phase 2':
+        getPhaseTwoData(electionSetting,votingThresh,blocThresh, targetDisVal, demString);
+        break;
+
+  }
 }

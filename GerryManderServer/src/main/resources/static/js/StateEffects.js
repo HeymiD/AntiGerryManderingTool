@@ -21,6 +21,8 @@ function fetchDistrict(e){
                     districtData.show();
                     $('#precinctContent').prop('disabled', false);
                     electionDic['Presidential2016'] = getPrecinctData(electionSetting);
+                    stateData.update();
+                    stateData.show();
             },
             error:function(err){
                 console.log(err, "ERROR");
@@ -63,7 +65,7 @@ function getPrecincts(e,districtId){
 			districtId: districtId,
 		},
 		success: function(response){
-  			 console.log(response);
+//  			 console.log(response);
              var precinct = JSON.parse(response);
              var precinctLayer = L.geoJson(precinct, {
                              style: precinctStyle,
@@ -209,6 +211,113 @@ $.ajax({
 	})
 }
 
+function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString, update){
+    var result;
+    $.ajax({
+		url:"http://localhost:8080/phase1",
+		async:  !update,
+		data: {
+			electionType: elecType,
+			votingThreshold: votingThreshold,
+			blockThreshold: blockThreshold,
+			update: true,
+			targetNumDistricts : targetNumDistricts,
+			demString : demString,
+		},
+		success: function(response){
+//            alert(response === "done")
+            if(response === "done"){
+                return 1
+            }
+            else{
+                result = JSON.parse(response);
+                        precLayer.eachLayer(function(layer){
+                              layer.eachLayer(function(layer2){
+                                                   var precKey = layer2.feature.properties.PCTKEY;
+            //                                       var districtId = phase1Data[precKey];
+                                                    var districtId = result[precKey];
+                                       //            console.log('precKey '+precKey+' currPrec '+ currPrec);
+            //                                       console.log(layer2);
+                                                   layer2.setStyle({
+                                                       weight: 2,
+                                                       opacity: 1,
+                                                       color: 'white',
+                                                       dashArray: '3',
+                                                       fillOpacity: 0.7,
+                                                       fillColor: precNewDemoColor(districtId)
+                                                   });
+                                               });
+                                         });
+                if(update == false){
+                    getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString,update);
+                }
+            }
+//            phase1Data = JSON.parse(response)
+
+//            if(update == false){
+//                getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString,update);
+//
+//            }
+//            return phase1Data;
+		},
+		error:function(err){
+		console.log(err)
+		console.log("ERROR")
+		}
+
+	});
+
+}
+
+function getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString){
+var result;
+    $.ajax({
+		url:"http://localhost:8080/phase2",
+		async:  true,
+		data: {
+			electionType: elecType,
+			votingThreshold: votingThreshold,
+			blockThreshold: blockThreshold,
+			targetNumDistricts : targetNumDistricts,
+			demString : demString,
+		},
+		success: function(response){
+//            alert(response === "done")
+            if(response === "done"){
+                return 1
+            }
+//            phase1Data = JSON.parse(response)
+            result = JSON.parse(response);
+            precLayer.eachLayer(function(layer){
+                  layer.eachLayer(function(layer2){
+                                       var precKey = layer2.feature.properties.PCTKEY;
+//                                       var districtId = phase1Data[precKey];
+                                        var districtId = result[precKey];
+                           //            console.log('precKey '+precKey+' currPrec '+ currPrec);
+//                                       console.log(layer2);
+                                       layer2.setStyle({
+                                           weight: 2,
+                                           opacity: 1,
+                                           color: 'white',
+                                           dashArray: '3',
+                                           fillOpacity: 0.7,
+                                           fillColor: precNewDemoColor(districtId)
+                                       });
+                                   });
+                             });
+            getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString);
+
+		},
+		error:function(err){
+		console.log(err)
+		console.log("ERROR")
+		}
+
+	});
+
+}
+
+
 //==================== State Zone ====================
 function stateColor(d){
 	return d > 3 ? '#ffb0a0' : d > 12  ? '#a0d4ff' : '#d7ffa0';
@@ -238,7 +347,7 @@ function onStateHover(e) {
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront();
     }
-    stateData.update(layer.feature.properties);
+//    stateData.update(layer.feature.properties);
     // if(stateInit != 1){
     //   fetchDistrict(e.target);
     // }
@@ -247,13 +356,12 @@ function onStateHover(e) {
 
 function stateMouseOut(e) {
 	geojson.resetStyle(e.target);
-	stateData.update();
 }
 
 function zoomOnState(e) {
 
-    // console.log(e);
-    currState = e.target;
+    currState = e.target.feature.properties.name;
+     console.log(currState);
     fetchDistrict(e.target);
 
     map.removeLayer(texas)
@@ -450,6 +558,26 @@ function precinctDemoColor(demographic, currPrec){
 
     }
 }
+
+targetDis.on('change',function(){
+    targetDisVal = targetDis.val();
+//    alert(targetDisVal);
+    $('#runAlgo').prop('disabled', false);
+
+});
+function precNewDemoColor(newDisId){
+  // precinct key , district ID   -> color precincts based on
+//    console.log(demographic)
+    newDisId = parseInt(newDisId.slice(newDisId.lastIndexOf(" ")));
+//    alert(newDisId);
+    return selectColor(newDisId, targetDisVal)
+}
+
+function selectColor(colorNum, colors){
+    if (colors < 1) colors = 1; // defaults to one color - avoid divide by zero
+      return "hsl(" + (colorNum * (360 / colors) % 360) + ",100%,50%)";
+}
+// var color = selectColor(8, 13);
 function precinctStyle(feature){
     var precKey = feature.properties.PCTKEY;
     var currPrec = precinctKeys[precKey];

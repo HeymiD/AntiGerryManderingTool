@@ -3,7 +3,6 @@ package com.gerrymander.demo.models.concrete;
 
 import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.StateInterface;
-import sun.util.resources.cldr.de.CalendarData_de_LU;
 //import com.gerrymander.demo.models.DAO.DistrictDAOInterface;
 //import com.gerrymander.demo.models.Service.DistrictService;
 

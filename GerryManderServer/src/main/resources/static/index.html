@@ -85,7 +85,7 @@
 						<input type="radio" name="PhaseType" value="Phase 2"> Phase 2<br>
 					</div>
 					<div id="minorities">
-							<h4>Select Desired Minority Group(s):</h4><br/>
+							<h4>Select Desired Minority Group(s):</h4>
 							<div id="minoritySelect">
 								<input class="minority-cb" type="checkbox" value="White"><label>White</label><br>
 								<input class="minority-cb" type="checkbox" value="Asain"><label>Asain</label><br>
@@ -94,41 +94,75 @@
 							</div>
 						</div>
 
-						<br/><br/>
+						<br/>
+					<label><input id='targetMM' type="number" /> Desired Maj-Min</label>
 					<div class='allsliders' style='text-align:center'>
-							Population
-							<div id="population-slider" class="slider-range" name="rangeInput"></div>
-							<div class="min-max-text">
-								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-population" class="range-field" onChange="text2slider(this.id)"/>
-								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-population" class="range-field" onChange="text2slider(this.id)"/>
-							</div>
-							Compactness
-							<div id="compactness-slider" class="slider-range" name="rangeInput"></div>
-							<div class="min-max-text">
-								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-compactness" class="range-field" onChange="text2slider(this.id)"/>
-								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-compactness" class="range-field" onChange="text2slider(this.id)"/>
-							</div>
-							Fairness
+							Partisan Fairness
 							<div id="fairness-slider" class="slider-range" name="rangeInput"></div>
 							<div class="min-max-text">
 								Min: <input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-fairness" class="range-field" onChange="text2slider(this.id)"/>
 								Max: <input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-fairness" class="range-field" onChange="text2slider(this.id)"/>
 							</div>
-							Equality
+							Reok Compactness
+							<div id="compactness-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-compactness" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-compactness" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Convex Hull Compactness
+							<div id="compactness-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-compactness" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-compactness" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Edge Compactness
+							<div id="compactness-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-compactness" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-compactness" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Efficiency Gap
+							<div id="compactness-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-compactness" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-compactness" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Population Equality
+							<div id="population-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-population" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-population" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Competitiveness
+							<div id="population-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-population" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-population" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Gerrymandering Republican
+							<div id="population-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-population" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-population" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Population Homogeneity
+							<div id="population-slider" class="slider-range" name="rangeInput"></div>
+							<div class="min-max-text">
+								Min:<input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-population" class="range-field" onChange="text2slider(this.id)"/>
+								Max:<input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-population" class="range-field" onChange="text2slider(this.id)"/>
+							</div>
+							Gerrymander Democrat
 							<div id="equality-slider" class="slider-range" name="rangeInput"></div>
 							<div class="min-max-text">
 								Min: <input type="number" min=0 max="100" oninput="validity.valid || (value='0');" id="min-equality" class="range-field" onChange="text2slider(this.id)"/>
 								Max: <input type="number" min=0 max="100" oninput="validity.valid || (value='100');" id="max-equality" class="range-field" onChange="text2slider(this.id)"/>
 							</div>
-							Minority-Group Population
-							<div id="minority-population-slider" class="slider-range" name="rangeInput"></div>
-							<div class="min-max-text">
-								Min:<input type="number" min=50 max="100" oninput="validity.valid || (value='0');" id="min-minority-population" class="range-field" onChange="text2slider(this.id)"/>
-								Max:<input type="number" min=50 max="100" oninput="validity.valid || (value='100');" id="max-minority-population" class="range-field" onChange="text2slider(this.id)"/>
-							</div>
 						</div>
 
-							<button id="runAlgo" onClick="runAlgorithm()">Run</button>
+							<button id="runAlgo" onClick="runAlgorithm()" disabled>Run</button>
+							<label>
+								<input id="stepThrough" type="checkbox"> Step-by-Step
+							</label>
 				</div>
 
 				<!-- <div id="Phase0-Data" class="tab">

@@ -496,7 +496,10 @@ public class Algorithm
                 finalIteration();
                 int newStateSize = 0;
                 state.clusters.forEach(c->{
-                    System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population);
+                    System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population
+                            +"\n MajMin: "
+                            +c.checkMajorityMinority(state.userDemographicThreshold,
+                            state.userVoteThreshold,state.userSelectedElection,demString));
                 });
                 for(Cluster c:state.clusters){
                     newStateSize+=c.population;
@@ -535,9 +538,9 @@ public class Algorithm
         Iterator<Cluster> iterator = state.clusters.iterator();
         int counter=0;
         while (iterator.hasNext()) {
-            if(targetNumDist>cSize){
-                return;
-            }
+//            if(targetNumDist >= cSize){
+//                return;
+//            }
             if(counter>=lowerQuartile){
                 break;
             }
@@ -569,13 +572,16 @@ public class Algorithm
                 iterator.remove();
                 cSize--;
             }
+            if(targetNumDist >= cSize){
+                return;
+            }
             counter++;
         }
 
         if(cSize>targetNumDist){
             iterator = state.clusters.iterator();
             while (iterator.hasNext()) {
-                if(targetNumDist>cSize){
+                if(targetNumDist>=cSize){
                     return;
                 }
                 Cluster currCluster = iterator.next();
@@ -598,7 +604,7 @@ public class Algorithm
             }
             iterator = state.clusters.iterator();
             while (iterator.hasNext()) {
-                if(targetNumDist>cSize){
+                if(targetNumDist>=cSize){
                     return;
                 }
                 Cluster currCluster = iterator.next();

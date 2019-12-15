@@ -4,14 +4,22 @@ var stateData = L.control();
 	stateData.onAdd = function (map) {
 		this._div = L.DomUtil.create('div', 'selectedinfo');
 		this._div.id = 'stateInfo';
-		this.update();
+//		this.update();
 		return this._div;
 	};
-	stateData.update = function (props) {
-	  this._div.innerHTML = '<h4>State Data</h4>' +  (props ?
-	  	'<b>' + props.name + '</b><br />Population: ' + props.population
-	  	: 'Select a state');
-	};
+	stateData.update = function () {
+        calcPrecPops();
+        this._div.innerHTML = '<h4>State Data</h4>'
+                            + '</br><b>State Name: </b>' + currState
+                            + '</br><b>Total Population: </b>' + totPopulation
+                            + '</br><b>White: </b>' + totWhite
+                            + '</br><b>Black: </b>' + totBlack
+                            + '</br><b>Hispanic: </b>' + totHispanic
+                            + '</br><b>Pacific: </b>' + totPacific
+                            + '</br><b>Native: </b>' + totNative
+                            + '</br><b>Asian: </b>' + totAsian
+                            + '</br><b>Other: </b>' + totOther
+    };
 	stateData.show = function(){
 		$('#stateInfo').show();
 	}
@@ -20,6 +28,8 @@ var stateData = L.control();
 	}
 
 	stateData.addTo(map);
+	stateData.hide();
+
 var districtData = L.control();
 	districtData.onAdd = function (map) {
 		this._div = L.DomUtil.create('div', 'selectedinfo');
@@ -87,6 +97,52 @@ var precinctData = L.control();
 	precinctData.hide();
 
 
+
+
+function updatePhase0(props){
+    // console.log('im in updatePhase0');
+	var phaseData = $('#Phase0-Data');
+	phaseData.html(
+	'<b># of Precincts: </b>' + props.numPrecincts
+	+ '<br/><b># Majority Minority: </b>' + props.numMajMinPrecincts
+	+ '<br/><br/><h3>Voting Blocs by Demographic</h3>'
+	+ '<b>Black: </b>' + props.Black
+	+ '%<br/><b>Hispanic: </b>' + props.Hispanic
+	+ '%<br/><b>Pacific: </b>' + props.Pacific
+	+ '%<br/><b>Asian: </b>' + props.Asian
+	+ '%<br/><b>Native: </b>' + props.Native
+	+ '%<br/><b>Other: </b>' + props.Other
+	+ '%<br/><br/><h3>Voting Blocs by Party</h3>'
+	+ '<br/><b>Democrat: </b>' + props.Democrat
+	+ '%<br/><b>Republican: </b>' + props.Republican
+	+ '%<br/><b>Green: </b>' + props.Green
+	+ '%<br/><b>Libertarian: </b>' + props.Libertarian + '%'
+
+);
+}
+
+function calcPrecPops(){
+	totWhite = totBlack = totHispanic = totPacific = totAsian = totNative = totOther = totPopulation = 0;
+	for(var precId in precinctKeys){
+        if(precId != null){
+            // console.log(precId);
+            totWhite += parseInt(precinctKeys[precId].White);
+            totBlack += parseInt(precinctKeys[precId].Black);
+            totHispanic += parseInt(precinctKeys[precId].Hispanic);
+            totPacific += parseInt(precinctKeys[precId].Pacific);
+            totAsian += parseInt(precinctKeys[precId].Asian);
+            totNative += parseInt(precinctKeys[precId].Native);
+            totOther += parseInt(precinctKeys[precId].Other);
+        }
+
+	}
+	totPopulation = totWhite + totBlack + totHispanic + totPacific + totAsian + totNative + totOther;
+	// console.log(totPopulation);
+}
+
+
+
+
 function selMapContent(content){
 	var thisContent;
 	var otherContent;
@@ -115,8 +171,9 @@ function selMapContent(content){
 
       if(!map.hasLayer(texasDistrictsLayer)){ map.addLayer(texasDistrictsLayer); }
 //            }
-			districtData.show();
+
       precinctData.hide();
+			districtData.show();
       if(!thisContent.hasClass('active')){
           thisContent.toggleClass('active');
           otherContent.toggleClass('active');
@@ -139,6 +196,10 @@ function selMapContent(content){
                         map.addLayer(precLayer);
                     }
 //                }
+								if(!thisContent.hasClass('active')){
+										thisContent.toggleClass('active');
+										otherContent.toggleClass('active');
+								}
                 districtData.hide();
                 precinctData.show();
                 if(precLayer.getLayers().length == 0){
@@ -404,37 +465,11 @@ function selMapContent(content){
 
 
                 }
-                if(!thisContent.hasClass('active')){
-                    thisContent.toggleClass('active');
-                    otherContent.toggleClass('active');
-                }
+
 
 			break;
 
 	}
 
 
-}
-
-
-function updatePhase0(props){
-    console.log('im in updatePhase0');
-	var phaseData = $('#Phase0-Data');
-	phaseData.html(
-	'<b># of Precincts: </b>' + props.numPrecincts
-	+ '<br/><b># Majority Minority: </b>' + props.numMajMinPrecincts
-	+ '<br/><br/><h3>Voting Blocs by Demographic</h3>'
-	+ '<b>Black: </b>' + props.Black
-	+ '%<br/><b>Hispanic: </b>' + props.Hispanic
-	+ '%<br/><b>Pacific: </b>' + props.Pacific
-	+ '%<br/><b>Asian: </b>' + props.Asian
-	+ '%<br/><b>Native: </b>' + props.Native
-	+ '%<br/><b>Other: </b>' + props.Other
-	+ '%<br/><br/><h3>Voting Blocs by Party</h3>'
-	+ '<br/><b>Democrat: </b>' + props.Democrat
-	+ '%<br/><b>Republican: </b>' + props.Republican
-	+ '%<br/><b>Green: </b>' + props.Green
-	+ '%<br/><b>Libertarian: </b>' + props.Libertarian + '%'
-
-);
 }
