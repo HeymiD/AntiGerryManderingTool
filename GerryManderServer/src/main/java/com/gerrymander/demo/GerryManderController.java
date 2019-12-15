@@ -85,6 +85,58 @@ public class GerryManderController {
 
 
 	}
+    @RequestMapping("/stateData")
+    public String getStateData(@RequestParam("electionType") String election) {
+	    ELECTIONTYPE elecType = ELECTIONTYPE.valueOf(election);
+	    if(elecType==ELECTIONTYPE.Presidential2016){
+	        return "Not Applicable";
+        }
+        Votes statevotes = new Votes();
+        Map<PARTYNAME,Integer> stateElec = new HashMap<PARTYNAME,Integer>();
+        Map<String,PARTYNAME> winningParties = new HashMap<String, PARTYNAME>();
+	    for(Cluster district:state.oldDistricts.values()){
+            Map<PARTYNAME,Integer> disElection = new HashMap<PARTYNAME,Integer>();
+	        for(Precinct p:district.getPrecincts()){
+                for(PARTYNAME party:PARTYNAME.values()){
+                    try{
+                        stateElec.put(party,stateElec.get(party)+p.getElections().get(elecType).getVotes().get(party));
+                        disElection.put(party,disElection.get(party)+p.getElections().get(elecType).getVotes().get(party));
+                    }
+                    catch (NullPointerException ex){
+                        stateElec.put(party,p.getElections().get(elecType).getVotes().get(party));
+                        disElection.put(party,p.getElections().get(elecType).getVotes().get(party));
+                    }
+                }
+                Votes votes = new Votes();
+                votes.setVotes(disElection);
+                district.elections.put(elecType,votes);
+                winningParties.put(district.getID(),district.elections.get(elecType).getWinningParty());
+            }
+        }
+        statevotes.setVotes(stateElec);
+        Map<PARTYNAME,Double> partyRatios = new HashMap<PARTYNAME,Double>();
+        for(PARTYNAME p:PARTYNAME.values()){
+            partyRatios.put(p,statevotes.calculateWinningPartyRatio(p)*100.0);
+        }
+        Map<PARTYNAME,Double> districtVotingPattern = new HashMap<PARTYNAME,Double>();
+	    for(PARTYNAME party:PARTYNAME.values()){
+	        districtVotingPattern.put(party,0.0);
+            for(String disId:winningParties.keySet()){
+                if(winningParties.get(disId)==party){
+                    districtVotingPattern.put(party,((districtVotingPattern.get(party)+1)/36)*100.0);
+                }
+            }
+        }
+        return "{"+ "\"RepublicanRatio\": " + "\""+partyRatios.get(PARTYNAME.REPUBLICAN).toString()+"\""+ ", "
+                + "\"DemocratRatio\": " + "\""+partyRatios.get(PARTYNAME.DEMOCRAT).toString()+"\""+ ", "
+                + "\"GreenRatio\": "+"\""+partyRatios.get(PARTYNAME.GREEN).toString()+"\""+", "
+                + "\"LibertarianRatio\": "+"\""+partyRatios.get(PARTYNAME.LIBERTARIAN)+"\""+ ", "
+                + "\"Republican\": " + "\""+districtVotingPattern.get(PARTYNAME.REPUBLICAN).toString()+"\""+ ", "
+                + "\"Democrat\": " + "\""+districtVotingPattern.get(PARTYNAME.DEMOCRAT).toString()+"\""+ ", "
+                + "\"Green\": "+"\""+districtVotingPattern.get(PARTYNAME.GREEN).toString()+"\""+", "
+                + "\"Libertarian\": "+"\""+districtVotingPattern.get(PARTYNAME.LIBERTARIAN)+"\""+ ", "
+                +"}";
+    }
 //@RequestParam("districtId") String districtId
     @RequestMapping("/precincts")
     public String getPrecincts(@RequestParam("electionType") String elecType) {

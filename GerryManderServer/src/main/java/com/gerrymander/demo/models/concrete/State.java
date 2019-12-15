@@ -3,6 +3,7 @@ package com.gerrymander.demo.models.concrete;
 
 import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.StateInterface;
+import sun.util.resources.cldr.de.CalendarData_de_LU;
 //import com.gerrymander.demo.models.DAO.DistrictDAOInterface;
 //import com.gerrymander.demo.models.Service.DistrictService;
 
@@ -16,7 +17,7 @@ public class State
 //	@MapKey(name="state")
 	private Map<String, Precinct> precincts;
 //	@Transient
-	public Map<String,District> oldDistricts;
+	public Map<String,Cluster> oldDistricts;
 	public ArrayList<Cluster> clusters;
 	public ArrayList<Cluster> majMinClusters;
 	public Result majMinPrecinctStats;
@@ -48,7 +49,7 @@ public class State
 		}
 		this.majMinPrecinctStats = new Result(this.name,this.precincts.size());
         this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
-        oldDistricts = new HashMap<String, District>();
+        oldDistricts = new HashMap<String, Cluster>();
 
 
 	}
@@ -57,7 +58,7 @@ public class State
 		this.districts = new HashMap<>();
 		this.precincts = new HashMap<String, Precinct>();
 //		this.population = districts.values().stream().mapToInt(District::getPopulation).sum();
-		oldDistricts = new HashMap<String, District>();
+		oldDistricts = new HashMap<String, Cluster>();
 		clusters = new ArrayList<Cluster>();
 		this.population=0;
 		majMinClusters=new ArrayList<Cluster>();

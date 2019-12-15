@@ -178,6 +178,13 @@ public class PrecinctDAO {
                     catch(NullPointerException e){
                         Precinct p = new Precinct(resultSet.getString("PCTKEY"));
                         p.setOriginalDistrictID(resultSet.getString("District"));
+                        Cluster d = state.oldDistricts.get(p.getOriginalDistrictID());
+                        if (d == null) {
+                            d = new Cluster(resultSet.getString("District"));
+                            d.setState(state);
+                            state.oldDistricts.put(d.getID(),d);
+                        }
+                        d.addPrecinct(p);
                         Votes v = new Votes();
                         Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
                         votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
