@@ -6,6 +6,46 @@ var phase1ran = 0;
 var stateElection = null;
 var p2res;
 var p2disttable;
+
+var incumbs = {
+1: "Louie Gohmert (R)",
+2: "Dan Crenshaw (R)",
+3: "Nicholas Van Taylor (R)",
+4: "John Ratcliffe (R)",
+5: "Lance Gooden (R)",
+6: "Ron Wright (R)",
+7: "Lizzie Fletcher (D)",
+8: "Kevin Brady (R)",
+9: "Al Green(D)",
+10: "Michael McCaul(R)",
+11: "Mike Conway (R)",
+12: "Kay Granger (R)",
+13: "Mac Thornberry(R)",
+14: "Randy Weber (R)",
+15: "Vincente Gonzalez (D)",
+16: "Veronica Escobar (D)",
+17: "Bill Flores (R)",
+18: "Sheila Jackson Lee (D)",
+19: "Jodey Arrington (R)",
+20: "Joaquin Castro(D)",
+21: "Chip Roy(R)",
+22: "Pete Olson (R)",
+23: "Will Hurd(R)",
+24: "Kenny Marchant(R)",
+25: "Roger Williams(R)",
+26: "Michael Burgess(R)",
+27: "Michael Cloud (R)",
+28: "Henry Cuellar(D)",
+29: "Sylvia Garcia(D)",
+30: "Eddie Bernice Johnson(D)",
+31: "John Carter(R)",
+32: "Colin Allred(D)",
+33: "Marc Veasey(D)",
+34: "Filemon Vela Jr.(D)",
+35: "Lloyd Doggett(D)",
+36: "Brian Babin(R)"
+}
+// console.log(incumbs);
 //----------------Setting----------------
 var electOpts = $("input[name='ElectionData']");
 var electionSetting = $("input[name='ElectionData']:checked").val();

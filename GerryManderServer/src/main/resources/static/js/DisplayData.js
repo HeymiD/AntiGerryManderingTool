@@ -37,7 +37,7 @@ var districtData = L.control();
 		this.update();
 		return this._div;
 	};
-	districtData.update = function (props) {
+	districtData.update = function (props,distId) {
 	  this._div.innerHTML = '<h4>District Data</h4>' +  (props ?
 	  	'<b>' +'District ID: </b>'+ numberWithCommas(props.DistrictID) + '<br />'
 	  	+ 'Population: '+numberWithCommas(props.Population) + '</b><br />'
@@ -52,6 +52,7 @@ var districtData = L.control();
 	  	+ 'Democrat: ' + numberWithCommas(props.Democrat) + '</b><br />'
 	  	+ 'Green: ' + numberWithCommas(props.Green) + '</b><br />'
 	  	+ 'Libertarian: ' + numberWithCommas(props.Libertarian) + '</b><br />'
+			+ 'Incumbent: ' + incumbs[parseInt(distId)]
 	  	: 'Hover over a District');
 	};
 	districtData.show = function(){

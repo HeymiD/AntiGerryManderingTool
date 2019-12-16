@@ -22,7 +22,7 @@ function hambrgrToggle(id) {
   if(id == 'outer-menu-btn'){
     outerMenuBtn.hide();
     if(stateElection == null && (electionSetting == 'congressional2016' || electionSetting == 'congressional2018') ){
-      console.log('calling burgerjax');
+      // console.log('calling burgerjax');
       burgerjax();
     }
   }
@@ -85,12 +85,12 @@ $(function(){
         if(this.id == 'phase0slider1'){
           $("#votingThreshold").val(ui.values[0]);
           votingThresh = ui.values[0];
-          console.log(votingThresh);
+          // console.log(votingThresh);
         }
         else if(this.id == 'phase0slider2'){
           $("#blocThreshold").val(ui.values[0]);
           blocThresh = ui.values[0];
-          console.log(blocThresh);
+          // console.log(blocThresh);
         }
       }
   });
@@ -107,13 +107,13 @@ function text2slider2(id){
         currSlider = $('#phase0slider1');
         val = $('#votingThreshold');
         votingThresh = parseInt(val.val());
-        console.log(votingThresh);
+        // console.log(votingThresh);
         break;
       case 'blocThreshold':
         currSlider = $('#phase0slider2');
         val = $('#blocThreshold');
         blocThresh = parseInt(val.val());
-        console.log(blocThresh);
+        // console.log(blocThresh);
         break;
     }
     currVal = parseInt(val.val());
@@ -232,6 +232,8 @@ $(function () {
   $("#max-republicGerry").val($(".slider-range").slider("values", 1));
   $("#min-democratGerry").val($(".slider-range").slider("values", 0));
   $("#max-democratGerry").val($(".slider-range").slider("values", 1));
+  $("#min-countyCompact").val($(".slider-range").slider("values", 0));
+  $("#max-countyCompact").val($(".slider-range").slider("values", 1));
 
 });
 
@@ -410,10 +412,10 @@ function text2slider(id){
 
 $("input[type='radio']").click(function(){
   electionSetting = $("input[name='ElectionData']:checked").val();
-  console.log(electionSetting.split(" "));
+  // console.log(electionSetting.split(" "));
   electionYear = electionSetting.split(" ")[0];
   electionType = electionSetting.split(" ")[1];
-  console.log(electionType+ ' ' + electionSetting + ' '+ electionYear);
+  // console.log(electionType+ ' ' + electionSetting + ' '+ electionYear);
 });
 
 $("input[name='PhaseType']").click(function(){
@@ -469,5 +471,5 @@ minorityOpt.on('change', function(){
     minoritySelected += ","
   })
   minoritySelected = minoritySelected.slice(0,-1);
-  console.log(minoritySelected);
+  // console.log(minoritySelected);
 });

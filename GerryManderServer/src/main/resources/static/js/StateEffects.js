@@ -192,7 +192,7 @@ $.ajax({
 }
 
 phase0btn.on('click', function(){
-    console.log(votingThresh + "     " + blocThresh);
+    // console.log(votingThresh + "     " + blocThresh);
   getPhaseZeroData(electionSetting, votingThresh/100, blocThresh/100 );
 })
 function getPhaseZeroData(elecType,votingThreshold,blockThreshold){
@@ -393,7 +393,7 @@ function phase2DistrictTable(){
     url:"http://localhost:8080/FinalResult",
     success: function(response){
       p2disttable = response;
-      console.log(p2disttable);
+      // console.log(p2disttable);
       update2DistTable(p2disttable);
       return
     },
@@ -540,7 +540,8 @@ layer.bringToFront();
               // console.log('in districtID' + districtId);
             getDistrictData(districtId, electionSetting);}
         else{
-            districtData.update(districtxData[districtId])
+          // console.log(incumbs[layer.feature.properties.fid]);
+            districtData.update(districtxData[districtId],layer.feature.properties.fid)
         }
         //    console.log(distData.DistrictID+", "+distData.Population)
         //    districtData.update(distData)

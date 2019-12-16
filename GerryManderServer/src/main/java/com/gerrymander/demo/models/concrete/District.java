@@ -225,7 +225,7 @@ public class District implements DistrictInterface<Precinct>{
         return precincts.get(PrecID);
     }
 
-    public void addPrecinct(Precinct p) {
+    public void         addPrecinct(Precinct p) {
         precincts.put(p.getID(), p);
         population += p.getPopulation();
         gop_vote += p.getGOPVote();
