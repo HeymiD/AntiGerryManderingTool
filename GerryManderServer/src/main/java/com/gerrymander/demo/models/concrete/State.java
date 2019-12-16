@@ -103,47 +103,42 @@ public class State
 		}
 		return majMinPrecinctStats;
 	}
-	public boolean makeMajMinClusters() {
+	public boolean makeMajMinClusters(int target) {
 	    combinedClusters.clear();
+	    int cSize = clusters.size();
         boolean clusterListModified = false;
         Iterator<Cluster> iterator = clusters.iterator();
         while (iterator.hasNext()) {
-
+            if(2*target>cSize){
+                return clusterListModified;
+            }
             Cluster currCluster = iterator.next();
-            List<Cluster> neighbors = new LinkedList<>();
-            for(Edge e:currCluster.edges){
-                Cluster nCluster = e.getNeighbor(currCluster);
-                if(nCluster!=null &&
-                        !nCluster.getID().equals(currCluster.getID())){
-                    neighbors.add(nCluster);
+            if(currCluster.population<=550000){
+//                currCluster = iterator.next();
+                List<Cluster> neighbors = new LinkedList<>();
+                for(Edge e:currCluster.edges){
+                    Cluster nCluster = e.getNeighbor(currCluster);
+                    if(nCluster!=null &&
+                            !nCluster.getID().equals(currCluster.getID())){
+                        neighbors.add(nCluster);
+                    }
+                }
+//            Collections.sort(neighbors,new SortByPopulation());
+                for(Cluster n: neighbors){
+                    Cluster neighbor = findCluster(n.getID());
+                    if(neighbor.population>300000){
+                        continue;
+                    }
+                    if (testCombineClusters(currCluster, neighbor) != null) {
+                        clusterListModified = true;
+                        combineClusters(currCluster, neighbor);
+                        combinedClusters.add(neighbor);
+                        iterator.remove();
+                        cSize--;
+                        break;
+                    }
                 }
             }
-            Collections.sort(neighbors,new SortByPopulation());
-            for(Cluster n: neighbors){
-                Cluster neighbor = findCluster(n.getID());
-                if (testCombineClusters(currCluster, neighbor) != null) {
-                    clusterListModified = true;
-                    combineClusters(currCluster, neighbor);
-                    combinedClusters.add(neighbor);
-                    iterator.remove();
-                    break;
-                }
-            }
-//            for (Edge edge : currCluster.edges) {
-//                Cluster neighborc = edge.getNeighbor(currCluster);
-//                Cluster neighbor = findCluster(neighborc.getID());
-////                if(neighbor==null){
-////                    continue;
-////                }
-//                if (testCombineClusters(currCluster, neighbor) != null) {
-//                    clusterListModified = true;
-//                    combineClusters(currCluster, neighbor);
-//                    combinedClusters.add(neighbor);
-//                    iterator.remove();
-//                    break;
-//                }
-//
-//            }
         }
         return clusterListModified;
     }
@@ -245,9 +240,9 @@ public class State
         }
         combinedCluster.setGop_vote(c1.getGOPVote()+c2.getGOPVote());
         combinedCluster.setDem_vote(c1.getDEMVote()+c2.getDEMVote());
-        if(combinedCluster.population>700000){
-            return null;
-        }
+//        if(combinedCluster.population>700000){
+//            return null;
+//        }
         boolean majmin = false;
         int newSizeMajMinClusters = 0;
         if(combinedCluster.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection,demString)){
@@ -288,149 +283,3 @@ public class State
         return null;
     }
 }
-
-//	public void undo_combineCluster(Cluster combined, Cluster c1, Cluster c2){
-//	    combinedClusters.remove(combined);
-//		if (majMinClusters.contains(combined)){
-//			majMinClusters.remove(combined);
-//		}
-//        clusters.remove(clusters.indexOf(combined));
-//
-//
-//		if(c1.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
-//			majMinClusters.add(c1);
-//		}
-//		clusters.add(c1);
-//		if(c2.checkMajorityMinority(userDemographicThreshold,userVoteThreshold,userSelectedElection)){
-//			majMinClusters.add(c2);
-//		}
-//		clusters.add(c2);
-//		return;
-//	}
-
-
-//        ((District)combinedCluster).externalEdges = combinedCluster.edges.size()-((District)combinedCluster).internalEdges;
-//        ((District)combinedCluster).internalEdges = ((District)c1).internalEdges+((District)c2).internalEdges+1;
-//		Cluster combinedCluster = new Cluster(c1.getID()+"|"+c2.getID()+"|");
-//		combinedCluster.clusterDemographics.putAll(c1.getClusterDemographics());
-//		combinedCluster.elections.putAll(c1.elections);
-//		combinedCluster.setDem_vote(c1.getDEMVote());
-//		combinedCluster.setGop_vote(c1.getGOPVote());
-//		combinedCluster.edges.addAll(c1.edges);
-//        for(Edge e:c1.edges){
-//            Edge edge = new Edge(combinedCluster,e.dest);
-//            combinedCluster.addEdge(edge);
-//        }
-////        combinedCluster.edges.addAll(c2.edges);
-//        for(Edge e:c2.edges){
-//            Edge edge = new Edge(combinedCluster,e.dest);
-//            combinedCluster.addEdge(edge);
-//        }
-//        for(Edge e:combinedCluster.edges){
-////            for(Edge edge:e.dest.edges){
-////                edge.clusters.remove(edge.dest);
-////                edge.dest=combinedCluster;
-////                edge.clusters.add(edge.dest);
-////            }
-//            try{
-//                for(Edge edge:findCluster(e.dest.getID()).edges){
-//                edge.clusters.remove(edge.dest);
-//                edge.dest=combinedCluster;
-//                edge.clusters.add(edge.dest);
-//                }
-//            }
-//            catch(NullPointerException exception){}
-//        }
-
-//        combinedCluster.precinctsCluster.addAll(c1.precinctsCluster);
-//        combinedCluster.precinctsCluster.addAll(c2.precinctsCluster);
-//        clusters.set(clusters.indexOf(c1),null);
-//        clusters.set(clusters.indexOf(c2),null);
-//        clusters.remove(clusters.indexOf(c1));
-//        clusters.remove(clusters.indexOf(c2));
-
-
-//		Set<Edge[]> commonNeighbors = findCommonNeighbors(combinedCluster,c2);
-//		Set<Edge> averageEdges = new HashSet<Edge>();
-//		for (Edge[] edge_pair:commonNeighbors){
-//			try{
-//				averageEdges.add(makeAverageEdge(edge_pair[0],edge_pair[1]));
-//				for(Edge e:edge_pair){
-//					if(combinedCluster.edges.contains(e)){
-//						combinedCluster.edges.remove(e);
-//					}
-//				}
-//			}
-//			catch (NullPointerException e){
-//
-//			}
-//		}
-
-//		for (Edge e:averageEdges){
-//			combinedCluster.edges.add(e);
-//		}
-//		clusters.add(combinedCluster);
-//		combinedClusters.add(combinedCluster);
-//		districts.put(combinedCluster.getID(),combinedCluster);
-//		return combinedCluster;
-//	}
-
-//	public Set<Edge[]> findCommonNeighbors(Cluster c1, Cluster c2){
-//		Set<Edge[]> commonNeighbors = new HashSet<Edge[]>();
-//		for (Edge edge:c1.edges){
-//			for (Edge edge2: c2.edges){
-//				if(edge.dest.equals(edge2.dest)){
-//					Edge[] commonEdges = new Edge[2];
-//					commonEdges[0]=edge;
-//					commonEdges[1]=edge2;
-//					commonNeighbors.add(commonEdges);
-//				}
-//			}
-//		}
-//
-//		return commonNeighbors;
-//	}
-
-//	public Edge makeAverageEdge(Edge e1,Edge e2){
-//		if ((e1.src.getID()!=e2.src.getID()) ||(e1.dest.getID()!=e2.dest.getID())){
-//			System.out.print("They are not common edges.");
-//			return null;
-//		}
-//		Edge averageEdge = new Edge(e1.src,e1.dest);
-//		averageEdge.weight=(e1.weight+e2.weight)/2;
-//		return averageEdge;
-//	}
-
-
-//		for (int i=0;i<clusters.size();i++){
-//		    Cluster c = clusters.get(i);
-//		    if(c==null){
-//		        continue;
-//            }
-//		    if(combinedClusters.contains(c)){
-//		        continue;
-//            }
-//			Set<Cluster> neighbors = new HashSet<Cluster>();
-//			for (Edge edge: c.edges){
-//			    System.out.println("Neigbor: "+edge.getNeighbor(c).getID());
-//			    if(!combinedClusters.contains(edge.getNeighbor(c)) && findCluster(edge.getNeighbor(c).getID())!=null){
-//                    neighbors.add(edge.getNeighbor(c));
-//                }
-//			}
-//            System.out.println("Current ID: "+c.getID());
-//			System.out.println("Combined Clusters: "+combinedClusters.size());
-//			System.out.println("Num of neighbors: "+neighbors.size());
-//			for (Cluster neighbor: neighbors){
-//			    if(neighbor==null){
-//			        System.out.println("Neighbor is null!");
-//                }
-//				if (testCombineClusters(c,neighbor)!=null){
-//				    Cluster combined = combineClusters(c,neighbor);
-////				    majMinClusters.add(combined);
-//				    clusterListModified=true;
-//				    break;
-//				}
-//			}
-//		}
-
-//	}

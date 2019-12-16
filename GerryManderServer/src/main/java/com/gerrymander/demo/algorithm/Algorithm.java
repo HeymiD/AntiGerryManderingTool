@@ -8,6 +8,7 @@ import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
 import com.gerrymander.demo.models.concrete.State;
 
+import javax.swing.text.html.HTMLDocument;
 import java.util.*;
 import java.util.Comparator;
 import java.util.Map.Entry;
@@ -440,7 +441,8 @@ public class Algorithm
         if (!update){
             while(2*targetNumDist<state.clusters.size()){
 //                Collections.sort(state.clusters,new SortByPopulation());
-                if(!state.makeMajMinClusters()){
+                if(!state.makeMajMinClusters(targetNumDist)){
+//                    Collections.sort(state.clusters,new SortByPopulation());
                     makeNonMMClusters();
                     int newStateSize = 0;
                     for(Cluster c:state.clusters){
@@ -485,112 +487,60 @@ public class Algorithm
         }
         else{
             if((2*targetNumDist)>=state.clusters.size()){
-                state.clusters.forEach(c->{
-                    System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population);
-                });
                 System.out.println("FINAL ITERATION");
                 finalIteration();
-                int newStateSize = 0;
                 state.clusters.forEach(c->{
                     System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population
                             +"\n MajMin: "
                             +c.checkMajorityMinority(state.userDemographicThreshold,
                             state.userVoteThreshold,state.userSelectedElection,demString));
                 });
-                for(Cluster c:state.clusters){
-                    newStateSize+=c.population;
-                }
-                System.out.println("New State Size: "+newStateSize+" Old size: "+state.population);
                 return true;
 
             }
             else{
-
-                if(!state.makeMajMinClusters()){
-                    System.out.println("Number of Clusters"+state.clusters.size());
+                if(!state.makeMajMinClusters(targetNumDist)){
+//                    Collections.sort(state.clusters,new SortByPopulation());
                     makeNonMMClusters();
+                    if(state.combinedClusters.isEmpty()){
+                        finalIteration();
+                        state.clusters.forEach(c->{
+                            System.out.println("CLUSTER: "+c.getID()+" POP: "+c.population
+                                    +"\n MajMin: "
+                                    +c.checkMajorityMinority(state.userDemographicThreshold,
+                                    state.userVoteThreshold,state.userSelectedElection,demString));
+                        });
+                        return true;
+                    }
                 }
-                int pop = 0;
-                int numClusters = 0;
-                for(Cluster c:state.clusters){
-                    numClusters+=c.precinctsCluster.size();
-                    pop+=c.getPopulation();
-//                    System.out.println("CID: "+c.getID()+" POP: "+c.getPopulation());
-                }
-                System.out.println("StatePop: "+state.population+" NewPop: "+pop);
-                System.out.println("New Precinct Size: "+numClusters);
             }
-            System.out.println("Number of Clusters"+state.clusters.size());
-            return false;
         }
+        return false;
     }
 
     public void finalIteration(){
 
         int cSize = state.clusters.size();
         Collections.sort(state.clusters,new SortByPopulation());
-        int lowerQuartile = state.clusters.size()/4;
-        int upperQuartile = lowerQuartile*3;
+//        int lowerQuartile = state.clusters.size()/4;
+//        int upperQuartile = lowerQuartile*3;
         Iterator<Cluster> iterator = state.clusters.iterator();
         int counter=0;
         while (iterator.hasNext()) {
 //            if(targetNumDist >= cSize){
 //                return;
 //            }
-            if(counter>=lowerQuartile){
-                break;
-            }
+//
             Cluster currCluster = iterator.next();
-
-            Set<Cluster> neighborsToCheck = new HashSet<Cluster>();
-            for (Edge edge: currCluster.edges){
-                Cluster neighbor = edge.getNeighbor(currCluster);
-                if(state.clusters.indexOf(neighbor)>=upperQuartile){
-                    neighborsToCheck.add(neighbor);
-                }
+            if(currCluster.checkMajorityMinority(state.userDemographicThreshold,
+                    state.userVoteThreshold,state.userSelectedElection,demString)
+                    && currCluster.population>400000){
+                currCluster = iterator.next();
             }
-            if(neighborsToCheck.size()==0){
-                continue;
-            }
-            boolean combined = false;
-            for(Cluster neighbor:neighborsToCheck){
-                if (state.testCombineClusters(currCluster, neighbor) != null) {
-                    state.combineClusters(currCluster, neighbor);
-                    iterator.remove();
-                    cSize--;
-                    combined=true;
-                    break;
-                }
-            }
-            if(combined==false){
-                Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighborsToCheck);
-                state.combineClusters(currCluster,mostJoinableCluster);
-                iterator.remove();
-                cSize--;
-            }
-            if(targetNumDist >= cSize){
-                return;
-            }
-            counter++;
-        }
-
-        if(cSize>targetNumDist){
-            iterator = state.clusters.iterator();
-            while (iterator.hasNext()) {
-                if(targetNumDist>=cSize){
-                    return;
-                }
-                Cluster currCluster = iterator.next();
-                Set<Cluster> neighborsToCheck = new HashSet<Cluster>();
+            if(currCluster.population<200000){
                 for (Edge edge: currCluster.edges){
                     Cluster neighbor = edge.getNeighbor(currCluster);
-                    neighborsToCheck.add(neighbor);
-                }
-                if(neighborsToCheck.size()==0){
-                    continue;
-                }
-                for(Cluster neighbor:neighborsToCheck){
-                    if (state.testCombineClusters(currCluster, neighbor) != null) {
+                    if(neighbor.population<500000){
                         state.combineClusters(currCluster, neighbor);
                         iterator.remove();
                         cSize--;
@@ -598,23 +548,62 @@ public class Algorithm
                     }
                 }
             }
-            iterator = state.clusters.iterator();
-            while (iterator.hasNext()) {
-                if(targetNumDist>=cSize){
+            if(targetNumDist >= cSize){
+                return;
+            }
+            counter++;
+        }
+
+        if(cSize>targetNumDist) {
+
+            Collections.sort(state.clusters, new SortByPopulation());
+            Iterator<Cluster> newIterator = state.clusters.iterator();
+            while (newIterator.hasNext()) {
+                if (targetNumDist >= cSize) {
                     return;
                 }
-                Cluster currCluster = iterator.next();
+                Cluster currCluster = newIterator.next();
+                if (currCluster.checkMajorityMinority(state.userDemographicThreshold,
+                        state.userVoteThreshold, state.userSelectedElection, demString)
+                        && currCluster.population > 400000) {
+                    if (newIterator.hasNext()) {
+                        currCluster = newIterator.next();
+                    } else {
+                        break;
+                    }
+                }
                 Set<Cluster> neighbors = new HashSet<Cluster>();
-                for (Edge edge: currCluster.edges){
+                for (Edge edge : currCluster.edges) {
                     neighbors.add(edge.getNeighbor(currCluster));
                 }
-                if(currCluster.population<100000){
-                    Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighbors);
-                    state.combineClusters(currCluster,mostJoinableCluster);
-                    iterator.remove();
+                for (Cluster neighbor : neighbors) {
+                    if (!neighbor.checkMajorityMinority(state.userDemographicThreshold,
+                            state.userVoteThreshold, state.userSelectedElection, demString)) {
+
+                    }
                 }
 
-                cSize--;
+            }
+            while (targetNumDist < cSize) {
+                Collections.sort(state.clusters, new SortByPopulation());
+                Iterator<Cluster> newIterator2 = state.clusters.iterator();
+                while (newIterator2.hasNext()) {
+                    if (targetNumDist >= cSize) {
+                        return;
+                    }
+                    Cluster currCluster = newIterator2.next();
+                    Set<Cluster> neighbors = new HashSet<Cluster>();
+                    for (Edge edge : currCluster.edges) {
+                        neighbors.add(edge.getNeighbor(currCluster));
+                    }
+                    for (Cluster neighbor : neighbors) {
+                        state.combineClusters(currCluster, neighbor);
+                        newIterator2.remove();
+                        cSize--;
+                        break;
+                    }
+                }
+
             }
         }
         return;
@@ -627,7 +616,7 @@ public class Algorithm
         for (Cluster neighbor:neighbors){
 //            System.out.println("EDGE ID: "+neighbor.getID());
             double joinability = calculateNonMMJoinability(c,neighbor);
-            System.out.println("Joinability: "+joinability);
+//            System.out.println("Joinability: "+joinability);
             if(joinability>=max_NonMMJoinability){
                 max_NonMMJoinability=joinability;
                 mostJoinableCluster=neighbor;
@@ -712,7 +701,7 @@ public class Algorithm
         int cSize = state.clusters.size();
         Iterator<Cluster> iterator = state.clusters.iterator();
         while (iterator.hasNext()) {
-            if(2*targetNumDist>cSize||cSize<(ogSize/2)){
+            if(2*targetNumDist>cSize){
                 return;
             }
             Cluster currCluster = iterator.next();
@@ -723,13 +712,21 @@ public class Algorithm
             }
             Set<Cluster> neighbors = new HashSet<Cluster>();
             for (Edge edge: currCluster.edges){
-                neighbors.add(edge.getNeighbor(currCluster));
+                Cluster n = edge.getNeighbor(currCluster);
+                if(n.population<250000){
+                    neighbors.add(n);
+                }
+
             }
-            Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighbors);
+            if(!neighbors.isEmpty()){
+                Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighbors);
 //            System.out.println("Size of most joinable: "+mostJoinableCluster.precinctsCluster.size());
 //            System.out.println("Size of current: "+currCluster.precinctsCluster.size());
-            state.combineClusters(currCluster,mostJoinableCluster);
-            iterator.remove();
+                state.combineClusters(currCluster,mostJoinableCluster);
+                state.combinedClusters.add(mostJoinableCluster);
+                iterator.remove();
+                cSize--;
+            }
 //            int totP = 0;
 //            for(Cluster c:state.clusters){
 //                totP+=c.precinctsCluster.size();
@@ -739,7 +736,7 @@ public class Algorithm
 //                System.out.println("Precincts: "+totP);
 //                System.exit(0);
 //            }
-            cSize--;
+
         }
     }
 

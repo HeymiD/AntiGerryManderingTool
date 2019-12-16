@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.gerrymander.demo.algorithm.Algorithm;
 import com.gerrymander.demo.algorithm.Measure;
+import com.gerrymander.demo.algorithm.SortByPopulation;
 import com.gerrymander.demo.models.DAO.ClusterDAO;
 import com.gerrymander.demo.models.DAO.PrecinctDAO;
 import com.gerrymander.demo.models.concrete.District;
@@ -32,8 +33,6 @@ public class GerryManderController {
             System.out.println("Getting State");
             state = new State(stateName);
             PrecinctDAO.initAllPrecincts(state);
-//            ClusterDAO.initNeighbors(state);
-//            PrecinctDAO.getAllPrecinctGeoJSON(state);
             for(Precinct p:state.getPrecincts()){
                 precinctsToSend.push(p);
                 state.population+=p.getPopulation();
@@ -44,42 +43,7 @@ public class GerryManderController {
             algorithm.initClusters();
             System.out.println("Clusters Initialized.");
             ClusterDAO.initNeighbors(state);
-//            System.out.println("GEOJSON Initializing...");
-//            PrecinctDAO.getAllPrecinctGeoJSON(state);
-
-
-
-//            for(int i=1;i<37;i++){
-//                precinctQueue.put("U.S. Rep "+i,new Stack<Precinct>());
-//            }
-//            for(int i=1;i<37;i++){
-//                queueStatus.put("U.S. Rep "+i,-1);
-//            }
-//            for(Precinct p: state.getPrecincts()){
-//                p.setGeometryJSON(PrecinctDAO.getPrecinctGeoJSONById(p.getID()));
-//            }
-//            System.out.println("BEGIN fetching precincts");
-//            for(int i=1;i<37;i++){
-//                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+i,state);
-//            }
-
-//            System.out.println("END fetching precincts");
-//            for(Precinct p :state.getPrecincts()){
-//                precinctsToSend.push(p);
-//            }
         }
-//        try{
-//            return state.oldDistricts.get(districtId).getGeoData();
-//        }
-//        catch(NullPointerException e){
-//
-//            District d = DistrictDAO.get(districtId+"",state);
-//            PrecinctDAO.initPrecinctsforDistrict(ELECTIONTYPE.Presidential2016,d);
-//            state.oldDistricts.put(d.getID(),d);
-////            precinctsToSend.addAll(state.getPrecincts());
-////            return state.oldDistricts.get("U.S. Rep "+districtId).getGeoData();
-//            return d.getGeoData();
-//        }
         return JSONMaker.makeJSONDict(state.getPrecincts());
 
 
@@ -142,40 +106,7 @@ public class GerryManderController {
 	    ELECTIONTYPE e = ELECTIONTYPE.valueOf(elecType);
         return JSONMaker.makeJSONDict(state.getPrecincts(),e);
 	}
-//        System.out.println("Sending precincts...");
-//        Set<Precinct> precinctBatchToSend = makePrecinctBatch(200);
-//        return JSONMaker.makeJSONCollection(precinctBatchToSend);
-//        Set<Precinct> precinctBatchToSend = makePrecinctBatch(5000000);
-//	    if(precinctBatchToSend.isEmpty()){
-//	        System.out.println("No more precincts");
-//	        return "done";
-//        }
-//        else{
-//	        System.out.println(precinctBatchToSend.size()+"Precincts are sent");
-//            return JSONMaker.makeJSONCollection(precinctBatchToSend);
-//        }
 
-//        String districtID = districtId;
-//        if(districtId.contains("Begin")){
-//            districtID = districtId.substring(6,districtId.length());
-//            Set<Precinct> precinctsDistrict = PrecinctDAO.
-//                    getPrecinctGeoJSONByDistrict("U.S. Rep "+districtID,state);
-//            for (Precinct p: precinctsDistrict){
-//                precinctQueue.get("U.S. Rep "+districtID).push(p);
-//            }
-//            queueStatus.put("U.S. Rep "+districtID,0);
-//        }
-//        Set<Precinct> precinctBatchToSend = makePrecinctBatch(100,precinctQueue.get("U.S. Rep "+districtID),
-//                "U.S. Rep "+districtID);
-//        if (queueStatus.get("U.S. Rep "+districtID)==1){return "District Done";}
-//        else{return JSONMaker.makeJSONCollection(precinctBatchToSend);}
-//
-//        return JSONMaker.makeJSONCollection(
-//                PrecinctDAO.getPrecinctGeoJSONByDistrict("U.S. Rep "+districtId,state));
-
-//        System.out.println("PCTKEY: "+precinctId);
-////        state.getPrecinct(precinctId).setGeometryJSON(PrecinctDAO.getPrecinctGeoJSONById(precinctId));
-//        return state.getPrecinct(precinctId).toString();
 
     @RequestMapping("/districtData")
     public String sendDistrictData(@RequestParam("districtId")String districtId,
@@ -267,6 +198,7 @@ public class GerryManderController {
             System.out.println("Initializing GeoJSON");
             PrecinctDAO.getAllPrecinctGeoJSON(state);
             System.out.println("GeoJSON Done");
+            Collections.sort(state.clusters,new SortByPopulation());
         }
         if(state.clusters.size() <= targetNumDistricts){
             return "done";
@@ -297,14 +229,8 @@ public class GerryManderController {
         state.userVoteThreshold = votingThreshold;
         state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
         algorithm.targetNumDist = targetNumDistricts;
-        algorithm.popThreshMax=0.6;
-        algorithm.popThreshMin=0.5;
         algorithm.demString = demString;
         state.demString=demString;
-        algorithm.weights= new HashMap<Measure,Double>();
-        for(Measure m:Measure.values()){
-            algorithm.weights.put(m,0.2);
-        }
         if(begin){
             algorithm.phase2Init();
             System.out.println("Phase 2 Initialized");
@@ -326,9 +252,51 @@ public class GerryManderController {
 
     }
 
-//    public int calculatePrecinctBatchSize(Set<Precinct> batchPrecincts){
-//	    return JSONMaker.makeJSONCollection(batchPrecincts).length();
-//    }
+    @RequestMapping("/phase2Scores")
+    public String sendPhase2Scores(){
+
+	    double oldGMScore = 0;
+	    for(String districtId: state.oldDistricts.keySet()){
+            oldGMScore+=FACTOR.EFFICIENCY_GAP.calculateMeasure(state.oldDistricts.get(districtId));
+            oldGMScore+=Measure.COMPETITIVENESS.calculateMeasure(state.oldDistricts.get(districtId));
+        }
+        double newGMScore = 0;
+        for(District dis: state.getDistricts()){
+            newGMScore+=Measure.EFFICIENCY_GAP.calculateMeasure(dis);
+            oldGMScore+=Measure.COMPETITIVENESS.calculateMeasure(dis);
+        }
+        return "{\"OldGmScore\": "+"\""+oldGMScore+"\","
+                +"{\"NewGmScore\": "+"\""+newGMScore+"\"}";
+
+    }
+
+    @RequestMapping("/phase1Data")
+    public String sendPhase1Results(){
+
+        ArrayList<String> results = new ArrayList<String>();
+        for(Cluster c:state.clusters){
+            if(c.checkMajorityMinority(state.userDemographicThreshold,
+                    state.userVoteThreshold, state.userSelectedElection, algorithm.demString)){
+                String result = "";
+                result+="DistrictID: "+state.clusters.indexOf(c)
+                        +"\nLargets Demographic: "+c.getLargestDemographic().toString()
+                        +"\nPopulation: "+c.getClusterDemographics().get(c.getLargestDemographic())
+                        +"\nWinning Party: "+c.getElections()
+                        .get(state.userSelectedElection).getWinningParty().toString()
+                        +"\n% of Votes: "+c.getElections()
+                        .get(state.userSelectedElection).calculateWinningPartyRatio(
+                                c.getElections().get(state.userSelectedElection).getWinningParty());
+                results.add(result);
+            }
+
+        }
+        String resultToSend = "";
+        for(String s:results){
+            resultToSend+=s+"\n\n";
+        }
+        return resultToSend;
+
+    }
 
     public Set<Precinct> makePrecinctBatch(int batchSize){
         Set<Precinct> precinctBatchToSend = new HashSet<Precinct>();

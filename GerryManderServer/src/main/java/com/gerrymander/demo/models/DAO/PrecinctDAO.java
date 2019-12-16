@@ -198,7 +198,6 @@ public class PrecinctDAO {
                         v.setElectiontype(election);
                         p.addVotes(election,v);
                         state.addPrecinct(p);
-                        System.out.println("Initialized Precinct: "+resultSet.getString("PCTKEY"));
                     }
 
 

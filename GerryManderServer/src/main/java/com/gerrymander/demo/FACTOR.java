@@ -148,6 +148,38 @@ public enum FACTOR {
 			double x = Math.abs((population-avg));
 			return -2.0*x+1;
 		}
+	},
+	EFFICIENCY_GAP {
+		/**
+		 * Wasted votes:
+		 * Statewide: abs(Winning party margin - losing party votes)
+		 */
+		@Override
+		public double calculateMeasure(Cluster d) {
+			int iv_g = 0;
+			int iv_d = 0;
+			int tv = 0;
+			State state = d.getState();
+			for (String sdId : state.oldDistricts.keySet()) {
+				Cluster sd = state.oldDistricts.get(sdId);
+				int gv = sd.getGOPVote();
+				int dv = sd.getDEMVote();
+				if (gv > dv) {
+					iv_d += dv;
+					iv_g += (gv - dv);
+				} else if (dv > gv) {
+					iv_g += gv;
+					iv_d += (dv - gv);
+				}
+				tv += gv;
+				tv += dv;
+			}
+			return 1.0 - ((Math.abs(iv_g - iv_d) * 1.0) / tv);
+		}
+		@Override
+		public double calculateMeasureMajMin(double upperBound, double lowerBound, double population) {
+			return 0;
+		}
 	};
 	public abstract double calculateMeasure(Cluster cluster);
 
