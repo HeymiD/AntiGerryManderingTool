@@ -3,8 +3,6 @@ package com.gerrymander.demo.algorithm;
 import com.gerrymander.demo.*;
 import com.gerrymander.demo.measures.DefaultMeasures;
 import com.gerrymander.demo.measures.DistrictInterface;
-import com.gerrymander.demo.measures.PrecinctInterface;
-import com.gerrymander.demo.measures.StateInterface;
 import com.gerrymander.demo.models.DAO.PrecinctDAO;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
@@ -13,8 +11,6 @@ import com.gerrymander.demo.models.concrete.State;
 import java.util.*;
 import java.util.Comparator;
 import java.util.Map.Entry;
-
-import static com.gerrymander.demo.algorithm.Measure.*;
 
 public class Algorithm
 {
@@ -25,7 +21,7 @@ public class Algorithm
     private MeasureFunction<Precinct, District> districtScoreFunction;
     private HashMap<District, Double> currentScores;
     private District currentDistrict = null;
-    public FACTOR[] factors;
+    public Map<FACTOR,Double> factors;
     public Map<Measure,Double> weights;
     public Double popThreshMax;
     public Double popThreshMin;
@@ -256,6 +252,7 @@ public class Algorithm
                         currentDistrict = startDistrict;
                         return move;
                     }
+                    System.out.println("Move not found for precinct " + n);
                 }
             }
         }
@@ -439,10 +436,10 @@ public class Algorithm
         return state.findMajMinPrecincts(blockThreshold,votingThreshold,election);
     }
 
-    public void phaseOne(boolean update){
+    public boolean phaseOne(boolean update){
         if (!update){
             while(2*targetNumDist<state.clusters.size()){
-                Collections.sort(state.clusters,new SortByPopulation());
+//                Collections.sort(state.clusters,new SortByPopulation());
                 if(!state.makeMajMinClusters()){
                     makeNonMMClusters();
                     int newStateSize = 0;
@@ -484,8 +481,7 @@ public class Algorithm
                 newStateSize+=c.population;
             }
             System.out.println("New State Size: "+newStateSize+" Old size: "+state.population);
-
-            return;
+            return true;
         }
         else{
             if((2*targetNumDist)>=state.clusters.size()){
@@ -505,6 +501,7 @@ public class Algorithm
                     newStateSize+=c.population;
                 }
                 System.out.println("New State Size: "+newStateSize+" Old size: "+state.population);
+                return true;
 
             }
             else{
@@ -524,9 +521,8 @@ public class Algorithm
                 System.out.println("New Precinct Size: "+numClusters);
             }
             System.out.println("Number of Clusters"+state.clusters.size());
-
+            return false;
         }
-        return;
     }
 
     public void finalIteration(){
@@ -612,9 +608,12 @@ public class Algorithm
                 for (Edge edge: currCluster.edges){
                     neighbors.add(edge.getNeighbor(currCluster));
                 }
-                Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighbors);
-                state.combineClusters(currCluster,mostJoinableCluster);
-                iterator.remove();
+                if(currCluster.population<100000){
+                    Cluster mostJoinableCluster = findMostJoinableCluster(currCluster,neighbors);
+                    state.combineClusters(currCluster,mostJoinableCluster);
+                    iterator.remove();
+                }
+
                 cSize--;
             }
         }
@@ -624,10 +623,11 @@ public class Algorithm
     public Cluster findMostJoinableCluster(Cluster c,Set<Cluster> neighbors){
 
         Cluster mostJoinableCluster = null;
-        double max_NonMMJoinability = Double.NEGATIVE_INFINITY;
+        double max_NonMMJoinability = -999999999999999999999.0;
         for (Cluster neighbor:neighbors){
 //            System.out.println("EDGE ID: "+neighbor.getID());
             double joinability = calculateNonMMJoinability(c,neighbor);
+            System.out.println("Joinability: "+joinability);
             if(joinability>=max_NonMMJoinability){
                 max_NonMMJoinability=joinability;
                 mostJoinableCluster=neighbor;
@@ -639,6 +639,7 @@ public class Algorithm
     }
 
     public double calculateNonMMJoinability(Cluster c1,Cluster c2){
+
         Cluster combinedCluster = new Cluster(c1.getID());
         combinedCluster.clusterDemographics.putAll(c1.getClusterDemographics());
         combinedCluster.elections.putAll(c1.elections);
@@ -647,6 +648,7 @@ public class Algorithm
         combinedCluster.setState(c1.getState());
         combinedCluster.precinctsCluster.addAll(c1.precinctsCluster);
         combinedCluster.precinctsCluster.addAll(c2.precinctsCluster);
+
         int internalEdges = 0;
         int externalEdges = 0;
         for (Precinct p : combinedCluster.precinctsCluster) {
@@ -678,37 +680,45 @@ public class Algorithm
         }
         combinedCluster.setGop_vote(c1.getGOPVote()+c2.getGOPVote());
         combinedCluster.setDem_vote(c1.getDEMVote()+c2.getDEMVote());
+
         double nonMMJoinability=0.0;
         for(FACTOR f:FACTOR.values()){
+
             if(f==FACTOR.MAJMIN){
                 double largestPopulationRatio = combinedCluster.calculateDemographicSize(combinedCluster.getLargestDemographic(),
                         combinedCluster.population);
 
-                nonMMJoinability+=0.4*f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
+                nonMMJoinability+=factors.get(f)*
+                        f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
             }
             else{
-                if(f==FACTOR.EQPOP){
-                    nonMMJoinability+=0.8*f.calculateMeasure(combinedCluster);
-                }
-                else{
-                    nonMMJoinability+=0.0005*f.calculateMeasure(combinedCluster);
-                }
-
+                nonMMJoinability+=factors.get(f)*f.calculateMeasure(combinedCluster);
             }
+//            else{
+//                if(f==FACTOR.EQPOP){
+//                    nonMMJoinability+=1.5*f.calculateMeasure(combinedCluster);
+//                }
+//                else{
+//                    nonMMJoinability+=0.0005*f.calculateMeasure(combinedCluster);
+//                }
+//
+//            }
         }
         return nonMMJoinability;
     }
 
     public void makeNonMMClusters(){
+        int ogSize = state.clusters.size();
         int cSize = state.clusters.size();
         Iterator<Cluster> iterator = state.clusters.iterator();
         while (iterator.hasNext()) {
-            if(2*targetNumDist>cSize){
+            if(2*targetNumDist>cSize||cSize<(ogSize/2)){
                 return;
             }
             Cluster currCluster = iterator.next();
             if(currCluster.checkMajorityMinority(state.userDemographicThreshold,
-                    state.userVoteThreshold,state.userSelectedElection,demString)){
+                    state.userVoteThreshold,state.userSelectedElection,demString)
+                    && currCluster.population>500000){
                 continue;
             }
             Set<Cluster> neighbors = new HashSet<Cluster>();
@@ -766,8 +776,7 @@ public class Algorithm
         }
     }
 
-    public void phase2(){
-        PrecinctDAO.getAllPrecinctGeoJSON(state);
+    public void phase2Init(){
         precinctDistrictMap = new HashMap<String, String>();
         setDistrictScoreFunction(DefaultMeasures.defaultMeasuresWithWeights(weights));
         for(Cluster c: state.clusters){
@@ -776,13 +785,19 @@ public class Algorithm
                 precinctDistrictMap.put(p.getID(),c.getID());
             }
             c.findBorderPrecincts();
+            GerryManderController.districtQueue.add(c);
             state.putDistrict(c);
         }
         updateScores();
-        for(District d:state.getDistricts()){
-            getMoveFromDistrict(d);
+        for(int i=0;i<1;i++){
+            for(District d: state.getDistricts()){
+                GerryManderController.districtQueue.add(d);
+            }
         }
+
     }
+
+
 
 
 

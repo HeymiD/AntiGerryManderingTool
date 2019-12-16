@@ -1,7 +1,7 @@
 var selectedMinority = 0;
 var maxSelCheckbox = 2;
 var algorithms = ['Select Algorithm', 'Algorithm 1', 'Algorithm 2', 'Algorithm 3'];
-
+var algoBegin = true;
 var phaseSelector = $('#phaseType');
 var algorithmSelector = $('#algorithmType');
 var runAlgoBtn = $('#runAlgo');

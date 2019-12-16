@@ -6,6 +6,8 @@ import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
 import com.gerrymander.demo.models.concrete.State;
 import com.vividsolutions.jts.geom.Geometry;
+import org.wololo.geojson.Feature;
+import org.wololo.geojson.GeoJSONFactory;
 import org.wololo.jts2geojson.GeoJSONReader;
 
 import java.sql.*;
@@ -196,6 +198,7 @@ public class PrecinctDAO {
                         v.setElectiontype(election);
                         p.addVotes(election,v);
                         state.addPrecinct(p);
+                        System.out.println("Initialized Precinct: "+resultSet.getString("PCTKEY"));
                     }
 
 
@@ -268,9 +271,11 @@ public class PrecinctDAO {
             while (resultSet.next()){
                 state.getPrecinct(resultSet.getString("PCTKEY"))
                         .setGeometryJSON(resultSet.getString("geojson"));
+                String geojson = resultSet.getString("geojson");
                 GeoJSONReader reader = new GeoJSONReader();
+                Feature feature = (Feature) GeoJSONFactory.create(geojson);
                 state.getPrecinct(resultSet.getString("PCTKEY")).
-                        setGeometry(reader.read(resultSet.getString("geojson")));
+                        setGeometry(reader.read(feature.getGeometry()));
 
             }
             return;

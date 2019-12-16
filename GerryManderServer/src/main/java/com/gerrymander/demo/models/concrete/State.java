@@ -2,6 +2,7 @@ package com.gerrymander.demo.models.concrete;
 
 
 import com.gerrymander.demo.*;
+import com.gerrymander.demo.algorithm.SortByPopulation;
 import com.gerrymander.demo.measures.StateInterface;
 //import com.gerrymander.demo.models.DAO.DistrictDAOInterface;
 //import com.gerrymander.demo.models.Service.DistrictService;
@@ -109,12 +110,17 @@ public class State
         while (iterator.hasNext()) {
 
             Cluster currCluster = iterator.next();
-            for (Edge edge : currCluster.edges) {
-                Cluster neighborc = edge.getNeighbor(currCluster);
-                Cluster neighbor = findCluster(neighborc.getID());
-//                if(neighbor==null){
-//                    continue;
-//                }
+            List<Cluster> neighbors = new LinkedList<>();
+            for(Edge e:currCluster.edges){
+                Cluster nCluster = e.getNeighbor(currCluster);
+                if(nCluster!=null &&
+                        !nCluster.getID().equals(currCluster.getID())){
+                    neighbors.add(nCluster);
+                }
+            }
+            Collections.sort(neighbors,new SortByPopulation());
+            for(Cluster n: neighbors){
+                Cluster neighbor = findCluster(n.getID());
                 if (testCombineClusters(currCluster, neighbor) != null) {
                     clusterListModified = true;
                     combineClusters(currCluster, neighbor);
@@ -122,8 +128,22 @@ public class State
                     iterator.remove();
                     break;
                 }
-
             }
+//            for (Edge edge : currCluster.edges) {
+//                Cluster neighborc = edge.getNeighbor(currCluster);
+//                Cluster neighbor = findCluster(neighborc.getID());
+////                if(neighbor==null){
+////                    continue;
+////                }
+//                if (testCombineClusters(currCluster, neighbor) != null) {
+//                    clusterListModified = true;
+//                    combineClusters(currCluster, neighbor);
+//                    combinedClusters.add(neighbor);
+//                    iterator.remove();
+//                    break;
+//                }
+//
+//            }
         }
         return clusterListModified;
     }
@@ -188,7 +208,8 @@ public class State
         Iterator<Edge> iterator = neighbor.edges.iterator();
         while(iterator.hasNext()){
             Edge e = iterator.next();
-            if(e.neighbor1.getID().equals(e.neighbor2.getID())){
+            if(e.neighbor1.getID().equals(e.neighbor2.getID())
+                    ||findCluster(e.neighbor1.getID())==null || findCluster(e.neighbor1.getID())==null){
                 System.out.println("YIKES!");
                 iterator.remove();
             }

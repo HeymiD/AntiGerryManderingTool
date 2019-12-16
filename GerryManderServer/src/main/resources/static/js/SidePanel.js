@@ -220,12 +220,16 @@ function runAlgorithm(){
       blocThresh = 0.6;
       targetDisVal = 36;
       demString = "ASIAN,PACISLAND";
+
       if(iterateMe.prop('checked') == true){
-        getPhaseOneData(electionSetting,votingThresh,blocThresh, targetDisVal, demString, true);
+
+        getPhaseOneData(electionSetting,votingThresh,blocThresh, targetDisVal, demString,false,algoBegin);
+
 //        console.log(done);
       }
       else{
-          getPhaseOneData(electionSetting,votingThresh,blocThresh, targetDisVal, demString, false);
+
+          getPhaseOneData(electionSetting,votingThresh,blocThresh, targetDisVal, demString,false,true);
 
       }
       break;

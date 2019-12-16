@@ -1,25 +1,17 @@
 package com.gerrymander.demo;
 
-import java.io.FileNotFoundException;
-import java.sql.SQLException;
 import java.util.*;
 
 import com.gerrymander.demo.algorithm.Algorithm;
 import com.gerrymander.demo.algorithm.Measure;
 import com.gerrymander.demo.models.DAO.ClusterDAO;
-import com.gerrymander.demo.models.DAO.DistrictDAO;
 import com.gerrymander.demo.models.DAO.PrecinctDAO;
 import com.gerrymander.demo.models.concrete.District;
 import com.gerrymander.demo.models.concrete.Precinct;
 import com.gerrymander.demo.models.concrete.State;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.sound.midi.Soundbank;
 //import org.springframework.web.servlet.ModelAndView;
 
 @RestController
@@ -32,10 +24,12 @@ public class GerryManderController {
 //	public Stack<Precinct> precinctsToSend = new Stack<Precinct>();
 	public Stack<Precinct> precinctsToSend = new Stack<Precinct>();
 	public static int queueStatus=0;
+	public static Stack<District> districtQueue = new Stack<District>();
 //    @RequestParam("districtId") int districtId
 	@RequestMapping("/state")
 	public String getSate(@RequestParam("state") String stateName) {
 	    if(state==null){
+            System.out.println("Getting State");
             state = new State(stateName);
             PrecinctDAO.initAllPrecincts(state);
 //            ClusterDAO.initNeighbors(state);
@@ -45,10 +39,15 @@ public class GerryManderController {
                 state.population+=p.getPopulation();
             }
             System.out.println("Init pop: "+state.population);
+
             algorithm = new Algorithm(state);
             algorithm.initClusters();
             System.out.println("Clusters Initialized.");
             ClusterDAO.initNeighbors(state);
+//            System.out.println("GEOJSON Initializing...");
+//            PrecinctDAO.getAllPrecinctGeoJSON(state);
+
+
 
 //            for(int i=1;i<37;i++){
 //                precinctQueue.put("U.S. Rep "+i,new Stack<Precinct>());
@@ -184,6 +183,8 @@ public class GerryManderController {
         int districtPopulation = 0;
         Map<PARTYNAME,Integer> votesDistrict = new HashMap<PARTYNAME,Integer>();
         Map<DEMOGRAPHIC,Integer> demographicsDistrict = new HashMap<DEMOGRAPHIC,Integer>();
+        String[] editDisId = districtId.split(" ");
+        districtId = "U.S. Rep "+editDisId[editDisId.length-1];
         System.out.println("District ID: "+districtId);
         for (Precinct p:state.getPrecincts()){
             if(p.getOriginalDistrictID().equals(districtId)){
@@ -235,18 +236,37 @@ public class GerryManderController {
                                       @RequestParam("electionType") String electionType,
                                      @RequestParam("targetNumDistricts") int targetNumDistricts,
                                      @RequestParam("update") boolean update,
-                                     @RequestParam("demString") String[] demString){
+                                     @RequestParam("demString") String[] demString,
+                                     @RequestParam("begin") boolean begin){
         state.userDemographicThreshold = blockThreshold;
         state.userVoteThreshold = votingThreshold;
         state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
         algorithm.targetNumDist = targetNumDistricts;
-        algorithm.popThreshMax=0.8;
+        algorithm.popThreshMax=0.6;
         algorithm.popThreshMin=0.5;
         algorithm.demString = demString;
         state.demString=demString;
         algorithm.weights= new HashMap<Measure,Double>();
-        for(Measure m:Measure.values()){
-            algorithm.weights.put(m,0.2);
+        algorithm.weights.put(Measure.COMPETITIVENESS,0.2);
+        algorithm.weights.put(Measure.EFFICIENCY_GAP,0.2);
+        algorithm.weights.put(Measure.GERRYMANDER_DEMOCRAT,0.8);
+        algorithm.weights.put(Measure.CONVEX_HULL_COMPACTNESS,1.0);
+        algorithm.weights.put(Measure.REOCK_COMPACTNESS,1.0);
+        algorithm.weights.put(Measure.PARTISAN_FAIRNESS,0.3);
+        algorithm.weights.put(Measure.POPULATION_EQUALITY,2.0);
+        algorithm.weights.put(Measure.POPULATION_HOMOGENEITY,0.002);
+        algorithm.weights.put(Measure.GERRYMANDER_REPUBLICAN,-0.7);
+        algorithm.weights.put(Measure.EDGE_COMPACTNESS,2.0);
+        algorithm.factors = new HashMap<FACTOR,Double>();
+        algorithm.factors.put(FACTOR.EQPOP,2.0);
+        algorithm.factors.put(FACTOR.MAJMIN,1.0);
+        algorithm.factors.put(FACTOR.COMPACTNESS,0.75);
+        algorithm.factors.put(FACTOR.POLFAIR,0.3);
+        algorithm.factors.put(FACTOR.COUNTY,0.9);
+        if(begin==true){
+            System.out.println("Initializing GeoJSON");
+            PrecinctDAO.getAllPrecinctGeoJSON(state);
+            System.out.println("GeoJSON Done");
         }
         if(state.clusters.size() <= targetNumDistricts){
             return "done";
@@ -259,8 +279,50 @@ public class GerryManderController {
 //            }
 //            System.out.println("MajMin Clusters Size: "+state.majMinClusters.size());
 //        }
-        algorithm.phaseOne(update);
+        if(algorithm.phaseOne(update)){
+            return JSONMaker.phase1Data(state);
+        }
         return JSONMaker.phase1Data(state.clusters);
+
+    }
+
+    @RequestMapping("/phase2")
+    public String sendResultPhaseTwo(@RequestParam("votingThreshold") double votingThreshold,
+                                     @RequestParam("blockThreshold") double blockThreshold,
+                                     @RequestParam("electionType") String electionType,
+                                     @RequestParam("targetNumDistricts") int targetNumDistricts,
+                                     @RequestParam("demString") String[] demString,
+                                     @RequestParam("begin") boolean begin){
+        state.userDemographicThreshold = blockThreshold;
+        state.userVoteThreshold = votingThreshold;
+        state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
+        algorithm.targetNumDist = targetNumDistricts;
+        algorithm.popThreshMax=0.6;
+        algorithm.popThreshMin=0.5;
+        algorithm.demString = demString;
+        state.demString=demString;
+        algorithm.weights= new HashMap<Measure,Double>();
+        for(Measure m:Measure.values()){
+            algorithm.weights.put(m,0.2);
+        }
+        if(begin){
+            algorithm.phase2Init();
+            System.out.println("Phase 2 Initialized");
+        }
+        if(districtQueue.isEmpty()){
+            return "done";
+        }
+        Move move = algorithm.getMoveFromDistrict(districtQueue.pop());
+        System.out.println("Move Done");
+        if(move!=null){
+            String clusterId = move.getTo().getID();
+            String disId = String.valueOf(state.clusters.indexOf(state.findCluster(clusterId)));
+            System.out.println("{"+"\""+move.getPrecinct().getID()+"\": "+"\""+disId+"\"}");
+            return "{"+"\""+move.getPrecinct().getID()+"\": "+"\""+disId+"\"}";
+        }
+
+
+        return "";
 
     }
 

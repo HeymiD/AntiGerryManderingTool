@@ -9,6 +9,7 @@ function dicSize(x){
 function recenterMap(){ map.setView(usCenter,5); }
 
 function fetchDistrict(e){
+console.log("Fetching Data")
         $.ajax({
             url:"http://localhost:8080/state",
             data:{
@@ -211,7 +212,7 @@ $.ajax({
 	})
 }
 
-function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString, update){
+function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString, update,begin){
     var result;
     $.ajax({
 		url:"http://localhost:8080/phase1",
@@ -222,7 +223,8 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
 			blockThreshold: blockThreshold,
 			update: true,
 			targetNumDistricts : targetNumDistricts,
-			demString : demString
+			demString : demString,
+			begin: begin
 		},
 		success: function(response){
 //            alert(response === "done")
@@ -238,6 +240,7 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
                                                     var districtId = result[precKey];
                                        //            console.log('precKey '+precKey+' currPrec '+ currPrec);
             //                                       console.log(layer2);
+
                                                    layer2.setStyle({
                                                        weight: 2,
                                                        opacity: 1,
@@ -248,8 +251,9 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
                                                    });
                                                });
                                          });
+                algoBegin=false
                 if(update == false){
-                    getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString,update);
+                    getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString,update,false);
                 }
             }
 //            phase1Data = JSON.parse(response)
@@ -285,27 +289,33 @@ var result;
 		success: function(response){
 //            alert(response === "done")
             if(response === "done"){
+                alert("Phase 2 Completed")
                 return 1
             }
-//            phase1Data = JSON.parse(response)
+            if(response!=""){
             result = JSON.parse(response);
             precLayer.eachLayer(function(layer){
                   layer.eachLayer(function(layer2){
                                        var precKey = layer2.feature.properties.PCTKEY;
-//                                       var districtId = phase1Data[precKey];
-                                        var districtId = result[precKey];
-                           //            console.log('precKey '+precKey+' currPrec '+ currPrec);
-//                                       console.log(layer2);
-                                       layer2.setStyle({
-                                           weight: 2,
-                                           opacity: 1,
-                                           color: 'white',
-                                           dashArray: '3',
-                                           fillOpacity: 0.7,
-                                           fillColor: precNewDemoColor(districtId)
-                                       });
+                                       if(precKey in result){
+                                            var districtId = result[precKey];
+                                            console.log('precKey '+precKey+' districtId '+ districtId);
+//                                            console.log(layer2);
+                                            layer2.setStyle({
+                                                           weight: 2,
+                                                           opacity: 1,
+                                                           color: 'white',
+                                                           dashArray: '3',
+                                                           fillOpacity: 0.7,
+                                                           fillColor: precNewDemoColor(districtId)
+                                                       });
+
+                                       }
                                    });
                              });
+            }
+//            phase1Data = JSON.parse(response)
+
             getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString, false);
 
 		},
@@ -398,13 +408,14 @@ function stateEffects(feature, layer) {
 function districtColor(d){ return disColor[d] }
 
 function districtStyle(feature){ //need to change the way we set colors based on ???
+    var colorId = parseInt(feature.properties.NAMELSAD.slice(feature.properties.NAMELSAD.lastIndexOf(" ")));
 	return {
         weight: 2,
         opacity: 1,
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.7,
-        fillColor: districtColor(feature.properties.fid)
+        fillColor: districtColor(colorId)
 	};
 }
 
@@ -423,7 +434,7 @@ layer.bringToFront();
 }
     if(stateInit==1){
         console.log("Getting district data")
-        var districtId = "U.S. Rep "+layer.feature.properties.fid
+        var districtId = layer.feature.properties.NAMELSAD
         if(!(districtId in districtxData)){
     //        console.log('electionType.val()+electionYear.val() = '+ electionType.val() + electionYear.val())
               console.log('in districtID' + districtId);
@@ -571,7 +582,7 @@ function precNewDemoColor(newDisId){
 //    console.log(demographic)
     newDisId = parseInt(newDisId.slice(newDisId.lastIndexOf(" ")));
 //    alert(newDisId);
-    return selectColor(newDisId, targetDisVal)
+    return selectColor(newDisId, 10)
 }
 
 function selectColor(colorNum, colors){

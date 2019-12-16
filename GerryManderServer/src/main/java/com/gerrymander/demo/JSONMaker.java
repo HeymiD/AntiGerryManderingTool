@@ -1,6 +1,7 @@
 package com.gerrymander.demo;
 
 import com.gerrymander.demo.models.concrete.Precinct;
+import com.gerrymander.demo.models.concrete.State;
 
 import java.util.*;
 
@@ -50,13 +51,17 @@ public class JSONMaker {
         return jsonArray;
     }
 
-    public static String phase1Data(List<Cluster> clusters){
+    public static String phase1Data(State state){
         String data = "{";
 //        int clusterCounter = 0;
         int precinctCounter = 0;
-        for(Cluster cluster:clusters){
+        for(Cluster cluster:state.clusters){
+            System.out.println("Num Edges: "+cluster.externalEdges);
+        }
+        for(Cluster cluster:state.clusters){
 //            int precinctCounter = 0;
-            String disId = cluster.getState().getPrecinct(cluster.getID()).getOriginalDistrictID();
+//            String disId = cluster.getState().getPrecinct(cluster.getID()).getOriginalDistrictID();
+            String disId = String.valueOf(state.clusters.indexOf(cluster));
             for(Precinct p:cluster.precinctsCluster){
 //                if(precinctCounter<cluster.precinctsCluster.size()-1 && clusterCounter<clusters.size()-1){
                 if(precinctCounter < 8935){
@@ -70,6 +75,30 @@ public class JSONMaker {
 //            clusterCounter++;
         }
         data+="}";
+        return data;
+    }
+    public static String phase1Data(List<Cluster> clusters){
+        Set<Integer> disIDs = new HashSet<Integer>();
+        String data = "{";
+//        int clusterCounter = 0;
+        int precinctCounter = 0;
+        for(Cluster cluster:clusters){
+//            int precinctCounter = 0;
+            String disId = cluster.getState().getPrecinct(cluster.getID()).getOriginalDistrictID();
+            for(Precinct p:cluster.precinctsCluster){
+//                if(precinctCounter<cluster.precinctsCluster.size()-1 && clusterCounter<clusters.size()-1){
+                if(precinctCounter < 8935){
+                    data+="\""+p.getID()+"\": "+ "\"U.S. Rep " +disId+"\""+", ";
+                }
+                else{
+                    data+="\""+p.getID()+"\": "+ "\"U.S. Rep " +disId+"\"";
+                }
+                precinctCounter++;
+            }
+//            clusterCounter++;
+        }
+        data+="}";
+        disIDs.forEach(s-> System.out.println("DisIDs: "+s));
         return data;
     }
 
