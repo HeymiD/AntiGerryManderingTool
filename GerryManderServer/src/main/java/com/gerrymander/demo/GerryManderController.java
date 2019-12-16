@@ -180,6 +180,9 @@ public class GerryManderController {
                                      @RequestParam("republicGerryMin") double republicGerryMin,
                                      @RequestParam("democratGerryMin") double democratGerryMin,
                                      @RequestParam("countyCompactMin") double countyCompactMin){
+
+        System.out.println("BT: "+blockThreshold);
+        System.out.println("VT: "+votingThreshold);
         state.userDemographicThreshold = blockThreshold;
         state.userVoteThreshold = votingThreshold;
         state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
@@ -201,10 +204,11 @@ public class GerryManderController {
         algorithm.weights.put(Measure.EDGE_COMPACTNESS,edgeCompactMin);
         algorithm.factors = new HashMap<FACTOR,Double>();
         algorithm.factors.put(FACTOR.EQPOP,popEqualMin);
-        algorithm.factors.put(FACTOR.MAJMIN,1.0);
+        algorithm.factors.put(FACTOR.MAJMIN,2.0);
         algorithm.factors.put(FACTOR.COMPACTNESS,edgeCompactMin);
         algorithm.factors.put(FACTOR.POLFAIR,fairnessMin);
         algorithm.factors.put(FACTOR.COUNTY,countyCompactMin);
+
         if(begin==true){
             System.out.println("Initializing GeoJSON");
             PrecinctDAO.getAllPrecinctGeoJSON(state);
@@ -247,6 +251,7 @@ public class GerryManderController {
                                      @RequestParam("republicGerryMin") double republicGerryMin,
                                      @RequestParam("democratGerryMin") double democratGerryMin,
                                      @RequestParam("countyCompactMin") double countyCompactMin){
+
         state.userDemographicThreshold = blockThreshold;
         state.userVoteThreshold = votingThreshold;
         state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
@@ -266,7 +271,7 @@ public class GerryManderController {
         algorithm.weights.put(Measure.EDGE_COMPACTNESS,edgeCompactMin);
         algorithm.factors = new HashMap<FACTOR,Double>();
         algorithm.factors.put(FACTOR.EQPOP,popEqualMin);
-        algorithm.factors.put(FACTOR.MAJMIN,1.0);
+        algorithm.factors.put(FACTOR.MAJMIN,2.0);
         algorithm.factors.put(FACTOR.COMPACTNESS,edgeCompactMin);
         algorithm.factors.put(FACTOR.POLFAIR,fairnessMin);
         algorithm.factors.put(FACTOR.COUNTY,countyCompactMin);
@@ -322,25 +327,36 @@ public class GerryManderController {
     public String sendPhase1Results(){
 
         ArrayList<String> results = new ArrayList<String>();
+        int numMajMin = 0;
         for(Cluster c:state.clusters){
+            boolean majmin = false;
             if(c.checkMajorityMinority(state.userDemographicThreshold,
                     state.userVoteThreshold, state.userSelectedElection, algorithm.demString)){
-                String result = "";
-                result+="DistrictID: "+state.clusters.indexOf(c)
-                        +"\nLargets Demographic: "+c.getLargestDemographic().toString()
-                        +"\nPopulation: "+c.getClusterDemographics().get(c.getLargestDemographic())
-                        +"\nWinning Party: "+c.getElections()
-                        .get(state.userSelectedElection).getWinningParty().toString()
-                        +"\n% of Votes: "+c.getElections()
-                        .get(state.userSelectedElection).calculateWinningPartyRatio(
-                                c.getElections().get(state.userSelectedElection).getWinningParty());
-                results.add(result);
+                    majmin=true;
+                    numMajMin++;
+                    String result = "";
+                    result+="DistrictID: "+state.clusters.indexOf(c)
+                            +"\nLargest Demographic: "+c.getLargestDemographic().toString()
+                            +"\nPopulation: "+c.getClusterDemographics().get(c.getLargestDemographic())
+                            +"\nMajMin: "+majmin;
+                    results.add(result);
             }
+//                String result = "";
+//
+//                result+="DistrictID: "+state.clusters.indexOf(c)
+//                        +"\nLargest Demographic: "+c.getLargestDemographic().toString()
+//                        +"\nPopulation: "+c.getClusterDemographics().get(c.getLargestDemographic())
+//                        +"\nMajMin: "+majmin;
+//                results.add(result);
+
+
+
 
         }
-        String resultToSend = "";
+
+        String resultToSend = "# of Majoirty Minority Districts: "+numMajMin+"\n";
         for(String s:results){
-            resultToSend+=s+"\n\n";
+            resultToSend+=s+"\n";
         }
         return resultToSend;
 

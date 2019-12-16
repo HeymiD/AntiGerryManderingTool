@@ -63,7 +63,7 @@ function updateStateElec(props){
 	+ '<br/><b>Republican Districts: </b>' + parseFloat(props.RepublicanRatio).toFixed(2)
   + '%<br/><b>Democrat Districts: </b>' + parseFloat(props.DemocratRatio).toFixed(2)
   + '%<br/><b>Green Districts: </b>' + parseFloat(props.GreenRatio).toFixed(2)
-  + '%<br/><b>Libertarian Districts: </b>' + parseFloat(props.LibertarianRatio).toFixed(2)
+  + '%<br/><b>Libertarian Districts: </b>' + parseFloat(props.LibertarianRatio).toFixed(2)+'%'
   // + '%<br/><h4>Voting Distribution</h4>'
   // + '<br/><b>Republican Districts: </b>' + parseFloat(props.Republican).toFixed(2)
   // + '<br/><b>Democrat Districts: </b>' + parseFloat(props.Democrat).toFixed(2)
@@ -430,14 +430,15 @@ $("input[name='PhaseType']").click(function(){
 function runAlgorithm(){
   switch (selectedPhase) {
     case 'Phase 1':
+        alert('Phase 1 is start...')
         // votingThresh = 0.75;
         // blocThresh = 0.6;
         // targetDisVal = 36;
         // demString = "ASIAN,PACISLAND";
-        console.log(votingThresh);
-        console.log(blocThresh);
-        console.log(targetDisVal);
-        console.log(minoritySelected);
+        // console.log(votingThresh);
+        // console.log(blocThresh);
+        // console.log(targetDisVal);
+        // console.log(minoritySelected);
       if(iterateMe.prop('checked') == true){
         getPhaseOneData(electionSetting,votingThresh,blocThresh, targetDisVal, minoritySelected,true,algoBegin);
       }

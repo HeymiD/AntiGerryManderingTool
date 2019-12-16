@@ -103,17 +103,14 @@ public class State
 		}
 		return majMinPrecinctStats;
 	}
-	public boolean makeMajMinClusters(int target) {
+	public boolean makeMajMinClusters() {
 	    combinedClusters.clear();
 	    int cSize = clusters.size();
         boolean clusterListModified = false;
         Iterator<Cluster> iterator = clusters.iterator();
         while (iterator.hasNext()) {
-            if(2*target>cSize){
-                return clusterListModified;
-            }
             Cluster currCluster = iterator.next();
-            if(currCluster.population<=550000){
+            if(currCluster.population<=600000){
 //                currCluster = iterator.next();
                 List<Cluster> neighbors = new LinkedList<>();
                 for(Edge e:currCluster.edges){

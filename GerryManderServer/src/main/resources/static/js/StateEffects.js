@@ -223,8 +223,8 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
 		async:  !update,
 		data: {
 			electionType: elecType,
-			votingThreshold: votingThreshold,
-			blockThreshold: blockThreshold,
+			votingThreshold: votingThreshold/100,
+			blockThreshold: blockThreshold/100,
 			update: true,
 			targetNumDistricts : targetNumDistricts,
 			demString : demString,
@@ -245,6 +245,7 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
 //            alert(response === "done")
             if(response === "done"){
                 alert("Phase 1 Completed")
+                phase2DistrictTable()
                 return 1
             }
             else{
@@ -295,8 +296,8 @@ var result;
 		async:  true,
 		data: {
 			electionType: elecType,
-			votingThreshold: votingThreshold,
-			blockThreshold: blockThreshold,
+			votingThreshold: votingThreshold/100,
+			blockThreshold: blockThreshold/100,
 			targetNumDistricts : targetNumDistricts,
 			demString : demString,
 			begin : begin,
@@ -407,8 +408,8 @@ function phase2DistrictTable(){
 function update2DistTable(props){
   // var totVotes = props.Republican + props.Democrat + props.Green + props.Libertarian;
 	var results2 = $('#p2distable');
-	results2.html(props
-);
+  props = props.replace('\n','<br/>')
+	results2.html(props);
 }
 
 //==================== State Zone ====================
@@ -583,87 +584,76 @@ function precinctDemoColor(demographic, currPrec){
     switch(demographic){
         case 'White':
           demval = currPrec.White / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
+          return demval > 0.75  ? '#9f1499' :
+                 demval > 0.5  ? '#cc1ac4' :
+                 demval > 0.4  ? '#e533de' :
+                 demval > 0.3   ? '#f18eed' :
+                 demval > 0.2   ? '#f18eed' :
+                 demval > 0.1   ? '#f6bbf4' :
+                                  '#fce8fb';
           break;
         case 'Black':
           demval = currPrec.Black / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
+          return demval > 0.75  ? '#0a35a9' :
+                 demval > 0.5  ? '#0c44d9' :
+                 demval > 0.4  ? '#265ef3' :
+                 demval > 0.3   ? '#5682f5' :
+                 demval > 0.2   ? '#86a5f8' :
+                 demval > 0.1   ? '#b7c9fb' :
+                                  '#e7edfe';
           break;
         case 'Hispanic':
           demval = currPrec.Hispanic / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
+          return demval > 0.75  ? '#36a310' :
+                 demval > 0.5  ? '#45d114' :
+                 demval > 0.4  ? '#5feb2e' :
+                 demval > 0.3   ? '#82ef5c' :
+                 demval > 0.2   ? '#a6f48b' :
+                 demval > 0.1   ? '#edfde8' :
+                                  '#edfde8';
           break;
         case 'Native':
           demval = currPrec.Native / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
-
-          break;
-        case 'Hispanic':
-          demval = currPrec.Hispanic / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
+          return demval > 0.75  ? '#99b102' :
+                 demval > 0.5  ? '#c4e302' :
+                 demval > 0.4  ? '#defd1c' :
+                 demval > 0.3   ? '#e5fd4e' :
+                 demval > 0.2   ? '#edfe81' :
+                 demval > 0.1   ? '#f4feb3' :
+                                  '#fbffe6';
 
           break;
         case 'Pacific':
           demval = currPrec.Pacific / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
+          return demval > 0.75  ? '#17899c' :
+                 demval > 0.5  ? '#1db0c8' :
+                 demval > 0.4  ? '#37c9e2' :
+                 demval > 0.3   ? '#63d5e8' :
+                 demval > 0.2   ? '#90e1ef' :
+                 demval > 0.1   ? '#bcedf5' :
+                                  '#e9f9fc';
 
           break;
         case 'Asian':
           demval = currPrec.Asian / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
+          return demval > 0.75  ? '#aa5709' :
+                 demval > 0.5  ? '#da700b' :
+                 demval > 0.4  ? '#f48925' :
+                 demval > 0.3   ? '#f6a455' :
+                 demval > 0.2   ? '#f9be86' :
+                 demval > 0.1   ? '#fbd8b6' :
+                                  '#fbd8b6';
 
           break;
         case 'Other':
           demval = currPrec.Other / currPrec.Population;
-          return demval > 0.75  ? '#BD0026' :
-                 demval > 0.5  ? '#E31A1C' :
-                 demval > 0.4  ? '#FC4E2A' :
-                 demval > 0.3   ? '#FD8D3C' :
-                 demval > 0.2   ? '#FEB24C' :
-                 demval > 0.1   ? '#FED976' :
-                                  '#FFEDA0';
+          return demval > 0.75  ? '#9c1733' :
+                 demval > 0.5  ? '#c81d41' :
+                 demval > 0.4  ? '#e2375b' :
+                 demval > 0.3   ? '#e8637f' :
+                 demval > 0.2   ? '#ef90a4' :
+                 demval > 0.1   ? '#f5bcc8' :
+                                  '#fce9ed';
 
           break;
 
@@ -772,4 +762,20 @@ electOpts.on('change',function(){
     if(dicSize(electionDic[electionSetting]) == 0){
         getPrecinctData(electionSetting);
     }
+    precLayer.eachLayer(function(layer){
+          layer.eachLayer(function(layer2){
+              var precKey = layer2.feature.properties.PCTKEY;
+              var currPrec = electionDic[electionSetting][precKey];
+  //            console.log('precKey '+precKey+' currPrec '+ currPrec);
+              // console.log(layer2);
+              layer2.setStyle({
+                  weight: 2,
+                  opacity: 1,
+                  color: 'white',
+                  dashArray: '3',
+                  fillOpacity: 0.7,
+                  fillColor: precinctColor(currPrec.Republican,currPrec.Democrat,currPrec.Green,currPrec.Libertarian)
+              });
+          });
+    });
 });

@@ -441,7 +441,7 @@ public class Algorithm
         if (!update){
             while(2*targetNumDist<state.clusters.size()){
 //                Collections.sort(state.clusters,new SortByPopulation());
-                if(!state.makeMajMinClusters(targetNumDist)){
+                if(!state.makeMajMinClusters()){
 //                    Collections.sort(state.clusters,new SortByPopulation());
                     makeNonMMClusters();
                     int newStateSize = 0;
@@ -499,7 +499,7 @@ public class Algorithm
 
             }
             else{
-                if(!state.makeMajMinClusters(targetNumDist)){
+                if(!state.makeMajMinClusters()){
 //                    Collections.sort(state.clusters,new SortByPopulation());
                     makeNonMMClusters();
                     if(state.combinedClusters.isEmpty()){
