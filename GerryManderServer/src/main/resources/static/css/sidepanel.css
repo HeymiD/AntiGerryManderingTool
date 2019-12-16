@@ -149,8 +149,9 @@ nav ul li a blockquote{
     box-shadow: 0 0 0 #06c;
 }
 
-
-
+.allsliders{
+  text-align: center;
+}
 
 /*----- Tabs -----*/
 .tabs {
@@ -202,14 +203,20 @@ li.active a, li.active a:hover {
 	border-radius:3px;
 	box-shadow:-1px 1px 1px rgba(0,0,0,0.15);
 	background:#fff;
+  overflow: auto;
 }
 
 .tab {
 	display:none;
-  overflow: auto;
 }
 
 .tab.active {
 	display:block;
-  overflow: auto;
+}
+
+#targetMM{
+  width: 40px;
+}
+#MinorityP12{
+  display: none;
 }

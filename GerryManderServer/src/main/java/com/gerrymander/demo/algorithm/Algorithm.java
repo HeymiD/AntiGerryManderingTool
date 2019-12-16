@@ -681,6 +681,9 @@ public class Algorithm
                         f.calculateMeasureMajMin(popThreshMax,popThreshMin,largestPopulationRatio);
             }
             else{
+                if(f == FACTOR.EFFICIENCY_GAP){
+                    continue;
+                }
                 nonMMJoinability+=factors.get(f)*f.calculateMeasure(combinedCluster);
             }
 //            else{

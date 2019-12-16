@@ -10,15 +10,15 @@ var stateData = L.control();
 	stateData.update = function () {
         calcPrecPops();
         this._div.innerHTML = '<h4>State Data</h4>'
-                            + '</br><b>State Name: </b>' + currState
-                            + '</br><b>Total Population: </b>' + totPopulation
-                            + '</br><b>White: </b>' + totWhite
-                            + '</br><b>Black: </b>' + totBlack
-                            + '</br><b>Hispanic: </b>' + totHispanic
-                            + '</br><b>Pacific: </b>' + totPacific
-                            + '</br><b>Native: </b>' + totNative
-                            + '</br><b>Asian: </b>' + totAsian
-                            + '</br><b>Other: </b>' + totOther
+                            + '<b>State Name: </b>' + currState
+                            + '</br><b>Total Population: </b>' + numberWithCommas(totPopulation)
+                            + '</br><b>White: </b>' + ((totWhite/totPopulation)*100).toFixed(2)
+                            + '%</br><b>Black: </b>' + ((totBlack/totPopulation)*100).toFixed(2)
+                            + '%</br><b>Hispanic: </b>' + ((totHispanic/totPopulation)*100).toFixed(2)
+                            + '%</br><b>Pacific: </b>' + ((totPacific/totPopulation)*100).toFixed(2)
+                            + '%</br><b>Native: </b>' + ((totNative/totPopulation)*100).toFixed(2)
+                            + '%</br><b>Asian: </b>' + ((totAsian/totPopulation)*100).toFixed(2)
+                            + '%</br><b>Other: </b>' + ((totOther/totPopulation)*100).toFixed(2) +'%'
     };
 	stateData.show = function(){
 		$('#stateInfo').show();
@@ -39,19 +39,19 @@ var districtData = L.control();
 	};
 	districtData.update = function (props) {
 	  this._div.innerHTML = '<h4>District Data</h4>' +  (props ?
-	  	'<b>' +'District ID: '+props.DistrictID + '</b><br />'
-	  	+ 'Population: '+props.Population + '</b><br />'
-	  	+ 'White: ' + props.White + '</b><br />'
-	  	+ 'Black: ' +  props.Black + '</b><br />'
-	  	+ 'Hispanic: ' + props.Hispanic + '</b><br />'
-	  	+ 'Pacific: ' + props.Pacific + '</b><br />'
-	  	+ 'Native: ' + props.Native + '</b><br />'
-	  	+ 'Asian: ' + props.Asian + '</b><br />'
-	  	+ 'Other: ' + props.Other + '</b><br />'
-	  	+ 'Republican: ' + props.Republican + '</b><br />'
-	  	+ 'Democrat: ' + props.Democrat + '</b><br />'
-	  	+ 'Green: ' + props.Green + '</b><br />'
-	  	+ 'Libertarian: ' + props.Libertarian + '</b><br />'
+	  	'<b>' +'District ID: </b>'+ numberWithCommas(props.DistrictID) + '<br />'
+	  	+ 'Population: '+numberWithCommas(props.Population) + '</b><br />'
+	  	+ 'White: ' + numberWithCommas(props.White) + '</b><br />'
+	  	+ 'Black: ' +  numberWithCommas(props.Black) + '</b><br />'
+	  	+ 'Hispanic: ' + numberWithCommas(props.Hispanic) + '</b><br />'
+	  	+ 'Pacific: ' + numberWithCommas(props.Pacific) + '</b><br />'
+	  	+ 'Native: ' + numberWithCommas(props.Native) + '</b><br />'
+	  	+ 'Asian: ' + numberWithCommas(props.Asian) + '</b><br />'
+	  	+ 'Other: ' + numberWithCommas(props.Other) + '</b><br />'
+	  	+ 'Republican: ' + numberWithCommas(props.Republican) + '</b><br />'
+	  	+ 'Democrat: ' + numberWithCommas(props.Democrat) + '</b><br />'
+	  	+ 'Green: ' + numberWithCommas(props.Green) + '</b><br />'
+	  	+ 'Libertarian: ' + numberWithCommas(props.Libertarian) + '</b><br />'
 	  	: 'Hover over a District');
 	};
 	districtData.show = function(){
@@ -73,18 +73,18 @@ var precinctData = L.control();
 	precinctData.update = function (props,elect,precKey) {
 	  this._div.innerHTML = '<h4>Precinct Data</h4>' +  (props ?
 	  	'<b>PrecinctID: </b>' + precKey +
-	  	'<b><br />DistrictID: </b>' + props.DistrictID +
-	  	'<b><br />Republican Votes: </b>' + elect.Republican +
-	  	'<b><br />Democrat Votes: </b>' + elect.Democrat +
-	  	'<b><br />Green Votes: </b>' + elect.Green +
-	  	'<b><br />Libertarian Votes: </b>' + elect.Libertarian +
-	  	'<b><br />White Population: </b>' + props.White +
-	  	'<b><br />Black Population: </b>' + props.Black +
-	  	'<b><br />Hispanic Population: </b>' + props.Hispanic +
-	  	'<b><br />Native Population: </b>' + props.Native +
-	  	'<b><br />Pacific Population: </b>' + props.Pacific +
-	  	'<b><br />Asian Population: </b>' + props.Asian +
-	  	'<b><br />Other Population: </b>' + props.Other
+	  	'<b><br />DistrictID: </b>' + numberWithCommas(props.DistrictID) +
+	  	'<b><br />Republican Votes: </b>' + numberWithCommas(elect.Republican) +
+	  	'<b><br />Democrat Votes: </b>' + numberWithCommas(elect.Democrat) +
+	  	'<b><br />Green Votes: </b>' + numberWithCommas(elect.Green) +
+	  	'<b><br />Libertarian Votes: </b>' + numberWithCommas(elect.Libertarian) +
+	  	'<b><br />White Population: </b>' + numberWithCommas(props.White) +
+	  	'<b><br />Black Population: </b>' + numberWithCommas(props.Black) +
+	  	'<b><br />Hispanic Population: </b>' + numberWithCommas(props.Hispanic) +
+	  	'<b><br />Native Population: </b>' + numberWithCommas(props.Native) +
+	  	'<b><br />Pacific Population: </b>' + numberWithCommas(props.Pacific) +
+	  	'<b><br />Asian Population: </b>' + numberWithCommas(props.Asian) +
+	  	'<b><br />Other Population: </b>' + numberWithCommas(props.Other)
 	  	: 'Hover over a precinct');
 	};
 	precinctData.show = function(){
@@ -103,20 +103,22 @@ function updatePhase0(props){
     // console.log('im in updatePhase0');
 	var phaseData = $('#Phase0-Data');
 	phaseData.html(
-	'<b># of Precincts: </b>' + props.numPrecincts
-	+ '<br/><b># Majority Minority: </b>' + props.numMajMinPrecincts
+	'<b># of Precincts: </b>' + numberWithCommas(props.numPrecincts)
+	+ '<br/><b># Majority Minority: </b>' + numberWithCommas(props.numMajMinPrecincts)
+
 	+ '<br/><br/><h3>Voting Blocs by Demographic</h3>'
-	+ '<b>Black: </b>' + props.Black
-	+ '%<br/><b>Hispanic: </b>' + props.Hispanic
-	+ '%<br/><b>Pacific: </b>' + props.Pacific
-	+ '%<br/><b>Asian: </b>' + props.Asian
-	+ '%<br/><b>Native: </b>' + props.Native
-	+ '%<br/><b>Other: </b>' + props.Other
+	+ '<b>Black: </b>' + numberWithCommas(props.Black.toFixed(2))
+	+ '%<br/><b>Hispanic: </b>' + props.Hispanic.toFixed(2)
+	+ '%<br/><b>Pacific: </b>' + props.Pacific.toFixed(2)
+	+ '%<br/><b>Asian: </b>' + props.Asian.toFixed(2)
+	+ '%<br/><b>Native: </b>' + props.Native.toFixed(2)
+	+ '%<br/><b>Other: </b>' + props.Other.toFixed(2)
+
 	+ '%<br/><br/><h3>Voting Blocs by Party</h3>'
-	+ '<br/><b>Democrat: </b>' + props.Democrat
-	+ '%<br/><b>Republican: </b>' + props.Republican
-	+ '%<br/><b>Green: </b>' + props.Green
-	+ '%<br/><b>Libertarian: </b>' + props.Libertarian + '%'
+	+ '<b>Democrat: </b>' + props.Democrat.toFixed(2)
+	+ '%<br/><b>Republican: </b>' + props.Republican.toFixed(2)
+	+ '%<br/><b>Green: </b>' + props.Green.toFixed(2)
+	+ '%<br/><b>Libertarian: </b>' + props.Libertarian.toFixed(2) + '%'
 
 );
 }
@@ -134,7 +136,6 @@ function calcPrecPops(){
             totNative += parseInt(precinctKeys[precId].Native);
             totOther += parseInt(precinctKeys[precId].Other);
         }
-
 	}
 	totPopulation = totWhite + totBlack + totHispanic + totPacific + totAsian + totNative + totOther;
 	// console.log(totPopulation);
@@ -157,7 +158,7 @@ function selMapContent(content){
       if(map.hasLayer(texas)){ map.removeLayer(texas); }
 			if(map.hasLayer(precLayer)){
 				map.removeLayer(precLayer);
-				precLayer = L.layerGroup();
+				// precLayer = L.layerGroup();
 			}
 //        if(!map.hasLayer(distLayer)){
 //        	map.addLayer(distLayer);
@@ -183,8 +184,8 @@ function selMapContent(content){
 			thisContent = $('#precinctContent');
 			otherContent = $('#districtContent');
 			if(map.hasLayer(texas)){
-                map.removeLayer(texas);
-            }
+          map.removeLayer(texas);
+      }
 //                for (var districtId in districtx){
 //                    var district = districtx[districtId];
 //                    var precinct = precinctData[districtId];
@@ -203,10 +204,10 @@ function selMapContent(content){
                 districtData.hide();
                 precinctData.show();
                 if(precLayer.getLayers().length == 0){
-                    console.log("Getting Precincts...")
+                    // console.log("Getting Precincts...")
 
 										loadjscssfile("./js/geojson/PrecinctsPart1.js", "js",function (){
-                                                                                 console.log(precincts1)
+                                                                                 // console.log(precincts1)
                                                                                  var precinctBoundary = L.geoJson(precincts1, {
                                                                                  	style: precinctStyle,
                                                                                  	onEachFeature: precinctEffects
@@ -214,7 +215,7 @@ function selMapContent(content){
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart2.js", "js",function (){
-                                                                             console.log(precincts2)
+                                                                             // console.log(precincts2)
                                                                              var precinctBoundary = L.geoJson(precincts2, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -222,7 +223,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart3.js", "js",function (){
-                                                                                 console.log(precincts3)
+                                                                                 // console.log(precincts3)
                                                                                  var precinctBoundary = L.geoJson(precincts3, {
                                                                                  	style: precinctStyle,
                                                                                  	onEachFeature: precinctEffects
@@ -230,7 +231,7 @@ function selMapContent(content){
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart4.js", "js",function (){
-                                                                             console.log(precincts4)
+                                                                             // console.log(precincts4)
                                                                              var precinctBoundary = L.geoJson(precincts4, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -238,7 +239,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart5.js", "js",function (){
-                                                                                     console.log(precincts5)
+                                                                                     // console.log(precincts5)
                                                                                      var precinctBoundary = L.geoJson(precincts5, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -246,7 +247,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart6.js", "js",function (){
-                                                                             console.log(precincts6)
+                                                                             // console.log(precincts6)
                                                                              var precinctBoundary = L.geoJson(precincts6, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -254,7 +255,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart7.js", "js",function (){
-                                                                                     console.log(precincts7)
+                                                                                     // console.log(precincts7)
                                                                                      var precinctBoundary = L.geoJson(precincts7, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -262,7 +263,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart8.js", "js",function (){
-                                                                             console.log(precincts8)
+                                                                             // console.log(precincts8)
                                                                              var precinctBoundary = L.geoJson(precincts8, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -270,7 +271,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart9.js", "js",function (){
-                                                                                     console.log(precincts9)
+                                                                                     // console.log(precincts9)
                                                                                      var precinctBoundary = L.geoJson(precincts9, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -278,7 +279,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart10.js", "js",function (){
-                                                                             console.log(precincts10)
+                                                                             // console.log(precincts10)
                                                                              var precinctBoundary = L.geoJson(precincts10, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -286,7 +287,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart11.js", "js",function (){
-                                                                                 console.log(precincts11)
+                                                                                 // console.log(precincts11)
                                                                                  var precinctBoundary = L.geoJson(precincts11, {
                                                                                     style: precinctStyle,
                                                                                     onEachFeature: precinctEffects
@@ -294,7 +295,7 @@ function selMapContent(content){
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart12.js", "js",function (){
-                                                                             console.log(precincts12)
+                                                                             // console.log(precincts12)
                                                                              var precinctBoundary = L.geoJson(precincts12, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -302,7 +303,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart13.js", "js",function (){
-                                                                                     console.log(precincts13)
+                                                                                     // console.log(precincts13)
                                                                                      var precinctBoundary = L.geoJson(precincts13, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -310,7 +311,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart14.js", "js",function (){
-                                                                             console.log(precincts14)
+                                                                             // console.log(precincts14)
                                                                              var precinctBoundary = L.geoJson(precincts14, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -318,7 +319,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart15.js", "js",function (){
-                                                                                     console.log(precincts15)
+                                                                                     // console.log(precincts15)
                                                                                      var precinctBoundary = L.geoJson(precincts15, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -326,7 +327,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart16.js", "js",function (){
-                                                                             console.log(precincts16)
+                                                                             // console.log(precincts16)
                                                                              var precinctBoundary = L.geoJson(precincts16, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -334,7 +335,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart17.js", "js",function (){
-                                                                                     console.log(precincts17)
+                                                                                     // console.log(precincts17)
                                                                                      var precinctBoundary = L.geoJson(precincts17, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -342,7 +343,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart18.js", "js",function (){
-                                                                             console.log(precincts18)
+                                                                             // console.log(precincts18)
                                                                              var precinctBoundary = L.geoJson(precincts18, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -350,7 +351,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart19.js", "js",function (){
-                                                                                 console.log(precincts19)
+                                                                                 // console.log(precincts19)
                                                                                  var precinctBoundary = L.geoJson(precincts19, {
                                                                                     style: precinctStyle,
                                                                                     onEachFeature: precinctEffects
@@ -358,7 +359,7 @@ function selMapContent(content){
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart20.js", "js",function (){
-                                                                             console.log(precincts20)
+                                                                             // console.log(precincts20)
                                                                              var precinctBoundary = L.geoJson(precincts20, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -366,7 +367,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart21.js", "js",function (){
-                                                                                     console.log(precincts21)
+                                                                                     // console.log(precincts21)
                                                                                      var precinctBoundary = L.geoJson(precincts21, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -374,7 +375,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart22.js", "js",function (){
-                                                                             console.log(precincts22)
+                                                                             // console.log(precincts22)
                                                                              var precinctBoundary = L.geoJson(precincts22, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -382,7 +383,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart23.js", "js",function (){
-                                                                                     console.log(precincts23)
+                                                                                     // console.log(precincts23)
                                                                                      var precinctBoundary = L.geoJson(precincts23, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -390,7 +391,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart24.js", "js",function (){
-                                                                             console.log(precincts24)
+                                                                             // console.log(precincts24)
                                                                              var precinctBoundary = L.geoJson(precincts24, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -398,7 +399,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart25.js", "js",function (){
-                                                                                     console.log(precincts25)
+                                                                                     // console.log(precincts25)
                                                                                      var precinctBoundary = L.geoJson(precincts25, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -406,7 +407,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart26.js", "js",function (){
-                                                                             console.log(precincts26)
+                                                                             // console.log(precincts26)
                                                                              var precinctBoundary = L.geoJson(precincts26, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -414,7 +415,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart27.js", "js",function (){
-                                                                                 console.log(precincts27)
+                                                                                 // console.log(precincts27)
                                                                                  var precinctBoundary = L.geoJson(precincts27, {
                                                                                     style: precinctStyle,
                                                                                     onEachFeature: precinctEffects
@@ -422,7 +423,7 @@ function selMapContent(content){
                                                                                  precLayer.addLayer(precinctBoundary)
                                                                              })
                     loadjscssfile("./js/geojson/PrecinctsPart28.js", "js",function (){
-                                                                             console.log(precincts28)
+                                                                             // console.log(precincts28)
                                                                              var precinctBoundary = L.geoJson(precincts28, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -430,7 +431,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart29.js", "js",function (){
-                                                                                     console.log(precincts29)
+                                                                                     // console.log(precincts29)
                                                                                      var precinctBoundary = L.geoJson(precincts29, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -438,7 +439,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart30.js", "js",function (){
-                                                                             console.log(precincts30)
+                                                                             // console.log(precincts30)
                                                                              var precinctBoundary = L.geoJson(precincts30, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects
@@ -446,7 +447,7 @@ function selMapContent(content){
                                                                              precLayer.addLayer(precinctBoundary)
                                                                          })
                     loadjscssfile("./js/geojson/PrecinctsPart31.js", "js",function (){
-                                                                                     console.log(precincts31)
+                                                                                     // console.log(precincts31)
                                                                                      var precinctBoundary = L.geoJson(precincts31, {
                                                                                         style: precinctStyle,
                                                                                         onEachFeature: precinctEffects
@@ -454,7 +455,7 @@ function selMapContent(content){
                                                                                      precLayer.addLayer(precinctBoundary)
                                                                                  })
                     loadjscssfile("./js/geojson/PrecinctsPart32.js", "js",function (){
-                                                                             console.log(precincts32)
+                                                                             // console.log(precincts32)
                                                                              var precinctBoundary = L.geoJson(precincts32, {
                                                                                 style: precinctStyle,
                                                                                 onEachFeature: precinctEffects

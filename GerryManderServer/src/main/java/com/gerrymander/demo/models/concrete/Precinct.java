@@ -23,9 +23,9 @@ public class Precinct implements PrecinctInterface {
 //    @Transient
     private int population;
 //    @Transient
-    private final int gop_vote;
+    public int gop_vote;
 //    @Transient
-    private final int dem_vote;
+    public int dem_vote;
 //    @Transient
     private boolean isMajorityMinority;
 //    @Transient
@@ -181,7 +181,11 @@ public class Precinct implements PrecinctInterface {
     public boolean findVotingBlock(Result majorityMinorityResult, Double blockThreshold, Double votingThreshold,
                                    ELECTIONTYPE election){
         DEMOGRAPHIC largestDemographic = this.getLargestDemographic();
+        if(largestDemographic == DEMOGRAPHIC.WHITE){
+            return false;
+        }
         double demographicSize = this.calculateDemographicSize(largestDemographic, this.population);
+
         if(demographicSize < blockThreshold){
             return false;
         }

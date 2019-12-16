@@ -186,12 +186,14 @@ public class PrecinctDAO {
                             d.setState(state);
                             state.oldDistricts.put(d.getID(),d);
                         }
-                        d.addPrecinct(p);
+//                        d.addPrecinct(p);
                         Votes v = new Votes();
                         Map<PARTYNAME,Integer> votesPrecinct = new HashMap<PARTYNAME,Integer>();
                         votesPrecinct.put(PARTYNAME.DEMOCRAT,resultSet.getInt("Democrat"));
-
+                        p.dem_vote = resultSet.getInt("Democrat");
                         votesPrecinct.put(PARTYNAME.REPUBLICAN,resultSet.getInt("Republican"));
+                        p.gop_vote = resultSet.getInt("Republican");
+                        d.addPrecinct(p);
                         votesPrecinct.put(PARTYNAME.GREEN,resultSet.getInt("Green"));
                         votesPrecinct.put(PARTYNAME.LIBERTARIAN,resultSet.getInt("Libertarian"));
                         v.setVotes(votesPrecinct);

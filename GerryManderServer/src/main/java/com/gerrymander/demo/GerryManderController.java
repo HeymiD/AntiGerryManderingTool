@@ -97,7 +97,7 @@ public class GerryManderController {
                 + "\"Republican\": " + "\""+districtVotingPattern.get(PARTYNAME.REPUBLICAN).toString()+"\""+ ", "
                 + "\"Democrat\": " + "\""+districtVotingPattern.get(PARTYNAME.DEMOCRAT).toString()+"\""+ ", "
                 + "\"Green\": "+"\""+districtVotingPattern.get(PARTYNAME.GREEN).toString()+"\""+", "
-                + "\"Libertarian\": "+"\""+districtVotingPattern.get(PARTYNAME.LIBERTARIAN)+"\""+ ", "
+                + "\"Libertarian\": "+"\""+districtVotingPattern.get(PARTYNAME.LIBERTARIAN).toString()+"\""
                 +"}";
     }
 //@RequestParam("districtId") String districtId
@@ -142,7 +142,7 @@ public class GerryManderController {
                 + "\"Republican\": " + "\""+votesDistrict.get(PARTYNAME.REPUBLICAN).toString()+"\""+ ", "
                 + "\"Democrat\": " + "\""+votesDistrict.get(PARTYNAME.DEMOCRAT).toString()+"\""+ ", "
                 + "\"Green\": "+"\""+votesDistrict.get(PARTYNAME.GREEN).toString()+"\""+", "
-                + "\"Libertarian\": "+"\""+votesDistrict.get(PARTYNAME.LIBERTARIAN)+"\""+ ", "
+                + "\"Libertarian\": "+"\""+votesDistrict.get(PARTYNAME.LIBERTARIAN).toString()+"\""+ ", "
                 +"\"Population\": "+"\""+districtPopulation+"\""
                 +"}";
     }
@@ -168,7 +168,18 @@ public class GerryManderController {
                                      @RequestParam("targetNumDistricts") int targetNumDistricts,
                                      @RequestParam("update") boolean update,
                                      @RequestParam("demString") String[] demString,
-                                     @RequestParam("begin") boolean begin){
+                                     @RequestParam("begin") boolean begin,
+                                     @RequestParam("fairnessMin") double fairnessMin,
+                                     @RequestParam("reokCompactMin") double reokCompactMin,
+                                     @RequestParam("convexCompactMin") double convexCompactMin,
+                                     @RequestParam("edgeCompactMin") double edgeCompactMin,
+                                     @RequestParam("popEqualMin") double popEqualMin,
+                                     @RequestParam("popHomoMin") double popHomoMin,
+                                     @RequestParam("efficiencyMin") double efficiencyMin,
+                                     @RequestParam("competitiveMin") double competitiveMin,
+                                     @RequestParam("republicGerryMin") double republicGerryMin,
+                                     @RequestParam("democratGerryMin") double democratGerryMin,
+                                     @RequestParam("countyCompactMin") double countyCompactMin){
         state.userDemographicThreshold = blockThreshold;
         state.userVoteThreshold = votingThreshold;
         state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
@@ -178,22 +189,22 @@ public class GerryManderController {
         algorithm.demString = demString;
         state.demString=demString;
         algorithm.weights= new HashMap<Measure,Double>();
-        algorithm.weights.put(Measure.COMPETITIVENESS,0.2);
-        algorithm.weights.put(Measure.EFFICIENCY_GAP,0.2);
-        algorithm.weights.put(Measure.GERRYMANDER_DEMOCRAT,0.8);
-        algorithm.weights.put(Measure.CONVEX_HULL_COMPACTNESS,1.0);
-        algorithm.weights.put(Measure.REOCK_COMPACTNESS,1.0);
-        algorithm.weights.put(Measure.PARTISAN_FAIRNESS,0.3);
-        algorithm.weights.put(Measure.POPULATION_EQUALITY,2.0);
-        algorithm.weights.put(Measure.POPULATION_HOMOGENEITY,0.002);
-        algorithm.weights.put(Measure.GERRYMANDER_REPUBLICAN,-0.7);
-        algorithm.weights.put(Measure.EDGE_COMPACTNESS,2.0);
+        algorithm.weights.put(Measure.COMPETITIVENESS,competitiveMin);
+        algorithm.weights.put(Measure.EFFICIENCY_GAP,efficiencyMin);
+        algorithm.weights.put(Measure.GERRYMANDER_DEMOCRAT,democratGerryMin);
+        algorithm.weights.put(Measure.CONVEX_HULL_COMPACTNESS,convexCompactMin);
+        algorithm.weights.put(Measure.REOCK_COMPACTNESS,reokCompactMin);
+        algorithm.weights.put(Measure.PARTISAN_FAIRNESS,fairnessMin);
+        algorithm.weights.put(Measure.POPULATION_EQUALITY,popEqualMin);
+        algorithm.weights.put(Measure.POPULATION_HOMOGENEITY,popHomoMin);
+        algorithm.weights.put(Measure.GERRYMANDER_REPUBLICAN,republicGerryMin);
+        algorithm.weights.put(Measure.EDGE_COMPACTNESS,edgeCompactMin);
         algorithm.factors = new HashMap<FACTOR,Double>();
-        algorithm.factors.put(FACTOR.EQPOP,2.0);
+        algorithm.factors.put(FACTOR.EQPOP,popEqualMin);
         algorithm.factors.put(FACTOR.MAJMIN,1.0);
-        algorithm.factors.put(FACTOR.COMPACTNESS,0.75);
-        algorithm.factors.put(FACTOR.POLFAIR,0.3);
-        algorithm.factors.put(FACTOR.COUNTY,0.9);
+        algorithm.factors.put(FACTOR.COMPACTNESS,edgeCompactMin);
+        algorithm.factors.put(FACTOR.POLFAIR,fairnessMin);
+        algorithm.factors.put(FACTOR.COUNTY,countyCompactMin);
         if(begin==true){
             System.out.println("Initializing GeoJSON");
             PrecinctDAO.getAllPrecinctGeoJSON(state);
@@ -224,13 +235,41 @@ public class GerryManderController {
                                      @RequestParam("electionType") String electionType,
                                      @RequestParam("targetNumDistricts") int targetNumDistricts,
                                      @RequestParam("demString") String[] demString,
-                                     @RequestParam("begin") boolean begin){
+                                     @RequestParam("begin") boolean begin,
+                                     @RequestParam("fairnessMin") double fairnessMin,
+                                     @RequestParam("reokCompactMin") double reokCompactMin,
+                                     @RequestParam("convexCompactMin") double convexCompactMin,
+                                     @RequestParam("edgeCompactMin") double edgeCompactMin,
+                                     @RequestParam("popEqualMin") double popEqualMin,
+                                     @RequestParam("popHomoMin") double popHomoMin,
+                                     @RequestParam("efficiencyMin") double efficiencyMin,
+                                     @RequestParam("competitiveMin") double competitiveMin,
+                                     @RequestParam("republicGerryMin") double republicGerryMin,
+                                     @RequestParam("democratGerryMin") double democratGerryMin,
+                                     @RequestParam("countyCompactMin") double countyCompactMin){
         state.userDemographicThreshold = blockThreshold;
         state.userVoteThreshold = votingThreshold;
         state.userSelectedElection = ELECTIONTYPE.valueOf(electionType);
         algorithm.targetNumDist = targetNumDistricts;
         algorithm.demString = demString;
         state.demString=demString;
+        algorithm.weights= new HashMap<Measure,Double>();
+        algorithm.weights.put(Measure.COMPETITIVENESS,competitiveMin);
+        algorithm.weights.put(Measure.EFFICIENCY_GAP,efficiencyMin);
+        algorithm.weights.put(Measure.GERRYMANDER_DEMOCRAT,democratGerryMin);
+        algorithm.weights.put(Measure.CONVEX_HULL_COMPACTNESS,convexCompactMin);
+        algorithm.weights.put(Measure.REOCK_COMPACTNESS,reokCompactMin);
+        algorithm.weights.put(Measure.PARTISAN_FAIRNESS,fairnessMin);
+        algorithm.weights.put(Measure.POPULATION_EQUALITY,popEqualMin);
+        algorithm.weights.put(Measure.POPULATION_HOMOGENEITY,popHomoMin);
+        algorithm.weights.put(Measure.GERRYMANDER_REPUBLICAN,republicGerryMin);
+        algorithm.weights.put(Measure.EDGE_COMPACTNESS,edgeCompactMin);
+        algorithm.factors = new HashMap<FACTOR,Double>();
+        algorithm.factors.put(FACTOR.EQPOP,popEqualMin);
+        algorithm.factors.put(FACTOR.MAJMIN,1.0);
+        algorithm.factors.put(FACTOR.COMPACTNESS,edgeCompactMin);
+        algorithm.factors.put(FACTOR.POLFAIR,fairnessMin);
+        algorithm.factors.put(FACTOR.COUNTY,countyCompactMin);
         if(begin){
             algorithm.phase2Init();
             System.out.println("Phase 2 Initialized");
@@ -254,23 +293,32 @@ public class GerryManderController {
 
     @RequestMapping("/phase2Scores")
     public String sendPhase2Scores(){
+//        for(Cluster old : state.oldDistricts.values()){
+//            for(Precinct p : old.getPrecincts()){
+//                old.setGop_vote(old.getGOPVote() + p.getGOPVote());
+//                old.setDem_vote(old.getDEMVote() + p.getDEMVote());
+//            }
+//            System.out.println(old.getGOPVote());
+//            System.out.println(old.getDEMVote());
+//        }
 
 	    double oldGMScore = 0;
 	    for(String districtId: state.oldDistricts.keySet()){
             oldGMScore+=FACTOR.EFFICIENCY_GAP.calculateMeasure(state.oldDistricts.get(districtId));
             oldGMScore+=Measure.COMPETITIVENESS.calculateMeasure(state.oldDistricts.get(districtId));
+
         }
         double newGMScore = 0;
         for(District dis: state.getDistricts()){
             newGMScore+=Measure.EFFICIENCY_GAP.calculateMeasure(dis);
-            oldGMScore+=Measure.COMPETITIVENESS.calculateMeasure(dis);
+            newGMScore+=Measure.COMPETITIVENESS.calculateMeasure(dis);
         }
         return "{\"OldGmScore\": "+"\""+oldGMScore+"\","
-                +"{\"NewGmScore\": "+"\""+newGMScore+"\"}";
+                +"\"NewGmScore\": "+"\""+newGMScore+"\"}";
 
     }
 
-    @RequestMapping("/phase1Data")
+    @RequestMapping("/FinalResult")
     public String sendPhase1Results(){
 
         ArrayList<String> results = new ArrayList<String>();

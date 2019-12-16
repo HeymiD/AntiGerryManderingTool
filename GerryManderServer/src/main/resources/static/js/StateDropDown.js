@@ -44,11 +44,19 @@ var select = L.stateSelect();
 select.addTo(map);
 // var data = L.geoJson(statesData);
 select.on('change', function(e){
-    console.log(e);
+    // console.log(e);
 	try{
 		var state = L.geoJson(e.feature)
 	    map.fitBounds(state.getBounds());
-	    fetchDistrict(e);
+
+	    if(stateInit != 1){
+				fetchDistrict(e);
+			}
+			else{
+				districtData.show();
+				stateData.show();
+				stateData.update();
+			}
 			if(map.hasLayer(texas)){
 	    	map.removeLayer(texas)
 			}
@@ -57,19 +65,18 @@ select.on('change', function(e){
 //			map.panInsideBounds(state.getBounds(), { animate: false });
 //		});
 
-		 stateData.update();
-		 stateData.show();
 		// console.log(stateData);
 		outerMenuBtn.show();
 		mapContent.show();
-		stateData.hide();
-		if($('#districtContent').hasClass('active')){
-			districtData.show();
-		}
-		else{
-			precinctData.show();
-		}
-
+		// stateData.hide();
+		// districtData.show();
+		// if($('#districtContent').hasClass('active')){
+		// 	districtData.show();
+		// }
+		// else{
+		// 	precinctData.show();
+		// }
+		// $(".leaflet-control-zoom").css("display","block");
 
 
 	}

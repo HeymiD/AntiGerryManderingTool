@@ -9,7 +9,6 @@ function dicSize(x){
 function recenterMap(){ map.setView(usCenter,5); }
 
 function fetchDistrict(e){
-console.log("Fetching Data")
         $.ajax({
             url:"http://localhost:8080/state",
             data:{
@@ -17,9 +16,14 @@ console.log("Fetching Data")
             },
             success: function(response){
                     precinctKeys = JSON.parse(response)
-                    console.log(precinctKeys)
+                    // console.log(precinctKeys)
                     stateInit = 1;
-                    districtData.show();
+                    if($('#districtContent').hasClass('active')){
+                			districtData.show();
+                		}
+                		else{
+                			precinctData.show();
+                		}
                     $('#precinctContent').prop('disabled', false);
                     electionDic['Presidential2016'] = getPrecinctData(electionSetting);
                     stateData.update();
@@ -118,7 +122,7 @@ function getPrecinctsByDistrict(e,districtId){
         			districtId: districtId
         		},
         		success: function(response){
-          			 console.log(response);
+          			 // console.log(response);
                     if(response==="District Done"){
                         done=1
                         return
@@ -154,7 +158,7 @@ function getDistrictData(districtId,elecType){
  			elecType: elecType
  		},
  		success: function(response){
- 		console.log(response)
+ 		// console.log(response)
  		var data = JSON.parse(response)
  		districtxData[data.DistrictID]=data
  		districtData.update(data)
@@ -174,7 +178,7 @@ $.ajax({
             electionType : elecType
 		},
 		success: function(response){
-		console.log(response)
+		// console.log(response)
 		var data = JSON.parse(response)
         electionDic[elecType] = data
 //		precinctData.update(data)
@@ -188,7 +192,7 @@ $.ajax({
 }
 
 phase0btn.on('click', function(){
-    console.log(votingThresh + " sadsa" + blocThresh);
+    console.log(votingThresh + "     " + blocThresh);
   getPhaseZeroData(electionSetting, votingThresh/100, blocThresh/100 );
 })
 function getPhaseZeroData(elecType,votingThreshold,blockThreshold){
@@ -200,7 +204,7 @@ $.ajax({
 			electionType: elecType
 		},
 		success: function(response){
-		console.log(response)
+		// console.log(response)
 		phase0Data = JSON.parse(response)
         updatePhase0(phase0Data);
 
@@ -224,11 +228,23 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
 			update: true,
 			targetNumDistricts : targetNumDistricts,
 			demString : demString,
-			begin: begin
+			begin: begin,
+      fairnessMin : fairnessMin/100,
+      reokCompactMin : reokCompactMin/100,
+      convexCompactMin : convexCompactMin/100,
+      edgeCompactMin : edgeCompactMin/100,
+      popEqualMin : popEqualMin/100,
+      popHomoMin : popHomoMin/100,
+      efficiencyMin : efficiencyMin/100,
+      competitiveMin : competitiveMin/100,
+      republicGerryMin : republicGerryMin/100,
+      democratGerryMin : democratGerryMin/100,
+      countyCompactMin : countyCompactMin/100
 		},
 		success: function(response){
 //            alert(response === "done")
             if(response === "done"){
+                alert("Phase 1 Completed")
                 return 1
             }
             else{
@@ -272,7 +288,6 @@ function getPhaseOneData(elecType,votingThreshold,blockThreshold, targetNumDistr
 	});
 
 }
-
 function getPhaseTwoData(elecType,votingThreshold,blockThreshold, targetNumDistricts, demString, begin){
 var result;
     $.ajax({
@@ -284,12 +299,24 @@ var result;
 			blockThreshold: blockThreshold,
 			targetNumDistricts : targetNumDistricts,
 			demString : demString,
-			begin : begin
+			begin : begin,
+      fairnessMin : fairnessMin/100,
+      reokCompactMin : reokCompactMin/100,
+      convexCompactMin : convexCompactMin/100,
+      edgeCompactMin : edgeCompactMin/100,
+      popEqualMin : popEqualMin/100,
+      popHomoMin : popHomoMin/100,
+      efficiencyMin : efficiencyMin/100,
+      competitiveMin : competitiveMin/100,
+      republicGerryMin : republicGerryMin/100,
+      democratGerryMin : democratGerryMin/100,
+      countyCompactMin : countyCompactMin/100
 		},
 		success: function(response){
 //            alert(response === "done")
             if(response === "done"){
                 alert("Phase 2 Completed")
+                phase2res();
                 return 1
             }
             if(response!=""){
@@ -299,7 +326,7 @@ var result;
                                        var precKey = layer2.feature.properties.PCTKEY;
                                        if(precKey in result){
                                             var districtId = result[precKey];
-                                            console.log('precKey '+precKey+' districtId '+ districtId);
+                                            // console.log('precKey '+precKey+' districtId '+ districtId);
 //                                            console.log(layer2);
                                             layer2.setStyle({
                                                            weight: 2,
@@ -327,7 +354,62 @@ var result;
 	});
 
 }
+function phase2res(){
+  $.ajax({
+    url:"http://localhost:8080/phase2Scores",
+    success: function(response){
+      p2res = JSON.parse(response);
+      console.log(p2res);
+      update2Res(p2res);
+      phase2DistrictTable();
+      return
+    },
+    error:function(err){
+    console.log(err)
+    console.log("ERROR")
+    }
 
+});
+}
+
+function update2Res(props){
+  // var totVotes = props.Republican + props.Democrat + props.Green + props.Libertarian;
+	var results2 = $('#p2results');
+	results2.html(
+	'<h3>Phase 2 Results </h3>'
+	+ '<br/><b>Old Gerrymandering Scores: </b>' + parseFloat(props.OldGmScore).toFixed(2)
+  + '%<br/><b>New Gerrymandering Scores: </b>' + parseFloat(props.NewGmScore).toFixed(2) + '%'
+  // + '%<br/><h4>Voting Distribution</h4>'
+  // + '<br/><b>Republican Districts: </b>' + parseFloat(props.Republican).toFixed(2)
+  // + '<br/><b>Democrat Districts: </b>' + parseFloat(props.Democrat).toFixed(2)
+  // + '<br/><b>Green Districts: </b>' + parseFloat(props.Green).toFixed(2)
+  // + '<br/><b>Libertarian Districts: </b>' + parseFloat(props.Libertarian).toFixed(2)
+);
+}
+
+function phase2DistrictTable(){
+  $.ajax({
+    url:"http://localhost:8080/FinalResult",
+    success: function(response){
+      p2disttable = response;
+      console.log(p2disttable);
+      update2DistTable(p2disttable);
+      return
+    },
+    error:function(err){
+    console.log(err)
+    console.log("ERROR")
+    }
+
+});
+}
+
+function update2DistTable(props){
+  // var totVotes = props.Republican + props.Democrat + props.Green + props.Libertarian;
+	var results2 = $('#p2distable');
+	results2.html(props
+);
+}
 
 //==================== State Zone ====================
 function stateColor(d){
@@ -335,13 +417,14 @@ function stateColor(d){
 }
 
 function stateStyle(feature){ //need to change the way we set colors based on ???
+  // console.log(feature.properties.COLOR);
 	return {
         weight: 2,
         opacity: 1,
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.7,
-        fillColor: stateColor(feature.properties.COLOR)
+        fillColor: stateColor(feature.properties.population)
 	};
 }
 
@@ -366,14 +449,28 @@ function onStateHover(e) {
 }
 
 function stateMouseOut(e) {
-	geojson.resetStyle(e.target);
+  var layer = e.target;
+  layer.setStyle({
+    weight: 2,
+    color: 'white',
+    dashArray: '3',
+    fillOpacity: 0.7,
+  });
 }
 
 function zoomOnState(e) {
 
     currState = e.target.feature.properties.name;
-     console.log(currState);
-    fetchDistrict(e.target);
+     // console.log(currState);
+     if(stateInit != 1){
+       fetchDistrict(e.target);
+     }
+     else{
+       districtData.show();
+       stateData.show();
+       stateData.update();
+     }
+    stateMouseOut(e);
 
     map.removeLayer(texas)
     map.addLayer(texasDistrictsLayer)
@@ -394,7 +491,10 @@ function zoomOnState(e) {
 	stateData.hide();
 
   if(stateInit){ districtData.show(); }
+  $(".leaflet-control-zoom").css("display","block");
 }
+// zoomin = $(".leaflet-control-zoom");
+// console.log(zoomin);
 
 function stateEffects(feature, layer) {
 	layer.on({
@@ -408,14 +508,13 @@ function stateEffects(feature, layer) {
 function districtColor(d){ return disColor[d] }
 
 function districtStyle(feature){ //need to change the way we set colors based on ???
-    var colorId = parseInt(feature.properties.NAMELSAD.slice(feature.properties.NAMELSAD.lastIndexOf(" ")));
 	return {
         weight: 2,
         opacity: 1,
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.7,
-        fillColor: districtColor(colorId)
+        fillColor: districtColor(feature.properties.fid)
 	};
 }
 
@@ -433,11 +532,11 @@ if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
 layer.bringToFront();
 }
     if(stateInit==1){
-        console.log("Getting district data")
-        var districtId = layer.feature.properties.NAMELSAD
+        // console.log("Getting district data")
+        var districtId = "U.S. Rep "+layer.feature.properties.fid
         if(!(districtId in districtxData)){
     //        console.log('electionType.val()+electionYear.val() = '+ electionType.val() + electionYear.val())
-              console.log('in districtID' + districtId);
+              // console.log('in districtID' + districtId);
             getDistrictData(districtId, electionSetting);}
         else{
             districtData.update(districtxData[districtId])
@@ -467,7 +566,7 @@ function districtEffects(feature, layer) {
 	layer.on({
 		mouseover: onDistrictHover,
 		mouseout: districtMouseOut,
-		click: zoomOnDistrict
+		// click: zoomOnDistrict
 	});
 }
 
@@ -582,7 +681,7 @@ function precNewDemoColor(newDisId){
 //    console.log(demographic)
     newDisId = parseInt(newDisId.slice(newDisId.lastIndexOf(" ")));
 //    alert(newDisId);
-    return selectColor(newDisId, 10)
+    return selectColor(newDisId, 10);
 }
 
 function selectColor(colorNum, colors){
@@ -640,7 +739,7 @@ function precinctEffects(feature, layer) {
 	layer.on({
 		mouseover: onPrecinctHover,
 		mouseout: precinctMouseOut,
-		click: zoomOnPrecinct
+		// click: zoomOnPrecinct
 	});
 }
 
@@ -652,7 +751,7 @@ demoOpts.on('change',function(){
             var precKey = layer2.feature.properties.PCTKEY;
             var currPrec = precinctKeys[precKey];
 //            console.log('precKey '+precKey+' currPrec '+ currPrec);
-            console.log(layer2);
+            // console.log(layer2);
             layer2.setStyle({
                 weight: 2,
                 opacity: 1,
