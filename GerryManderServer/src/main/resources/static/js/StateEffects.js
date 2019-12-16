@@ -668,7 +668,7 @@ demoOpts.on('change',function(){
 
 
 electOpts.on('change',function(){
-    alert('afdas' + electionSetting);
+    // alert('afdas' + electionSetting);
     electionSetting = $("input[name='ElectionData']:checked").val();
     if(dicSize(electionDic[electionSetting]) == 0){
         getPrecinctData(electionSetting);
