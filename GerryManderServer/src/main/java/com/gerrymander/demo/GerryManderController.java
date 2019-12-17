@@ -216,6 +216,7 @@ public class GerryManderController {
             Collections.sort(state.clusters,new SortByPopulation());
         }
         if(state.clusters.size() <= targetNumDistricts){
+            state.majMinClusters.addAll(state.clusters);
             return "done";
         }
 //        if(state.majMinClusters.isEmpty()){
@@ -328,7 +329,7 @@ public class GerryManderController {
 
         ArrayList<String> results = new ArrayList<String>();
         int numMajMin = 0;
-        for(Cluster c:state.clusters){
+        for(Cluster c:state.majMinClusters){
             boolean majmin = false;
             if(c.checkMajorityMinority(state.userDemographicThreshold,
                     state.userVoteThreshold, state.userSelectedElection, algorithm.demString)){
