@@ -38,21 +38,22 @@ var districtData = L.control();
 		return this._div;
 	};
 	districtData.update = function (props,distId) {
+
 	  this._div.innerHTML = '<h4>District Data</h4>' +  (props ?
-	  	'<b>' +'District ID: </b>'+ numberWithCommas(props.DistrictID) + '<br />'
-	  	+ 'Population: '+numberWithCommas(props.Population) + '</b><br />'
-	  	+ 'White: ' + numberWithCommas(props.White) + '</b><br />'
-	  	+ 'Black: ' +  numberWithCommas(props.Black) + '</b><br />'
-	  	+ 'Hispanic: ' + numberWithCommas(props.Hispanic) + '</b><br />'
-	  	+ 'Pacific: ' + numberWithCommas(props.Pacific) + '</b><br />'
-	  	+ 'Native: ' + numberWithCommas(props.Native) + '</b><br />'
-	  	+ 'Asian: ' + numberWithCommas(props.Asian) + '</b><br />'
-	  	+ 'Other: ' + numberWithCommas(props.Other) + '</b><br />'
-	  	+ 'Republican: ' + numberWithCommas(props.Republican) + '</b><br />'
-	  	+ 'Democrat: ' + numberWithCommas(props.Democrat) + '</b><br />'
-	  	+ 'Green: ' + numberWithCommas(props.Green) + '</b><br />'
-	  	+ 'Libertarian: ' + numberWithCommas(props.Libertarian) + '</b><br />'
-			+ 'Incumbent: ' + incumbs[parseInt(distId)]
+	  	'<b> District ID: </b>'+ (props.DistrictID) + '<br />'
+	  	+ '<b> Population: </b>'+numberWithCommas(props.Population) + '<br />'
+	  	+ '<b> White: </b> ' + ((props.White/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Black: </b> ' +  ((props.Black/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Hispanic: </b> ' + ((props.Hispanic/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Pacific: </b> ' + ((props.Pacific/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Native: </b> ' + ((props.Native/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Asian: </b> ' + ((props.Asian/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Other: </b> ' + ((props.Other/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Republican: </b> ' + ((props.Republican/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Democrat: </b> ' + ((props.Democrat/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Green: </b> ' + ((props.Green/props.Population)*100).toFixed(2) + '%<br />'
+	  	+ '<b> Libertarian: </b> ' + ((props.Libertarian/props.Population)*100).toFixed(2) + '%<br />'
+			+ '<b> Incumbent: </b> ' + incumbs[parseInt(distId)]
 	  	: 'Hover over a District');
 	};
 	districtData.show = function(){

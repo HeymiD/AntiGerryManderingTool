@@ -58,9 +58,9 @@ function updateStateElec(props){
   // var totVotes = props.Republican + props.Democrat + props.Green + props.Libertarian;
 	var stateElecData = $('#stateElecData');
 	stateElecData.html(
-	'<h3>State Election Data </h3>'
+	'<br/><h3>State Election Data </h3><br/>'
   + '<h4>Congressional District Distribution </h4>'
-	+ '<br/><b>Republican Districts: </b>' + parseFloat(props.RepublicanRatio).toFixed(2)
+	+ '<b>Republican Districts: </b>' + parseFloat(props.RepublicanRatio).toFixed(2)
   + '%<br/><b>Democrat Districts: </b>' + parseFloat(props.DemocratRatio).toFixed(2)
   + '%<br/><b>Green Districts: </b>' + parseFloat(props.GreenRatio).toFixed(2)
   + '%<br/><b>Libertarian Districts: </b>' + parseFloat(props.LibertarianRatio).toFixed(2)+'%'
@@ -268,7 +268,7 @@ function text2slider(id){
       }
       else{
         reokCompactMin = parseInt(min.val());
-        reokCompactMax = paraseInt(max.val());
+        reokCompactMax = parseInt(max.val());
       }
       break;
     case 'convexCompact':
@@ -282,7 +282,7 @@ function text2slider(id){
       }
       else{
         convexCompactMin = parseInt(min.val());
-        convexCompactMax = paraseInt(max.val());
+        convexCompactMax = parseInt(max.val());
       }
       break;
     case 'countyCompact':
@@ -296,7 +296,7 @@ function text2slider(id){
       }
       else{
         countyCompactMin = parseInt(min.val());
-        countyCompactMax = paraseInt(max.val());
+        countyCompactMax = parseInt(max.val());
       }
       break;
     case 'edgeCompact':
@@ -310,7 +310,7 @@ function text2slider(id){
       }
       else{
         edgeCompactMin = parseInt(min.val());
-        edgeCompactMax = paraseInt(max.val());
+        edgeCompactMax = parseInt(max.val());
       }
       break;
     case 'popEqual':
@@ -320,7 +320,7 @@ function text2slider(id){
 
       if(parseInt(min.val()) == parseInt(max.val())){
         popEqualMin = parseInt(min.val());
-        popEqualMax = paraseInt(max.val());
+        popEqualMax = parseInt(max.val());
       }
       else{
         popEqualMin = parseInt(min.val());
@@ -338,7 +338,7 @@ function text2slider(id){
       }
       else{
         popHomoMin = parseInt(min.val());
-        popHomoMax = paraseInt(max.val());
+        popHomoMax = parseInt(max.val());
       }
       break;
     case 'efficiency':
@@ -346,14 +346,14 @@ function text2slider(id){
       min = $("#min-efficiency");
       max = $("#max-efficiency");
       efficiencyMin = parseInt(min.val());
-      efficiencyMax = paraseInt(max.val());
+      efficiencyMax = parseInt(max.val());
       if(parseInt(min.val()) == parseInt(max.val())){
         efficiencyMin = parseInt(min.val());
         efficiencyMax = 100;
       }
       else{
         efficiencyMin = parseInt(min.val());
-        efficiencyMax = paraseInt(max.val());
+        efficiencyMax = parseInt(max.val());
       }
       break;
     case 'competitive':
@@ -367,7 +367,7 @@ function text2slider(id){
       }
       else{
         competitiveMin = parseInt(min.val());
-        competitiveMax = paraseInt(max.val());
+        competitiveMax = parseInt(max.val());
       }
       break;
     case 'republicGerry':
@@ -380,7 +380,7 @@ function text2slider(id){
       }
       else{
         republicGerryMin = parseInt(min.val());
-        republicGerryMax = paraseInt(max.val());
+        republicGerryMax = parseInt(max.val());
       }
       break;
     case 'democratGerry':
@@ -393,7 +393,7 @@ function text2slider(id){
       }
       else{
         democratGerryMin = parseInt(min.val());
-        democratGerryMax = paraseInt(max.val());
+        democratGerryMax = parseInt(max.val());
       }
       break;
   }
