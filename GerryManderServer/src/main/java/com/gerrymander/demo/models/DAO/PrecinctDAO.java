@@ -16,9 +16,9 @@ import java.util.*;
 public class PrecinctDAO {
 
 
-    private static final String database_url="jdbc:mysql://mysql4.cs.stonybrook.edu:3306/timberwolves?useSSL=false";
-    private static final String database_username="timberwolves";
-    private static final String database_password="changeit";
+    private static final String database_url="jdbc:mysql://mysql4.cs.stonybrook.edu:3306/hdannon?useSSL=false";
+    private static final String database_username="hdannon";
+    private static final String database_password="110941800";
 
     public static Map<String,Precinct> populatePrecincts() throws SQLException {
         Map<String,Precinct> precincts = new HashMap<String,Precinct>();

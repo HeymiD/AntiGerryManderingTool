@@ -14,10 +14,10 @@ import java.sql.*;
 import java.util.*;
 
 public class ClusterDAO {
-
-    private static final String database_url="jdbc:mysql://mysql4.cs.stonybrook.edu:3306/timberwolves?useSSL=false";
-    private static final String database_username="timberwolves";
-    private static final String database_password="changeit";
+//    jdbc:mysql://mysql4.cs.stonybrook.edu:3306/?user=hdannon
+    private static final String database_url="jdbc:mysql://mysql4.cs.stonybrook.edu:3306/hdannon?useSSL=false";
+    private static final String database_username="hdannon";
+    private static final String database_password="110941800";
 
     public static void initNeighbors(State state) {
         try {
